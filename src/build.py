@@ -490,23 +490,27 @@ function doSearch(inp,drop,scope){
         YEAR=str(NOW.year),
     )
 
-def content_card(title, desc, link, tags, date_str):
+def content_card(title, desc, link, tags, date_str, img_path="images/"):
     tag_badges = "".join(f'<span class="tag">{html_escape(t)}</span>' for t in tags)
     date_html = ""
     if date_str:
         date_html = f'<span style="color:var(--text-muted);font-size:0.72rem;">{html_escape(date_str)}</span>'
-    icon_emoji = "\U0001f4d6"
+    # Map tags to Q-version SVG icons
+    icon_map = {
+        "ai": "ai-brain.svg", "news": "ai-brain.svg", "\u65b0\u95fb": "ai-brain.svg", "\u5927\u6a21\u578b": "ai-brain.svg",
+        "tool": "ai-tool.svg", "\u5de5\u5177": "ai-tool.svg", "framework": "ai-framework.svg", "\u6846\u67b6": "ai-framework.svg",
+        "github": "ai-github.svg", "skill": "ai-skill.svg",
+        "\u6570\u636e": "ai-data.svg", "data": "ai-data.svg", "test": "ai-data.svg", "\u6d4b\u8bd5": "ai-data.svg",
+        "top": "ai-star.svg", "star": "ai-star.svg", "\u6392\u884c": "ai-star.svg",
+    }
     tag_text = " ".join(tags).lower()
-    if any(x in tag_text for x in ["news", "ai", "\u65b0\u95fb", "\u5927\u6a21\u578b"]):
-        icon_emoji = "\U0001f9e0"
-    elif any(x in tag_text for x in ["\u5de5\u5177", "\u6846\u67b6", "tool", "framework"]):
-        icon_emoji = "\U0001f527"
-    elif "github" in tag_text:
-        icon_emoji = "\U0001f525"
-    elif "skill" in tag_text:
-        icon_emoji = "\U0001f4bb"
+    icon_file = "ai-default.svg"
+    for key, val in icon_map.items():
+        if key in tag_text:
+            icon_file = val
+            break
     desc_preview = html_escape(desc[:150])
-    return f'<a href="{link}" class="content-card" style="padding-bottom:0.75rem;">\n  <div class="flex gap-3">\n    <div class="featured-image" style="width:70px;height:70px;min-width:70px;border-radius:10px;margin-bottom:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;">\n      <span style="font-size:1.8rem;opacity:0.7;">{icon_emoji}</span>\n    </div>\n    <div class="flex-1 min-w-0">\n      <h3 class="line-clamp-2" style="font-size:0.92rem;">{html_escape(title)}</h3>\n      <p style="color:var(--text-muted);font-size:0.75rem;line-height:1.45;margin-top:0.3rem;" class="line-clamp-2">{desc_preview}</p>\n      <div class="flex flex-wrap items-center gap-2 mt-2">\n        {tag_badges}\n        {date_html}\n      </div>\n    </div>\n  </div>\n</a>'
+    return f'<a href="{link}" class="content-card" style="padding-bottom:0.75rem;">\n  <div class="flex gap-3">\n    <div class="featured-image" style="width:70px;height:70px;min-width:70px;border-radius:10px;margin-bottom:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px;">\n      <img src="{img_path}{icon_file}" alt="" style="width:100%;height:100%;object-fit:contain;">\n    </div>\n    <div class="flex-1 min-w-0">\n      <h3 class="line-clamp-2" style="font-size:0.92rem;">{html_escape(title)}</h3>\n      <p style="color:var(--text-muted);font-size:0.75rem;line-height:1.45;margin-top:0.3rem;" class="line-clamp-2">{desc_preview}</p>\n      <div class="flex flex-wrap items-center gap-2 mt-2">\n        {tag_badges}\n        {date_html}\n      </div>\n    </div>\n  </div>\n</a>'
 
 
 
@@ -658,7 +662,7 @@ def build():
             date_str = e.get("date", "")
             title = e.get("title", e.get("name", "未命名"))
             desc_text = e.get("description", "暂无描述")
-            cards.append(content_card(title, desc_text, link, tags, date_str))
+            cards.append(content_card(title, desc_text, link, tags, date_str, img_path="../images/"))
             module_search_data.append({
                 "t": title,
                 "u": f"{slug}/{link}",
@@ -679,13 +683,13 @@ def build():
                 f.write(detail_html)
         module_infos.append((label, desc, len(entries), slug, module_search_data))
         print(f"  [OK] {label}: {len(entries)} 篇文章已生成")
-    icons = {"本地 Skills": "&#128187;", "插件 Skills": "&#128268;", "AI 大模型新闻": "&#129504;", "GitHub 精选 Skills": "&#128293;", "GitHub Top 100": "&#127942;"}
+        icons = {}  # No longer used - module SVGs are embedded in the cards
     module_cards = []
     for label, desc, count, slug, _msd in module_infos:
         icon = icons.get(label, "&#128196;")
         module_cards.append(f'''
     <a href="{slug}/index.html" class="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary-300 transition-all duration-200 group">
-      <div class="text-3xl mb-3">{icon}</div>
+      <div class="mb-3" style="display:flex;justify-content:center;"><img src="images/module-{slug}.svg" alt="{label}" style="width:80px;height:80px;border-radius:12px;"></div>
       <h2 class="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition">{label}</h2>
       <p class="text-sm text-gray-500 mt-1">{desc}</p>
       <p class="text-xs text-primary-500 mt-2">共 {count} 篇文章 &rarr;</p>
