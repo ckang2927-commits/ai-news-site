@@ -275,9 +275,9 @@ def page_frame(title, body_html, nav_depth=0, og_desc=None, og_image=None, searc
     np = nav_prefix(nav_depth)
     og_url_path = "." if nav_depth == 0 else "../" * nav_depth
     scroll_js = "window.scrollTo({top:0,behavior:'smooth'})"
-    theme_js = "document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark')"
+    theme_js = "var tb=document.getElementById('themeToggle');var isLight=document.body.classList.toggle('light-theme');localStorage.setItem('theme',isLight?'light':'dark');tb.innerHTML=isLight?'\u263e\u200b':'\u2600\u200b';"
     scroll_event_js = "window.addEventListener('scroll',function(){document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)})"
-    theme_init_js = "if(localStorage.getItem('theme')==='light')document.body.classList.add('light-theme')"
+    theme_init_js = "if(localStorage.getItem('theme')==='light'){document.body.classList.add('light-theme');document.getElementById('themeToggle').innerHTML='\u263e\u200b';}"
 
     search_data_json = json.dumps(search_data or [], ensure_ascii=False)
     # Build search JS with inline data
@@ -367,7 +367,7 @@ function doSearch(inp,drop,scope){
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="$NP/index.html" class="site-logo">~ AI 资讯站</a>
+        <a href="$NP/index.html" class="site-logo"><img src="$NP/images/logo.svg" alt="AI 资讯站" style="height:34px;width:auto;vertical-align:middle"></a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="$NP/skills/index.html" class="nav-link">本地 Skills</a>
           <a href="$NP/plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -389,7 +389,7 @@ function doSearch(inp,drop,scope){
     $BODY_HTML
   </main>
   <button onclick="$SCROLL_JS" class="back-to-top" id="backToTop" aria-label="回到顶部">↑</button>
-  <button onclick="$THEME_JS" class="theme-toggle" id="themeToggle" aria-label="切换主题">?</button>
+  <button onclick="$THEME_JS" class="theme-toggle" id="themeToggle" aria-label="切换主题">☀​</button>
   <script>$SCROLL_EVENT_JS; $THEME_INIT_JS;</script>
   <footer class="page-footer">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">

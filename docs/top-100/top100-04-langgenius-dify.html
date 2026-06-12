@@ -148,7 +148,7 @@
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="../index.html" class="site-logo">~ AI 资讯站</a>
+        <a href="../index.html" class="site-logo"><img src="../images/logo.svg" alt="AI 资讯站" style="height:34px;width:auto;vertical-align:middle"></a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="../skills/index.html" class="nav-link">本地 Skills</a>
           <a href="../plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -319,8 +319,8 @@ function doSearch(inp,drop,scope){
 </div>
   </main>
   <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="back-to-top" id="backToTop" aria-label="回到顶部">↑</button>
-  <button onclick="document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark')" class="theme-toggle" id="themeToggle" aria-label="切换主题">?</button>
-  <script>window.addEventListener('scroll',function(){document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)}); if(localStorage.getItem('theme')==='light')document.body.classList.add('light-theme');</script>
+  <button onclick="var tb=document.getElementById('themeToggle');var isLight=document.body.classList.toggle('light-theme');localStorage.setItem('theme',isLight?'light':'dark');tb.innerHTML=isLight?'☾​':'☀​';" class="theme-toggle" id="themeToggle" aria-label="切换主题">☀​</button>
+  <script>window.addEventListener('scroll',function(){document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)}); if(localStorage.getItem('theme')==='light'){document.body.classList.add('light-theme');document.getElementById('themeToggle').innerHTML='☾​';};</script>
   <footer class="page-footer">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
       <p>&copy; 2026 AI 大模型资讯站 &middot; 由 Codex 构建与维护</p>
