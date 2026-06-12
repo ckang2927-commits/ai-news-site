@@ -108,6 +108,28 @@
     .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
+
+    .search-wrap { position:relative; max-width:400px; margin:0.8rem auto 0; z-index:50; }
+    .search-wrap .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:0.9rem; opacity:0.5; z-index:1; pointer-events:none; }
+    .search-wrap input { width:100%; padding:0.5rem 0.8rem 0.5rem 2.2rem; border-radius:24px; border:1px solid var(--glass-border); background:var(--glass-bg); backdrop-filter:blur(12px); color:var(--text-primary); font-size:0.85rem; outline:none; transition:all .3s ease; }
+    .search-wrap input:focus { border-color:var(--border-glow); box-shadow:0 0 20px rgba(6,182,212,.1); }
+    .search-wrap input::placeholder { color:var(--text-muted); font-size:0.78rem; }
+    .search-dropdown { position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--glass-bg); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:12px; max-height:360px; overflow-y:auto; display:none; z-index:100; box-shadow:0 8px 32px rgba(0,0,0,.3); }
+    .search-dropdown.show { display:block; }
+    .search-item { display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.8rem; color:var(--text-primary); text-decoration:none; font-size:0.82rem; transition:background .2s; border-bottom:1px solid var(--glass-border); }
+    .search-item:last-child { border-bottom:none; }
+    .search-item:hover { background:rgba(99,102,241,.1); }
+    .search-item .rank { width:22px; height:22px; border-radius:50%; background:rgba(99,102,241,.1); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:600; color:var(--text-muted); flex-shrink:0; }
+    .search-item .rank.top1 { background:linear-gradient(135deg,#ffd700,#ffaa00); color:#1a1a2e; }
+    .search-item .rank.top2 { background:linear-gradient(135deg,#c0c0c0,#a8a8a8); color:#1a1a2e; }
+    .search-item .rank.top3 { background:linear-gradient(135deg,#cd7f32,#b8860b); color:#1a1a2e; }
+    .search-item .item-tag { margin-left:auto; font-size:0.65rem; padding:1px 6px; border-radius:8px; background:rgba(99,102,241,.1); color:var(--accent-1); flex-shrink:0; }
+    .search-empty { padding:1rem; text-align:center; color:var(--text-muted); font-size:0.82rem; }
+    .match-text { background:rgba(255,183,77,.2); color:#ffb74d; border-radius:2px; padding:0 2px; }
+    .bottom-bar { display:flex; justify-content:center; gap:1rem; margin-top:2rem; padding:1.5rem 0; border-top:1px solid var(--glass-border); }
+    .cyber-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.82rem; font-weight:600; letter-spacing:.5px; cursor:pointer; background:var(--glass-bg); backdrop-filter:blur(8px); border:1px solid var(--glass-border); color:var(--text-secondary); text-decoration:none; transition:all .3s ease; }
+    .cyber-btn:hover { border-color:var(--border-glow); color:var(--accent-2); transform:translateY(-2px); box-shadow:0 4px 16px rgba(6,182,212,.12); }
+
 </style>
 </head>
 <body>
@@ -123,7 +145,7 @@
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="../index.html" class="site-logo">🦢 AI 资讯站</a>
+        <a href="../index.html" class="site-logo">?? AI 资讯站</a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="../skills/index.html" class="nav-link">本地 Skills</a>
           <a href="../plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -134,6 +156,56 @@
       </div>
     </div>
   </nav>
+  <div class="search-wrap" style="margin-top:0.8rem;">
+    <span class="search-icon">??</span>
+    <input type="text" id="globalSearch" placeholder="搜索全站文章..." autocomplete="off">
+    <div class="search-dropdown" id="globalDropdown"></div>
+  </div>
+  <script>
+var searchData = [{"t": "ab-test-analyzer", "u": "skills/ab-test-analyzer.html", "d": "自动进行 A/B 测试的样本量计算、统计检验和结果解读，帮助数据驱动决策", "g": "数据分析", "s": "本地 Skills", "pop": false}, {"t": "ai-data-analyst", "u": "skills/ai-data-analyst.html", "d": "一站式数据分析工具：探索性数据分析、统计分析、机器学习和数据可视化", "g": "数据分析", "s": "本地 Skills", "pop": false}, {"t": "cli-creator", "u": "skills/cli-creator.html", "d": "从 API 文档、OpenAPI 规范或已有代码快速构建命令行工具", "g": "CLI", "s": "本地 Skills", "pop": false}, {"t": "code-review", "u": "skills/code-review.html", "d": "自动审查代码中的逻辑错误、性能问题和安全漏洞", "g": "代码审查", "s": "本地 Skills", "pop": false}, {"t": "create-plan", "u": "skills/create-plan.html", "d": "将模糊的任务需求转化为清晰、可执行的步骤计划", "g": "计划", "s": "本地 Skills", "pop": false}, {"t": "d2-diagrams", "u": "skills/d2-diagrams.html", "d": "使用 D2 语法创建数据流图、架构图和 ER 图", "g": "图表", "s": "本地 Skills", "pop": false}, {"t": "data-quality-checker", "u": "skills/data-quality-checker.html", "d": "自动化数据质量检查：检测缺失值、重复数据、异常值等", "g": "数据质量", "s": "本地 Skills", "pop": false}, {"t": "define-goal", "u": "skills/define-goal.html", "d": "帮助用户设定具体、可衡量的目标，将模糊意图转化为量化成果", "g": "目标管理", "s": "本地 Skills", "pop": false}, {"t": "file-organizer", "u": "skills/file-organizer.html", "d": "智能整理电脑文件和文件夹，自动去重、分类和优化文件结构", "g": "文件管理", "s": "本地 Skills", "pop": false}, {"t": "firecrawl", "u": "skills/firecrawl.html", "d": "实时访问网络：搜索、抓取和解析任意网站内容", "g": "网页抓取", "s": "本地 Skills", "pop": false}, {"t": "jupyter-notebook", "u": "skills/jupyter-notebook.html", "d": "创建、编辑和管理 Jupyter Notebook，用于数据实验和交互式分析", "g": "Jupyter", "s": "本地 Skills", "pop": false}, {"t": "pdf", "u": "skills/pdf.html", "d": "读取、创建和审阅 PDF 文件，支持文本提取和版面分析", "g": "PDF", "s": "本地 Skills", "pop": false}, {"t": "plotly-visualization", "u": "skills/plotly-visualization.html", "d": "生成高质量的交互式 Plotly 图表，支持多种图表类型", "g": "数据可视化", "s": "本地 Skills", "pop": false}, {"t": "python-scraper", "u": "skills/python-scraper.html", "d": "自动生成健壮的 Python 网页爬虫脚本，支持动态页面和反爬处理", "g": "爬虫", "s": "本地 Skills", "pop": false}, {"t": "security-best-practices", "u": "skills/security-best-practices.html", "d": "编程语言和框架的安全最佳实践审查与改进建议", "g": "安全", "s": "本地 Skills", "pop": false}, {"t": "sql-architect", "u": "skills/sql-architect.html", "d": "将自然语言转化为生产级 SQL 查询，并提供查询优化建议", "g": "SQL", "s": "本地 Skills", "pop": false}, {"t": "test-generator", "u": "skills/test-generator.html", "d": "自动为数据处理函数生成单元测试用例，提高代码覆盖率", "g": "测试", "s": "本地 Skills", "pop": false}];
+var curFocus = -1;
+function initSearch(inpId, dropId, scope) {
+  var inp = document.getElementById(inpId), drop = document.getElementById(dropId);
+  if (!inp || !drop) return;
+  inp.addEventListener("input", function(){doSearch(inp,drop,scope);});
+  inp.addEventListener("focus", function(){if(!this.value)showPop(inp,drop);});
+  inp.addEventListener("blur", function(){setTimeout(function(){drop.classList.remove("show");},200);});
+  inp.addEventListener("keydown", function(e){
+    var its = drop.querySelectorAll(".search-item");
+    if(e.key==="ArrowDown"){e.preventDefault();curFocus=Math.min(curFocus+1,its.length-1);hlight(its,curFocus);}
+    else if(e.key==="ArrowUp"){e.preventDefault();curFocus=Math.max(curFocus-1,0);hlight(its,curFocus);}
+    else if(e.key==="Enter"){e.preventDefault();if(curFocus>-1&&its[curFocus])its[curFocus].click();}
+    else curFocus=-1;
+  });
+}
+function hlight(its,idx){its.forEach(function(it,i){it.style.background=i===idx?"rgba(99,102,241,.15)":"";});if(its[idx])its[idx].scrollIntoView({block:"nearest"});}
+function showPop(inp,drop){
+  drop.innerHTML="";var pop=searchData.filter(function(d){return d.pop}).slice(0,10);if(!pop.length)pop=searchData.slice(0,10);
+  pop.forEach(function(d,i){
+    var rc=i===0?"top1":i===1?"top2":i===2?"top3":"";var item=document.createElement("a");item.className="search-item";item.href=d.u;
+    var rank=i<3?'<span class="rank '+rc+'">#'+(i+1)+'</span>':'<span class="rank">'+(i+1)+'</span>';
+    item.innerHTML=rank+'<span>'+d.t+'</span><span class="item-tag">'+d.g+'</span>';drop.appendChild(item);
+  });drop.classList.add("show");
+}
+function doSearch(inp,drop,scope){
+  var q=inp.value.trim().toLowerCase();drop.innerHTML="";if(!q){showPop(inp,drop);return;}
+  var data=scope?searchData.filter(function(d){return d.s===scope;}):searchData;
+  var res=[];data.forEach(function(d){
+    var sc=0,tl=d.t.toLowerCase(),dl=d.d.toLowerCase();
+    if(tl===q)sc=100;else if(tl.indexOf(q)===0)sc=80;else if(tl.indexOf(q)>0)sc=60;else if(dl.indexOf(q)>=0)sc=40;
+    if(q.length>1){var qi=0;for(var ci=0;ci<tl.length&&qi<q.length;ci++){if(tl[ci]===q[qi])qi++;}if(qi===q.length&&sc===0)sc=10;}
+    if(sc>0)res.push({d:d,s:sc});
+  });res.sort(function(a,b){return b.s-a.s;});var top=res.slice(0,8);
+  if(!top.length){drop.innerHTML='<div class="search-empty">没有匹配结果</div>';}
+  else{top.forEach(function(r){
+    var item=document.createElement("a");item.className="search-item";item.href=r.d.u;
+    var idx2=r.d.t.toLowerCase().indexOf(q);
+    var th=idx2>=0?r.d.t.substring(0,idx2)+'<span class="match-text">'+r.d.t.substring(idx2,idx2+q.length)+'</span>'+r.d.t.substring(idx2+q.length):r.d.t;
+    item.innerHTML='<span class="rank"></span><span>'+th+'</span><span class="item-tag">'+r.d.g+'</span>';drop.appendChild(item);
+  })}drop.classList.add("show");
+}
+
+    var isHm=false;var scp=isHm===true?null:'本地 Skills';document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});</script>
   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 relative" style="z-index:1;">
     <div class="mb-6 animate-in">
   <nav class="breadcrumb">
@@ -408,12 +480,16 @@
   </div>
 </a>
 </div>
+<div class="bottom-bar">
+  <a href="../index.html" class="cyber-btn">&larr; 返回首页</a>
+  <a href="javascript:history.back()" class="cyber-btn">&#127968; 返回上一页</a>
+</div>
 <script>
-function filterCards(el,cat){document.querySelectorAll(".filter-pill").forEach(function(p){p.classList.remove("active")});el.classList.add("active");document.querySelectorAll("#cardList .content-card").forEach(function(c){if(cat==="all"){c.style.display=""}else{c.style.display=c.textContent.includes(cat)?"":"none"}})}
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".filter-pill").forEach(function(p){p.addEventListener("click",function(e){e.preventDefault();filterCards(this.getAttribute("data-cat"));});});});function filterCards(cat){document.querySelectorAll(".filter-pill").forEach(function(p){p.classList.toggle("active",p.getAttribute("data-cat")===cat)});document.querySelectorAll("#cardList .content-card").forEach(function(c){if(cat==="all"){c.style.display="";return}var tc=c.textContent||"";c.style.display=tc.includes(cat)?"":"none"})}
 </script>
   </main>
   <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="back-to-top" id="backToTop" aria-label="回到顶部">↑</button>
-  <button onclick="document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark')" class="theme-toggle" id="themeToggle" aria-label="切换主题">☀</button>
+  <button onclick="document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark')" class="theme-toggle" id="themeToggle" aria-label="切换主题">?</button>
   <script>window.addEventListener('scroll',function(){document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)}); if(localStorage.getItem('theme')==='light')document.body.classList.add('light-theme');</script>
   <footer class="page-footer">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">

@@ -108,6 +108,28 @@
     .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
+
+    .search-wrap { position:relative; max-width:400px; margin:0.8rem auto 0; z-index:50; }
+    .search-wrap .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:0.9rem; opacity:0.5; z-index:1; pointer-events:none; }
+    .search-wrap input { width:100%; padding:0.5rem 0.8rem 0.5rem 2.2rem; border-radius:24px; border:1px solid var(--glass-border); background:var(--glass-bg); backdrop-filter:blur(12px); color:var(--text-primary); font-size:0.85rem; outline:none; transition:all .3s ease; }
+    .search-wrap input:focus { border-color:var(--border-glow); box-shadow:0 0 20px rgba(6,182,212,.1); }
+    .search-wrap input::placeholder { color:var(--text-muted); font-size:0.78rem; }
+    .search-dropdown { position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--glass-bg); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:12px; max-height:360px; overflow-y:auto; display:none; z-index:100; box-shadow:0 8px 32px rgba(0,0,0,.3); }
+    .search-dropdown.show { display:block; }
+    .search-item { display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.8rem; color:var(--text-primary); text-decoration:none; font-size:0.82rem; transition:background .2s; border-bottom:1px solid var(--glass-border); }
+    .search-item:last-child { border-bottom:none; }
+    .search-item:hover { background:rgba(99,102,241,.1); }
+    .search-item .rank { width:22px; height:22px; border-radius:50%; background:rgba(99,102,241,.1); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:600; color:var(--text-muted); flex-shrink:0; }
+    .search-item .rank.top1 { background:linear-gradient(135deg,#ffd700,#ffaa00); color:#1a1a2e; }
+    .search-item .rank.top2 { background:linear-gradient(135deg,#c0c0c0,#a8a8a8); color:#1a1a2e; }
+    .search-item .rank.top3 { background:linear-gradient(135deg,#cd7f32,#b8860b); color:#1a1a2e; }
+    .search-item .item-tag { margin-left:auto; font-size:0.65rem; padding:1px 6px; border-radius:8px; background:rgba(99,102,241,.1); color:var(--accent-1); flex-shrink:0; }
+    .search-empty { padding:1rem; text-align:center; color:var(--text-muted); font-size:0.82rem; }
+    .match-text { background:rgba(255,183,77,.2); color:#ffb74d; border-radius:2px; padding:0 2px; }
+    .bottom-bar { display:flex; justify-content:center; gap:1rem; margin-top:2rem; padding:1.5rem 0; border-top:1px solid var(--glass-border); }
+    .cyber-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.82rem; font-weight:600; letter-spacing:.5px; cursor:pointer; background:var(--glass-bg); backdrop-filter:blur(8px); border:1px solid var(--glass-border); color:var(--text-secondary); text-decoration:none; transition:all .3s ease; }
+    .cyber-btn:hover { border-color:var(--border-glow); color:var(--accent-2); transform:translateY(-2px); box-shadow:0 4px 16px rgba(6,182,212,.12); }
+
 </style>
 </head>
 <body>
@@ -123,7 +145,7 @@
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="../index.html" class="site-logo">🦢 AI 资讯站</a>
+        <a href="../index.html" class="site-logo">?? AI 资讯站</a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="../skills/index.html" class="nav-link">本地 Skills</a>
           <a href="../plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -134,6 +156,56 @@
       </div>
     </div>
   </nav>
+  <div class="search-wrap" style="margin-top:0.8rem;">
+    <span class="search-icon">??</span>
+    <input type="text" id="globalSearch" placeholder="搜索全站文章..." autocomplete="off">
+    <div class="search-dropdown" id="globalDropdown"></div>
+  </div>
+  <script>
+var searchData = [{"t": "Browser Use：让 AI Agent 控制浏览器", "u": "github-skills/browser-use-browser-use.html", "d": "Browser Use 是一个让 AI Agent 通过自然语言指令自动操控浏览器的开源工具", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Deer Flow：字节跳动开源的 AI Agent 工作流框架", "u": "github-skills/bytedance-deer-flow.html", "d": "Deer Flow 是字节跳动开源的 AI Agent 工作流编排框架，帮助构建复杂的多步骤 AI 应用", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Stable Diffusion：开创性的开源文生图模型", "u": "github-skills/compvis-stable-diffusion.html", "d": "Stable Diffusion 是由 CompVis 实验室推出的开源文本生成图像模型", "g": "图像生成", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Prompt Engineering Guide：AI 提示工程权威指南", "u": "github-skills/dair-ai-prompt-engineering-guide.html", "d": "DAIR.AI 推出的提示工程指南，系统介绍提示词设计和优化技术", "g": "提示工程", "s": "GitHub 精选 Skills", "pop": false}, {"t": "MetaGPT：多智能体协作的软件开发框架", "u": "github-skills/foundationagents-metagpt.html", "d": "MetaGPT 是一个多 Agent 协作框架，模拟软件公司角色分工自动完成软件开发", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Gemini CLI：Google 官方 AI 命令行工具", "u": "github-skills/google-gemini-gemini-cli.html", "d": "Gemini CLI 是 Google 推出的 AI 命令行工具，在终端中调用 Gemini 模型进行对话和编程", "g": "AI 工具", "s": "GitHub 精选 Skills", "pop": false}, {"t": "LLaMA Factory：高效的大模型微调框架", "u": "github-skills/hiyouga-llamafactory.html", "d": "LLaMA Factory 是一个专注于大语言模型高效微调的开源框架", "g": "AI 框架", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Transformers：Hugging Face 的深度学习中流砥柱", "u": "github-skills/huggingface-transformers.html", "d": "Hugging Face Transformers 是业界最流行的 NLP 库，提供数千个预训练模型的统一接口", "g": "LLM 框架", "s": "GitHub 精选 Skills", "pop": false}, {"t": "RAGFlow：企业级 RAG 检索增强生成引擎", "u": "github-skills/infiniflow-ragflow.html", "d": "RAGFlow 是一个开源的检索增强生成引擎，为企业提供文档理解和知识问答能力", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Awesome Machine Learning：机器学习资源大全", "u": "github-skills/josephmisiti-awesome-machine-learning.html", "d": "Awesome Machine Learning 是经典的机器学习资源合集，收录框架、库、教程和工具", "g": "ML 框架", "s": "GitHub 精选 Skills", "pop": false}, {"t": "AutoResearch：Andrej Karpathy 的 AI 自动研究助手", "u": "github-skills/karpathy-autoresearch.html", "d": "AutoResearch 是 Andrej Karpathy 开发的 AI 自主研究工具", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "LangChain：构建 LLM 应用的基石框架", "u": "github-skills/langchain-ai-langchain.html", "d": "LangChain 是最流行的 LLM 应用开发框架，提供链式调用、Agent、RAG 等模块化工具", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Langflow：可视化的 LLM 应用构建平台", "u": "github-skills/langflow-ai-langflow.html", "d": "Langflow 是一个低代码的 LLM 应用构建工具，通过拖拽式界面编排 AI 应用", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Dify：开源的 LLMOps 平台", "u": "github-skills/langgenius-dify.html", "d": "Dify 是一个开源的 LLM 应用开发与运维平台，融合 RAG、Agent 和工作流能力", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "LobeHub：现代化 AI 聊天平台", "u": "github-skills/lobehub-lobehub.html", "d": "LobeHub 是一个功能丰富的开源 AI 聊天平台，支持多模型接入和插件系统", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Agency Agents：轻量级 AI Agent 协作框架", "u": "github-skills/msitarzewski-agency-agents.html", "d": "Agency Agents 是一个轻量级的多 Agent 协作框架", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Hermes Agent：Nous Research 的高性能 AI Agent", "u": "github-skills/nousresearch-hermes-agent.html", "d": "Nous Research 开发的通用 AI Agent 系统，结合专用模型与工具调用能力", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "OpenBB：开源金融投资研究平台", "u": "github-skills/openbb-finance-openbb.html", "d": "OpenBB 是开源的投资研究平台，提供金融数据聚合与分析工具", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "OpenHands：AI 软件工程助手", "u": "github-skills/openhands-openhands.html", "d": "OpenHands 是一个 AI 编程助手，让 AI Agent 自主完成代码编写、调试和部署", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Pathway：高性能实时数据管道引擎", "u": "github-skills/pathwaycom-pathway.html", "d": "Pathway 是一个高性能的数据处理框架，支持实时流处理和批处理", "g": "数据处理", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Redis：开源内存数据库的行业标准", "u": "github-skills/redis-redis.html", "d": "Redis 是世界最流行的开源内存数据库，兼具缓存、消息队列和向量检索能力", "g": "数据库", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Awesome LLM Apps：大模型应用集锦", "u": "github-skills/shubhamsaboo-awesome-llm-apps.html", "d": "精选的 LLM 应用项目集合，从聊天机器人到 Agent 系统的各种 AI 应用", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "JavaGuide：Java 开发者面试和学习指南", "u": "github-skills/snailclimb-javaguide.html", "d": "JavaGuide 是中文互联网最受欢迎的 Java 学习指南之一", "g": "Java", "s": "GitHub 精选 Skills", "pop": false}, {"t": "TradingAgents：多 Agent 交易分析框架", "u": "github-skills/tauricresearch-tradingagents.html", "d": "基于多 Agent 协作的金融交易分析框架", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Front-End Checklist：前端开发全流程清单", "u": "github-skills/thedaviddias-front-end-checklist.html", "d": "详尽的前端开发检查清单，覆盖 HTML、CSS、性能、安全等最佳实践", "g": "前端开发", "s": "GitHub 精选 Skills", "pop": false}, {"t": "Claude Mem：为 Claude 注入长期记忆能力", "u": "github-skills/thedotmack-claude-mem.html", "d": "为 Claude AI 提供长期记忆功能的浏览器扩展", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}, {"t": "vLLM：大模型高性能推理引擎", "u": "github-skills/vllm-project-vllm.html", "d": "业界领先的大语言模型推理引擎，通过 PagedAttention 技术大幅提升推理效率", "g": "推理引擎", "s": "GitHub 精选 Skills", "pop": false}, {"t": "System Prompts & Models：AI 工具系统提示词汇总", "u": "github-skills/x1xhlol-system-prompts-and-models-of-ai-tools.html", "d": "收集各种 AI 工具的系统提示词和模型信息", "g": "AI Agent", "s": "GitHub 精选 Skills", "pop": false}];
+var curFocus = -1;
+function initSearch(inpId, dropId, scope) {
+  var inp = document.getElementById(inpId), drop = document.getElementById(dropId);
+  if (!inp || !drop) return;
+  inp.addEventListener("input", function(){doSearch(inp,drop,scope);});
+  inp.addEventListener("focus", function(){if(!this.value)showPop(inp,drop);});
+  inp.addEventListener("blur", function(){setTimeout(function(){drop.classList.remove("show");},200);});
+  inp.addEventListener("keydown", function(e){
+    var its = drop.querySelectorAll(".search-item");
+    if(e.key==="ArrowDown"){e.preventDefault();curFocus=Math.min(curFocus+1,its.length-1);hlight(its,curFocus);}
+    else if(e.key==="ArrowUp"){e.preventDefault();curFocus=Math.max(curFocus-1,0);hlight(its,curFocus);}
+    else if(e.key==="Enter"){e.preventDefault();if(curFocus>-1&&its[curFocus])its[curFocus].click();}
+    else curFocus=-1;
+  });
+}
+function hlight(its,idx){its.forEach(function(it,i){it.style.background=i===idx?"rgba(99,102,241,.15)":"";});if(its[idx])its[idx].scrollIntoView({block:"nearest"});}
+function showPop(inp,drop){
+  drop.innerHTML="";var pop=searchData.filter(function(d){return d.pop}).slice(0,10);if(!pop.length)pop=searchData.slice(0,10);
+  pop.forEach(function(d,i){
+    var rc=i===0?"top1":i===1?"top2":i===2?"top3":"";var item=document.createElement("a");item.className="search-item";item.href=d.u;
+    var rank=i<3?'<span class="rank '+rc+'">#'+(i+1)+'</span>':'<span class="rank">'+(i+1)+'</span>';
+    item.innerHTML=rank+'<span>'+d.t+'</span><span class="item-tag">'+d.g+'</span>';drop.appendChild(item);
+  });drop.classList.add("show");
+}
+function doSearch(inp,drop,scope){
+  var q=inp.value.trim().toLowerCase();drop.innerHTML="";if(!q){showPop(inp,drop);return;}
+  var data=scope?searchData.filter(function(d){return d.s===scope;}):searchData;
+  var res=[];data.forEach(function(d){
+    var sc=0,tl=d.t.toLowerCase(),dl=d.d.toLowerCase();
+    if(tl===q)sc=100;else if(tl.indexOf(q)===0)sc=80;else if(tl.indexOf(q)>0)sc=60;else if(dl.indexOf(q)>=0)sc=40;
+    if(q.length>1){var qi=0;for(var ci=0;ci<tl.length&&qi<q.length;ci++){if(tl[ci]===q[qi])qi++;}if(qi===q.length&&sc===0)sc=10;}
+    if(sc>0)res.push({d:d,s:sc});
+  });res.sort(function(a,b){return b.s-a.s;});var top=res.slice(0,8);
+  if(!top.length){drop.innerHTML='<div class="search-empty">没有匹配结果</div>';}
+  else{top.forEach(function(r){
+    var item=document.createElement("a");item.className="search-item";item.href=r.d.u;
+    var idx2=r.d.t.toLowerCase().indexOf(q);
+    var th=idx2>=0?r.d.t.substring(0,idx2)+'<span class="match-text">'+r.d.t.substring(idx2,idx2+q.length)+'</span>'+r.d.t.substring(idx2+q.length):r.d.t;
+    item.innerHTML='<span class="rank"></span><span>'+th+'</span><span class="item-tag">'+r.d.g+'</span>';drop.appendChild(item);
+  })}drop.classList.add("show");
+}
+
+    var isHm=false;var scp=isHm===true?null:'GitHub 精选 Skills';document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});</script>
   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 relative" style="z-index:1;">
     <div class="mb-6 animate-in">
   <nav class="breadcrumb">
@@ -573,12 +645,16 @@
   </div>
 </a>
 </div>
+<div class="bottom-bar">
+  <a href="../index.html" class="cyber-btn">&larr; 返回首页</a>
+  <a href="javascript:history.back()" class="cyber-btn">&#127968; 返回上一页</a>
+</div>
 <script>
-function filterCards(el,cat){document.querySelectorAll(".filter-pill").forEach(function(p){p.classList.remove("active")});el.classList.add("active");document.querySelectorAll("#cardList .content-card").forEach(function(c){if(cat==="all"){c.style.display=""}else{c.style.display=c.textContent.includes(cat)?"":"none"}})}
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".filter-pill").forEach(function(p){p.addEventListener("click",function(e){e.preventDefault();filterCards(this.getAttribute("data-cat"));});});});function filterCards(cat){document.querySelectorAll(".filter-pill").forEach(function(p){p.classList.toggle("active",p.getAttribute("data-cat")===cat)});document.querySelectorAll("#cardList .content-card").forEach(function(c){if(cat==="all"){c.style.display="";return}var tc=c.textContent||"";c.style.display=tc.includes(cat)?"":"none"})}
 </script>
   </main>
   <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="back-to-top" id="backToTop" aria-label="回到顶部">↑</button>
-  <button onclick="document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark')" class="theme-toggle" id="themeToggle" aria-label="切换主题">☀</button>
+  <button onclick="document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark')" class="theme-toggle" id="themeToggle" aria-label="切换主题">?</button>
   <script>window.addEventListener('scroll',function(){document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)}); if(localStorage.getItem('theme')==='light')document.body.classList.add('light-theme');</script>
   <footer class="page-footer">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
