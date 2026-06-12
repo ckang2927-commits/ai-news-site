@@ -148,7 +148,7 @@
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="../index.html" class="site-logo">▶ AI 资讯站</a>
+        <a href="../index.html" class="site-logo">~ AI 资讯站</a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="../skills/index.html" class="nav-link">本地 Skills</a>
           <a href="../plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -165,7 +165,7 @@
     <div class="search-dropdown" id="globalDropdown"></div>
   </div>
   <script>
-var searchData = [];
+var searchData = [{"t": "ab-test-analyzer", "u": "skills/ab-test-analyzer.html", "d": "自动进行 A/B 测试的样本量计算、统计检验和结果解读，帮助数据驱动决策", "g": "数据分析", "s": "本地 Skills", "pop": false}, {"t": "ai-data-analyst", "u": "skills/ai-data-analyst.html", "d": "一站式数据分析工具：探索性数据分析、统计分析、机器学习和数据可视化", "g": "数据分析", "s": "本地 Skills", "pop": false}, {"t": "cli-creator", "u": "skills/cli-creator.html", "d": "从 API 文档、OpenAPI 规范或已有代码快速构建命令行工具", "g": "CLI", "s": "本地 Skills", "pop": false}, {"t": "code-review", "u": "skills/code-review.html", "d": "自动审查代码中的逻辑错误、性能问题和安全漏洞", "g": "代码审查", "s": "本地 Skills", "pop": false}, {"t": "create-plan", "u": "skills/create-plan.html", "d": "将模糊的任务需求转化为清晰、可执行的步骤计划", "g": "计划", "s": "本地 Skills", "pop": false}, {"t": "d2-diagrams", "u": "skills/d2-diagrams.html", "d": "使用 D2 语法创建数据流图、架构图和 ER 图", "g": "图表", "s": "本地 Skills", "pop": false}, {"t": "data-quality-checker", "u": "skills/data-quality-checker.html", "d": "自动化数据质量检查：检测缺失值、重复数据、异常值等", "g": "数据质量", "s": "本地 Skills", "pop": false}, {"t": "define-goal", "u": "skills/define-goal.html", "d": "帮助用户设定具体、可衡量的目标，将模糊意图转化为量化成果", "g": "目标管理", "s": "本地 Skills", "pop": false}, {"t": "file-organizer", "u": "skills/file-organizer.html", "d": "智能整理电脑文件和文件夹，自动去重、分类和优化文件结构", "g": "文件管理", "s": "本地 Skills", "pop": false}, {"t": "firecrawl", "u": "skills/firecrawl.html", "d": "实时访问网络：搜索、抓取和解析任意网站内容", "g": "网页抓取", "s": "本地 Skills", "pop": false}, {"t": "jupyter-notebook", "u": "skills/jupyter-notebook.html", "d": "创建、编辑和管理 Jupyter Notebook，用于数据实验和交互式分析", "g": "Jupyter", "s": "本地 Skills", "pop": false}, {"t": "pdf", "u": "skills/pdf.html", "d": "读取、创建和审阅 PDF 文件，支持文本提取和版面分析", "g": "PDF", "s": "本地 Skills", "pop": false}, {"t": "plotly-visualization", "u": "skills/plotly-visualization.html", "d": "生成高质量的交互式 Plotly 图表，支持多种图表类型", "g": "数据可视化", "s": "本地 Skills", "pop": false}, {"t": "python-scraper", "u": "skills/python-scraper.html", "d": "自动生成健壮的 Python 网页爬虫脚本，支持动态页面和反爬处理", "g": "爬虫", "s": "本地 Skills", "pop": false}, {"t": "security-best-practices", "u": "skills/security-best-practices.html", "d": "编程语言和框架的安全最佳实践审查与改进建议", "g": "安全", "s": "本地 Skills", "pop": false}, {"t": "sql-architect", "u": "skills/sql-architect.html", "d": "将自然语言转化为生产级 SQL 查询，并提供查询优化建议", "g": "SQL", "s": "本地 Skills", "pop": false}, {"t": "test-generator", "u": "skills/test-generator.html", "d": "自动为数据处理函数生成单元测试用例，提高代码覆盖率", "g": "测试", "s": "本地 Skills", "pop": false}];
 var curFocus = -1;
 function initSearch(inpId, dropId, scope) {
   var inp = document.getElementById(inpId), drop = document.getElementById(dropId);
@@ -210,7 +210,7 @@ function doSearch(inp,drop,scope){
   })}drop.classList.add("show");
 }
 
-    var isHm=false;var scp=isHm===true?null:'plotly-visualization';document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});</script>
+    var isHm=false;var scp=null;document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});</script>
   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 relative" style="z-index:1;">
     <div class="mb-6 animate-in">
   <nav class="breadcrumb">

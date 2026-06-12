@@ -329,7 +329,7 @@ function doSearch(inp,drop,scope){
 """).substitute(SD=search_data_json)
     is_home_str = "true" if nav_depth == 0 else "false"
     scoped_title = html_escape(title).replace("'", "\\\\'")
-    search_init_js = "var isHm=" + is_home_str + ";var scp=isHm===true?null:'" + scoped_title + "';document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});"
+    search_init_js = "var isHm=" + is_home_str + ";var scp=null;document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});"
     
     # Build HTML template using Template to avoid f-string { } conflicts with JS
     tmpl = Template("""<!DOCTYPE html>
@@ -367,7 +367,7 @@ function doSearch(inp,drop,scope){
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="$NP/index.html" class="site-logo">▶ AI 资讯站</a>
+        <a href="$NP/index.html" class="site-logo">~ AI 资讯站</a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="$NP/skills/index.html" class="nav-link">本地 Skills</a>
           <a href="$NP/plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -498,7 +498,7 @@ def list_page(title, desc, cards_html, nav_d=1, search_data=None):
 
 
 
-def detail_page(title, content_html, source="", nav_d=1):
+def detail_page(title, content_html, source="", nav_d=1, search_data=None):
     np = nav_prefix(nav_d)
     body = f'''<div class="mb-6 animate-in">
   <nav class="breadcrumb">
@@ -531,7 +531,7 @@ def detail_page(title, content_html, source="", nav_d=1):
   <a href="javascript:history.back()" class="cyber-btn">&larr; 返回</a>
   <a href="{np}/index.html" class="cyber-btn">?? 首页</a>
 </div>'''
-    return page_frame(title, body, nav_depth=nav_d, og_desc=title)
+    return page_frame(title, body, nav_depth=nav_d, og_desc=title, search_data=search_data)
 
 
 
@@ -610,7 +610,7 @@ def build():
         for e in entries:
             title = e.get("title", e.get("name", "未命名"))
             source = e.get("source", f"{label} 本地内容")
-            detail_html = detail_page(title, e["html"], source)
+            detail_html = detail_page(title, e["html"], source, search_data=module_search_data)
             detail_path = os.path.join(out_dir, f"{e['slug']}.html")
             with open(detail_path, "w", encoding="utf-8") as f:
                 f.write(detail_html)
