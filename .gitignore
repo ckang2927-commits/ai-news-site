@@ -7,3 +7,8 @@ build_new.py
 build_func.py
 gen_build.py
 build_site.py
+# Temp scripts
+*.bak
+patch_*.py
+fix_*.py
+*.tmp
