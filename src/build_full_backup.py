@@ -1,6 +1,5 @@
-import os, re, markdown, json
+﻿import os, re, markdown
 from datetime import datetime
-from string import Template
 
 SITE_NAME = "AI 大模型资讯站"
 SITE_DESC = "AI 大模型与 Codex Skills 知识库"
@@ -124,32 +123,7 @@ CSS_STYLE = r"""    :root {
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
     .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
-        
-    .glass-nav .nav-link.active { color:var(--accent-2); }
-    .glass-nav .nav-link.active::after { width:100%; }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
-
-    .search-wrap { position:relative; max-width:400px; margin:0.8rem auto 0; z-index:50; }
-    .search-wrap .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:0.9rem; opacity:0.5; z-index:1; pointer-events:none; }
-    .search-wrap input { width:100%; padding:0.5rem 0.8rem 0.5rem 2.2rem; border-radius:24px; border:1px solid var(--glass-border); background:var(--glass-bg); backdrop-filter:blur(12px); color:var(--text-primary); font-size:0.85rem; outline:none; transition:all .3s ease; }
-    .search-wrap input:focus { border-color:var(--border-glow); box-shadow:0 0 20px rgba(6,182,212,.1); }
-    .search-wrap input::placeholder { color:var(--text-muted); font-size:0.78rem; }
-    .search-dropdown { position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--glass-bg); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:12px; max-height:360px; overflow-y:auto; display:none; z-index:100; box-shadow:0 8px 32px rgba(0,0,0,.3); }
-    .search-dropdown.show { display:block; }
-    .search-item { display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.8rem; color:var(--text-primary); text-decoration:none; font-size:0.82rem; transition:background .2s; border-bottom:1px solid var(--glass-border); }
-    .search-item:last-child { border-bottom:none; }
-    .search-item:hover { background:rgba(99,102,241,.1); }
-    .search-item .rank { width:22px; height:22px; border-radius:50%; background:rgba(99,102,241,.1); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:600; color:var(--text-muted); flex-shrink:0; }
-    .search-item .rank.top1 { background:linear-gradient(135deg,#ffd700,#ffaa00); color:#1a1a2e; }
-    .search-item .rank.top2 { background:linear-gradient(135deg,#c0c0c0,#a8a8a8); color:#1a1a2e; }
-    .search-item .rank.top3 { background:linear-gradient(135deg,#cd7f32,#b8860b); color:#1a1a2e; }
-    .search-item .item-tag { margin-left:auto; font-size:0.65rem; padding:1px 6px; border-radius:8px; background:rgba(99,102,241,.1); color:var(--accent-1); flex-shrink:0; }
-    .search-empty { padding:1rem; text-align:center; color:var(--text-muted); font-size:0.82rem; }
-    .match-text { background:rgba(255,183,77,.2); color:#ffb74d; border-radius:2px; padding:0 2px; }
-    .bottom-bar { display:flex; justify-content:center; gap:1rem; margin-top:2rem; padding:1.5rem 0; border-top:1px solid var(--glass-border); }
-    .cyber-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.82rem; font-weight:600; letter-spacing:.5px; cursor:pointer; background:var(--glass-bg); backdrop-filter:blur(8px); border:1px solid var(--glass-border); color:var(--text-secondary); text-decoration:none; transition:all .3s ease; }
-    .cyber-btn:hover { border-color:var(--border-glow); color:var(--accent-2); transform:translateY(-2px); box-shadow:0 4px 16px rgba(6,182,212,.12); }
-
 """
 
 CSS_STYLE = r"""    :root {
@@ -241,32 +215,7 @@ CSS_STYLE = r"""    :root {
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
     .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
-        
-    .glass-nav .nav-link.active { color:var(--accent-2); }
-    .glass-nav .nav-link.active::after { width:100%; }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
-
-    .search-wrap { position:relative; max-width:400px; margin:0.8rem auto 0; z-index:50; }
-    .search-wrap .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:0.9rem; opacity:0.5; z-index:1; pointer-events:none; }
-    .search-wrap input { width:100%; padding:0.5rem 0.8rem 0.5rem 2.2rem; border-radius:24px; border:1px solid var(--glass-border); background:var(--glass-bg); backdrop-filter:blur(12px); color:var(--text-primary); font-size:0.85rem; outline:none; transition:all .3s ease; }
-    .search-wrap input:focus { border-color:var(--border-glow); box-shadow:0 0 20px rgba(6,182,212,.1); }
-    .search-wrap input::placeholder { color:var(--text-muted); font-size:0.78rem; }
-    .search-dropdown { position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--glass-bg); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:12px; max-height:360px; overflow-y:auto; display:none; z-index:100; box-shadow:0 8px 32px rgba(0,0,0,.3); }
-    .search-dropdown.show { display:block; }
-    .search-item { display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.8rem; color:var(--text-primary); text-decoration:none; font-size:0.82rem; transition:background .2s; border-bottom:1px solid var(--glass-border); }
-    .search-item:last-child { border-bottom:none; }
-    .search-item:hover { background:rgba(99,102,241,.1); }
-    .search-item .rank { width:22px; height:22px; border-radius:50%; background:rgba(99,102,241,.1); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:600; color:var(--text-muted); flex-shrink:0; }
-    .search-item .rank.top1 { background:linear-gradient(135deg,#ffd700,#ffaa00); color:#1a1a2e; }
-    .search-item .rank.top2 { background:linear-gradient(135deg,#c0c0c0,#a8a8a8); color:#1a1a2e; }
-    .search-item .rank.top3 { background:linear-gradient(135deg,#cd7f32,#b8860b); color:#1a1a2e; }
-    .search-item .item-tag { margin-left:auto; font-size:0.65rem; padding:1px 6px; border-radius:8px; background:rgba(99,102,241,.1); color:var(--accent-1); flex-shrink:0; }
-    .search-empty { padding:1rem; text-align:center; color:var(--text-muted); font-size:0.82rem; }
-    .match-text { background:rgba(255,183,77,.2); color:#ffb74d; border-radius:2px; padding:0 2px; }
-    .bottom-bar { display:flex; justify-content:center; gap:1rem; margin-top:2rem; padding:1.5rem 0; border-top:1px solid var(--glass-border); }
-    .cyber-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.82rem; font-weight:600; letter-spacing:.5px; cursor:pointer; background:var(--glass-bg); backdrop-filter:blur(8px); border:1px solid var(--glass-border); color:var(--text-secondary); text-decoration:none; transition:all .3s ease; }
-    .cyber-btn:hover { border-color:var(--border-glow); color:var(--accent-2); transform:translateY(-2px); box-shadow:0 4px 16px rgba(6,182,212,.12); }
-
 """
 
 def page_frame(title, body_html, nav_depth=0, og_desc=None, og_image=None, search_data=None):
@@ -288,20 +237,19 @@ function initSearch(inpId, dropId, scope) {
   var inp = document.getElementById(inpId), drop = document.getElementById(dropId);
   if (!inp || !drop) return;
   inp.addEventListener("input", function(){doSearch(inp,drop,scope);});
-  inp.addEventListener("focus", function(){if(!this.value)showPop(inp,drop,scope);});
+  inp.addEventListener("focus", function(){if(!this.value)showPop(inp,drop);});
   inp.addEventListener("blur", function(){setTimeout(function(){drop.classList.remove("show");},200);});
   inp.addEventListener("keydown", function(e){
     var its = drop.querySelectorAll(".search-item");
     if(e.key==="ArrowDown"){e.preventDefault();curFocus=Math.min(curFocus+1,its.length-1);hlight(its,curFocus);}
     else if(e.key==="ArrowUp"){e.preventDefault();curFocus=Math.max(curFocus-1,0);hlight(its,curFocus);}
-    else if(e.key==="Enter"){e.preventDefault();var matched=drop.querySelector(".search-item.hover, .search-item:hover");if(matched){matched.click();return;}if(curFocus>-1&&its[curFocus]){its[curFocus].click();return;}var firstItem=drop.querySelector(".search-item");if(firstItem){firstItem.click();}}
+    else if(e.key==="Enter"){e.preventDefault();if(curFocus>-1&&its[curFocus])its[curFocus].click();}
     else curFocus=-1;
   });
 }
 function hlight(its,idx){its.forEach(function(it,i){it.style.background=i===idx?"rgba(99,102,241,.15)":"";});if(its[idx])its[idx].scrollIntoView({block:"nearest"});}
-function showPop(inp,drop,scope){
-  drop.innerHTML="";var src=scope?searchData.filter(function(d){return d.s===scope;}):searchData;
-  var pop=src.filter(function(d){return d.pop}).slice(0,10);if(!pop.length)pop=src.slice(0,10);
+function showPop(inp,drop){
+  drop.innerHTML="";var pop=searchData.filter(function(d){return d.pop}).slice(0,10);if(!pop.length)pop=searchData.slice(0,10);
   pop.forEach(function(d,i){
     var rc=i===0?"top1":i===1?"top2":i===2?"top3":"";var item=document.createElement("a");item.className="search-item";item.href=d.u;
     var rank=i<3?'<span class="rank '+rc+'">#'+(i+1)+'</span>':'<span class="rank">'+(i+1)+'</span>';
@@ -309,7 +257,6 @@ function showPop(inp,drop,scope){
   });drop.classList.add("show");
 }
 function doSearch(inp,drop,scope){
-  if(!inp||!drop)return;
   var q=inp.value.trim().toLowerCase();drop.innerHTML="";if(!q){showPop(inp,drop);return;}
   var data=scope?searchData.filter(function(d){return d.s===scope;}):searchData;
   var res=[];data.forEach(function(d){
@@ -327,9 +274,7 @@ function doSearch(inp,drop,scope){
   })}drop.classList.add("show");
 }
 """).substitute(SD=search_data_json)
-    is_home_str = "true" if nav_depth == 0 else "false"
-    scoped_title = html_escape(title).replace("'", "\\\\'")
-    search_init_js = "var isHm=" + is_home_str + ";var scp=isHm===true?null:'" + scoped_title + "';document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});"
+    search_init_js = "var isHm=" + repr(str(nav_depth == 0).lower()) + ";var scp=isHm==='true'?null:" + repr(html_escape(title)) + ";document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});"
     
     # Build HTML template using Template to avoid f-string { } conflicts with JS
     tmpl = Template("""<!DOCTYPE html>
@@ -367,7 +312,7 @@ function doSearch(inp,drop,scope){
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="$NP/index.html" class="site-logo">▶ AI 资讯站</a>
+        <a href="$NP/index.html" class="site-logo">?? AI 资讯站</a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="$NP/skills/index.html" class="nav-link">本地 Skills</a>
           <a href="$NP/plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -379,8 +324,8 @@ function doSearch(inp,drop,scope){
     </div>
   </nav>
   <div class="search-wrap" style="margin-top:0.8rem;">
-    <span class="search-icon">⌕</span>
-    <input type="text" id="globalSearch" placeholder="搜索全站文章..." autocomplete="off" onkeydown="if(event.key==='Enter')event.preventDefault()">
+    <span class="search-icon">??</span>
+    <input type="text" id="globalSearch" placeholder="搜索全站文章..." autocomplete="off">
     <div class="search-dropdown" id="globalDropdown"></div>
   </div>
   <script>$SEARCH_JS_FUNCS
@@ -397,23 +342,6 @@ function doSearch(inp,drop,scope){
       <p style="color:var(--text-muted);font-size:0.72rem;margin-top:0.25rem;">数据来源标注于各文章底部 &middot; 探索 AI 的无限可能</p>
     </div>
   </footer>
-
-  <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    var path = window.location.pathname;
-    document.querySelectorAll(".glass-nav .nav-link").forEach(function(a) {
-      var href = a.getAttribute("href");
-      if (href) {
-        var resolved = new URL(href, window.location.origin).pathname;
-        if (path === resolved || (path.indexOf(resolved) === 0 && resolved !== "/")) {
-          a.style.color = "var(--accent-2)";
-          a.style.setProperty("--after-width", "100%", "");
-        }
-      }
-    });
-  });
-  </script>
-
 </body>
 </html>""")
     return tmpl.substitute(
@@ -454,23 +382,9 @@ def content_card(title, desc, link, tags, date_str):
 
 
 
-def list_page(title, desc, cards_html, nav_d=1, search_data=None):
+def list_page(title, desc, cards_html, nav_d=1):
     np = nav_prefix(nav_d)
-    # Build dynamic filter pills from search_data tags
-    all_tags = []
-    if search_data:
-        for sd in search_data:
-            for t in sd.get("g", "").split(","):
-                tt = t.strip()
-                if tt and tt not in all_tags:
-                    all_tags.append(tt)
-    if not all_tags:
-        all_tags = ["标签"]
-    custom_pills_str = "\n".join(
-        f'  <a href="javascript:void(0)" class="filter-pill" data-cat="{html_escape(t)}">{html_escape(t)}</a>'
-        for t in all_tags
-    )
-    filter_js = 'document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".filter-pill").forEach(function(p){p.addEventListener("click",function(e){e.preventDefault();filterCards(this.getAttribute("data-cat"));});});});function filterCards(cat){document.querySelectorAll(".filter-pill").forEach(function(p){p.classList.toggle("active",p.getAttribute("data-cat")===cat)});document.querySelectorAll("#cardList .content-card").forEach(function(c){if(cat==="all"){c.style.display="";return}var tc=c.textContent||"";c.style.display=tc.includes(cat)?"":"none"})}'
+    filter_js = "function filterCards(el,cat){document.querySelectorAll(\".filter-pill\").forEach(function(p){p.classList.remove(\"active\")});el.classList.add(\"active\");document.querySelectorAll(\"#cardList .content-card\").forEach(function(c){if(cat===\"all\"){c.style.display=\"\"}else{c.style.display=c.textContent.includes(cat)?\"\":\"none\"}})}"
     body = f'''<div class="mb-6 animate-in">
   <nav class="breadcrumb">
     <a href="{np}/index.html">首页</a>
@@ -481,20 +395,19 @@ def list_page(title, desc, cards_html, nav_d=1, search_data=None):
   <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:0.3rem;">{html_escape(desc)}</p>
 </div>
 <div class="filter-pills" style="margin-bottom:1rem;">
-  <a href="javascript:void(0)" class="filter-pill active" data-cat="all">全部</a>
-  {custom_pills_str}
+  <a href="javascript:void(0)" class="filter-pill active" onclick="filterCards(this,'all')">全部</a>
+  <a href="javascript:void(0)" class="filter-pill" onclick="filterCards(this,'新闻')">新闻</a>
+  <a href="javascript:void(0)" class="filter-pill" onclick="filterCards(this,'工具')">工具</a>
+  <a href="javascript:void(0)" class="filter-pill" onclick="filterCards(this,'框架')">框架</a>
+  <a href="javascript:void(0)" class="filter-pill" onclick="filterCards(this,'开源')">开源</a>
 </div>
 <div class="space-y-3" id="cardList">
   {cards_html}
 </div>
-<div class="bottom-bar">
-  <a href="{np}/index.html" class="cyber-btn">&larr; 返回首页</a>
-  <a href="javascript:history.back()" class="cyber-btn">&#127968; 返回上一页</a>
-</div>
 <script>
 {filter_js}
 </script>'''
-    return page_frame(title, body, nav_depth=nav_d, search_data=search_data)
+    return page_frame(title, body, nav_depth=nav_d)
 
 
 
@@ -535,7 +448,7 @@ def detail_page(title, content_html, source="", nav_d=1):
 
 
 
-def index_page(module_cards, search_data=None):
+def index_page(module_cards):
     nav_d = 0
     body = f'''<div class="hero-section animate-in">
   <div class="module-badge" style="margin-bottom:1rem;">? LIVE &middot; 2026</div>
@@ -555,7 +468,7 @@ def index_page(module_cards, search_data=None):
   </p>
   <p style="color:var(--text-muted);font-size:0.72rem;margin-top:0.8rem;border-top:1px solid var(--glass-border);padding-top:0.6rem;">最后更新：{NOW.strftime('%Y-%m-%d')}</p>
 </div>'''
-    return page_frame("首页", body, nav_depth=nav_d, search_data=search_data)
+    return page_frame("首页", body, nav_depth=nav_d)
 
 
 def build():
@@ -587,7 +500,6 @@ def build():
             slug_name = os.path.splitext(fname)[0]
             entries.append({**fm, "slug": slug_name, "html": html, "content": content})
         cards = []
-        module_search_data = []
         for e in entries:
             tags_str = e.get("tags", label)
             tags = [t.strip() for t in tags_str.split(",") if t.strip()]
@@ -596,15 +508,7 @@ def build():
             title = e.get("title", e.get("name", "未命名"))
             desc_text = e.get("description", "暂无描述")
             cards.append(content_card(title, desc_text, link, tags, date_str))
-            module_search_data.append({
-                "t": title,
-                "u": f"{slug}/{link}",
-                "d": desc_text,
-                "g": tags[0] if tags else label,
-                "s": label,
-                "pop": False,
-            })
-        list_html = list_page(label, desc, "\n".join(cards), search_data=module_search_data)
+        list_html = list_page(label, desc, "\n".join(cards))
         with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
             f.write(list_html)
         for e in entries:
@@ -614,11 +518,11 @@ def build():
             detail_path = os.path.join(out_dir, f"{e['slug']}.html")
             with open(detail_path, "w", encoding="utf-8") as f:
                 f.write(detail_html)
-        module_infos.append((label, desc, len(entries), slug, module_search_data))
+        module_infos.append((label, desc, len(entries), slug))
         print(f"  [OK] {label}: {len(entries)} 篇文章已生成")
     icons = {"本地 Skills": "&#128187;", "插件 Skills": "&#128268;", "AI 大模型新闻": "&#129504;", "GitHub 精选 Skills": "&#128293;", "GitHub Top 100": "&#127942;"}
     module_cards = []
-    for label, desc, count, slug, _msd in module_infos:
+    for label, desc, count, slug in module_infos:
         icon = icons.get(label, "&#128196;")
         module_cards.append(f'''
     <a href="{slug}/index.html" class="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary-300 transition-all duration-200 group">
@@ -627,14 +531,8 @@ def build():
       <p class="text-sm text-gray-500 mt-1">{desc}</p>
       <p class="text-xs text-primary-500 mt-2">共 {count} 篇文章 &rarr;</p>
     </a>''')
-        # Build global search data from all modules
-    all_search_data = []
-    for mi in module_infos:
-        msd = mi[4] if len(mi) > 4 else []
-        if isinstance(msd, list):
-            all_search_data.extend(msd)
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
-        f.write(index_page("\n".join(module_cards), search_data=all_search_data))
+        f.write(index_page("\n".join(module_cards)))
     total = sum(m[2] for m in module_infos)
     print(f"\n[Done] 站点构建完成！")
     print(f"  [Folder] docs/ 目录")

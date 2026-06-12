@@ -107,6 +107,9 @@
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
     .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
+        
+    .glass-nav .nav-link.active { color:var(--accent-2); }
+    .glass-nav .nav-link.active::after { width:100%; }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
 
     .search-wrap { position:relative; max-width:400px; margin:0.8rem auto 0; z-index:50; }
@@ -145,7 +148,7 @@
   <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="../index.html" class="site-logo">?? AI 资讯站</a>
+        <a href="../index.html" class="site-logo">▶ AI 资讯站</a>
         <div class="flex gap-3 sm:gap-5 nav-links">
           <a href="../skills/index.html" class="nav-link">本地 Skills</a>
           <a href="../plugin-skills/index.html" class="nav-link">插件 Skills</a>
@@ -157,8 +160,8 @@
     </div>
   </nav>
   <div class="search-wrap" style="margin-top:0.8rem;">
-    <span class="search-icon">??</span>
-    <input type="text" id="globalSearch" placeholder="搜索全站文章..." autocomplete="off">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="globalSearch" placeholder="搜索全站文章..." autocomplete="off" onkeydown="if(event.key==='Enter')event.preventDefault()">
     <div class="search-dropdown" id="globalDropdown"></div>
   </div>
   <script>
@@ -168,19 +171,20 @@ function initSearch(inpId, dropId, scope) {
   var inp = document.getElementById(inpId), drop = document.getElementById(dropId);
   if (!inp || !drop) return;
   inp.addEventListener("input", function(){doSearch(inp,drop,scope);});
-  inp.addEventListener("focus", function(){if(!this.value)showPop(inp,drop);});
+  inp.addEventListener("focus", function(){if(!this.value)showPop(inp,drop,scope);});
   inp.addEventListener("blur", function(){setTimeout(function(){drop.classList.remove("show");},200);});
   inp.addEventListener("keydown", function(e){
     var its = drop.querySelectorAll(".search-item");
     if(e.key==="ArrowDown"){e.preventDefault();curFocus=Math.min(curFocus+1,its.length-1);hlight(its,curFocus);}
     else if(e.key==="ArrowUp"){e.preventDefault();curFocus=Math.max(curFocus-1,0);hlight(its,curFocus);}
-    else if(e.key==="Enter"){e.preventDefault();if(curFocus>-1&&its[curFocus])its[curFocus].click();}
+    else if(e.key==="Enter"){e.preventDefault();var matched=drop.querySelector(".search-item.hover, .search-item:hover");if(matched){matched.click();return;}if(curFocus>-1&&its[curFocus]){its[curFocus].click();return;}var firstItem=drop.querySelector(".search-item");if(firstItem){firstItem.click();}}
     else curFocus=-1;
   });
 }
 function hlight(its,idx){its.forEach(function(it,i){it.style.background=i===idx?"rgba(99,102,241,.15)":"";});if(its[idx])its[idx].scrollIntoView({block:"nearest"});}
-function showPop(inp,drop){
-  drop.innerHTML="";var pop=searchData.filter(function(d){return d.pop}).slice(0,10);if(!pop.length)pop=searchData.slice(0,10);
+function showPop(inp,drop,scope){
+  drop.innerHTML="";var src=scope?searchData.filter(function(d){return d.s===scope;}):searchData;
+  var pop=src.filter(function(d){return d.pop}).slice(0,10);if(!pop.length)pop=src.slice(0,10);
   pop.forEach(function(d,i){
     var rc=i===0?"top1":i===1?"top2":i===2?"top3":"";var item=document.createElement("a");item.className="search-item";item.href=d.u;
     var rank=i<3?'<span class="rank '+rc+'">#'+(i+1)+'</span>':'<span class="rank">'+(i+1)+'</span>';
@@ -188,6 +192,7 @@ function showPop(inp,drop){
   });drop.classList.add("show");
 }
 function doSearch(inp,drop,scope){
+  if(!inp||!drop)return;
   var q=inp.value.trim().toLowerCase();drop.innerHTML="";if(!q){showPop(inp,drop);return;}
   var data=scope?searchData.filter(function(d){return d.s===scope;}):searchData;
   var res=[];data.forEach(function(d){
@@ -305,5 +310,22 @@ function doSearch(inp,drop,scope){
       <p style="color:var(--text-muted);font-size:0.72rem;margin-top:0.25rem;">数据来源标注于各文章底部 &middot; 探索 AI 的无限可能</p>
     </div>
   </footer>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var path = window.location.pathname;
+    document.querySelectorAll(".glass-nav .nav-link").forEach(function(a) {
+      var href = a.getAttribute("href");
+      if (href) {
+        var resolved = new URL(href, window.location.origin).pathname;
+        if (path === resolved || (path.indexOf(resolved) === 0 && resolved !== "/")) {
+          a.style.color = "var(--accent-2)";
+          a.style.setProperty("--after-width", "100%", "");
+        }
+      }
+    });
+  });
+  </script>
+
 </body>
 </html>
