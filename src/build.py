@@ -124,7 +124,9 @@ CSS_STYLE = r"""    :root {
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
     .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
-    body.light-theme .glass-nav .nav-link { color: #334155; }
+    body.light-theme .glass-nav { background: rgba(255,255,255,0.85); border-bottom-color: rgba(0,0,0,0.08); }
+    body.light-theme .glass-nav .nav-link { color: var(--text-primary); }
+    body.light-theme .glass-nav .nav-link:hover { color: #6366f1; }
         
     .glass-nav .nav-link.active { color:var(--accent-2); }
     .glass-nav .nav-link.active::after { width:100%; }
@@ -242,7 +244,9 @@ CSS_STYLE = r"""    :root {
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
     .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
-    body.light-theme .glass-nav .nav-link { color: #334155; }
+    body.light-theme .glass-nav { background: rgba(255,255,255,0.85); border-bottom-color: rgba(0,0,0,0.08); }
+    body.light-theme .glass-nav .nav-link { color: var(--text-primary); }
+    body.light-theme .glass-nav .nav-link:hover { color: #6366f1; }
         
     .glass-nav .nav-link.active { color:var(--accent-2); }
     .glass-nav .nav-link.active::after { width:100%; }
