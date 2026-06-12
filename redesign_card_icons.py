@@ -1,0 +1,39 @@
+﻿import os
+import sys
+# sys.stdout.reconfigure(encoding="utf-8")
+IMG_DIR = r"C:\Users\kangg\Desktop\网站搭建\ai-news-site\docs\images"
+
+icons = {
+    # ===== Brain - Cute robot with glowing brain =====
+    "ai-brain.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1"/><stop offset="100%" style="stop-color:#818cf8;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-4" r="16" fill="white" opacity="0.95"/><ellipse cx="-6" cy="-8" rx="5" ry="6" fill="#2D3748"/><ellipse cx="6" cy="-8" rx="5" ry="6" fill="#2D3748"/><circle cx="-4" cy="-11" r="2.5" fill="white" opacity="0.9"/><circle cx="8" cy="-11" r="2.5" fill="white" opacity="0.9"/><ellipse cx="-9" cy="0" rx="4" ry="2" fill="#a78bfa" opacity="0.25"/><ellipse cx="9" cy="0" rx="4" ry="2" fill="#a78bfa" opacity="0.25"/><path d="M-4,2 Q0,6 4,2" stroke="#2D3748" stroke-width="1.8" fill="none" stroke-linecap="round"/></g></svg>""",
+
+    # ===== Tool - Cute wrench buddy =====
+    "ai-tool.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1"/><stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-5" r="15" fill="white" opacity="0.95"/><ellipse cx="-5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><ellipse cx="5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><circle cx="-4" cy="-11" r="2" fill="white" opacity="0.9"/><circle cx="6" cy="-11" r="2" fill="white" opacity="0.9"/><ellipse cx="-8" cy="-1" rx="3.5" ry="1.8" fill="#f59e0b" opacity="0.25"/><ellipse cx="8" cy="-1" rx="3.5" ry="1.8" fill="#f59e0b" opacity="0.25"/><path d="M-3,2 Q0,5 3,2" stroke="#2D3748" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>""",
+
+    # ===== Framework - Cute building blocks =====
+    "ai-framework.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#34d399;stop-opacity:1"/><stop offset="100%" style="stop-color:#10b981;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-5" r="15" fill="white" opacity="0.95"/><ellipse cx="-5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><ellipse cx="5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><circle cx="-4" cy="-11" r="2" fill="white" opacity="0.9"/><circle cx="6" cy="-11" r="2" fill="white" opacity="0.9"/><rect x="-6" y="3" width="12" height="4" rx="1.5" fill="#10b981" opacity="0.4"/><rect x="-4" y="8" width="8" height="3" rx="1" fill="#10b981" opacity="0.25"/><path d="M-3,1 Q0,4 3,1" stroke="#2D3748" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>""",
+
+    # ===== GitHub - Cute octocat =====
+    "ai-github.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6b7280;stop-opacity:1"/><stop offset="100%" style="stop-color:#4b5563;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-5" r="15" fill="white" opacity="0.95"/><ellipse cx="-5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><ellipse cx="5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><circle cx="-4" cy="-11" r="2" fill="white" opacity="0.9"/><circle cx="6" cy="-11" r="2" fill="white" opacity="0.9"/><path d="M-3,2 Q0,5 3,2" stroke="#2D3748" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>""",
+
+    # ===== Skill - Cute computer terminal =====
+    "ai-skill.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6366f1;stop-opacity:1"/><stop offset="100%" style="stop-color:#818cf8;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-5" r="15" fill="white" opacity="0.95"/><ellipse cx="-5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><ellipse cx="5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><circle cx="-4" cy="-11" r="2" fill="white" opacity="0.9"/><circle cx="6" cy="-11" r="2" fill="white" opacity="0.9"/><path d="M-3,2 Q0,5 3,2" stroke="#2D3748" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>""",
+
+    # ===== Default - Cute star =====
+    "ai-default.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1"/><stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-5" r="15" fill="white" opacity="0.95"/><ellipse cx="-5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><ellipse cx="5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><circle cx="-4" cy="-11" r="2" fill="white" opacity="0.9"/><circle cx="6" cy="-11" r="2" fill="white" opacity="0.9"/><path d="M-3,2 Q0,5 3,2" stroke="#2D3748" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>""",
+
+    # ===== Data - Cute chart =====
+    "ai-data.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1"/><stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-5" r="15" fill="white" opacity="0.95"/><ellipse cx="-5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><ellipse cx="5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><circle cx="-4" cy="-11" r="2" fill="white" opacity="0.9"/><circle cx="6" cy="-11" r="2" fill="white" opacity="0.9"/><rect x="-6" y="3" width="4" height="6" rx="1" fill="#06b6d4" opacity="0.35"/><rect x="0" y="5" width="4" height="4" rx="1" fill="#06b6d4" opacity="0.25"/><path d="M-3,1 Q0,4 3,1" stroke="#2D3748" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>""",
+
+    # ===== Star - Cute star =====
+    "ai-star.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1"/><stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1"/></linearGradient></defs><rect width="70" height="70" rx="16" fill="url(#g)"/><g transform="translate(35,33)"><circle cx="0" cy="-5" r="15" fill="white" opacity="0.95"/><ellipse cx="-5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><ellipse cx="5" cy="-9" rx="4.5" ry="5.5" fill="#2D3748"/><circle cx="-4" cy="-11" r="2" fill="white" opacity="0.9"/><circle cx="6" cy="-11" r="2" fill="white" opacity="0.9"/><polygon points="0,2 2,5 5,5 3,8 4,11 0,9 -4,11 -3,8 -5,5 -2,5" fill="#f59e0b" opacity="0.3" transform="scale(0.5)"/><path d="M-3,2 Q0,5 3,2" stroke="#2D3748" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>""",
+}
+
+for name, svg in icons.items():
+    path = os.path.join(IMG_DIR, name)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(svg.strip())
+    print(f"  [OK] {name}")
+
+print("\n[DONE] All 8 card icons redesigned with cute Q-version faces!")
+
