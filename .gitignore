@@ -1,0 +1,9 @@
+﻿__pycache__/
+*.pyc
+*.bak
+build_header.txt
+CSS_VAR.txt
+build_new.py
+build_func.py
+gen_build.py
+build_site.py
