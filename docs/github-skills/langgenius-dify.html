@@ -4,7 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dify：开源的 LLMOps 平台 - AI 大模型资讯站</title>
-  <meta name="description" content="AI 大模型与 Codex Skills 知识库">
+  <meta name="description" content="Dify：开源的 LLMOps 平台">
+  <meta name="keywords" content="AI,大模型,GPT,Claude,DeepSeek,GitHub,开源,机器学习,深度学习,人工智能">
+  <meta property="og:title" content="Dify：开源的 LLMOps 平台 - AI 大模型资讯站">
+  <meta property="og:description" content="Dify：开源的 LLMOps 平台">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="..//index.html">
+  <meta property="og:image" content="..//images/hero.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dify：开源的 LLMOps 平台 - AI 大模型资讯站">
+  <meta name="twitter:description" content="Dify：开源的 LLMOps 平台">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -82,7 +91,23 @@
     .module-badge { display:inline-block; font-family:"Orbitron",sans-serif; font-size:.7rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; padding:.3rem .8rem; border-radius:20px; background:rgba(99,102,241,.12); border:1px solid rgba(99,102,241,.2); color:var(--accent-1); }
     .glow-text { text-shadow:0 0 20px rgba(6,182,212,.3); }
     .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
+    .back-to-top { position:fixed; bottom:2rem; right:2rem; z-index:99; width:44px; height:44px; border-radius:50%; background:var(--glass-bg); backdrop-filter:blur(12px); border:1px solid var(--glass-border); color:var(--accent-2); font-size:1.3rem; cursor:pointer; display:none; align-items:center; justify-content:center; transition:all .3s ease; }
+    .back-to-top:hover { transform:translateY(-3px); box-shadow:0 0 20px rgba(6,182,212,.2); border-color:var(--border-glow); }
+    .back-to-top.visible { display:flex; }
+    .theme-toggle { position:fixed; bottom:2rem; right:5rem; z-index:99; width:44px; height:44px; border-radius:50%; background:var(--glass-bg); backdrop-filter:blur(12px); border:1px solid var(--glass-border); color:var(--accent-2); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .3s ease; }
+    .theme-toggle:hover { transform:translateY(-3px); box-shadow:0 0 20px rgba(6,182,212,.2); border-color:var(--border-glow); }
+    .share-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .9rem; border-radius:8px; font-size:.78rem; font-weight:500; cursor:pointer; background:rgba(99,102,241,.1); border:1px solid var(--glass-border); color:var(--text-secondary); transition:all .3s ease; text-decoration:none; }
+    .share-btn:hover { background:rgba(99,102,241,.2); color:var(--accent-1); border-color:var(--border-glow); transform:translateY(-1px); }
+    .breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:var(--text-muted); margin-bottom:.5rem; }
+    .breadcrumb a { color:var(--text-secondary); text-decoration:none; transition:color .3s; }
+    .breadcrumb a:hover { color:var(--accent-2); }
+    .breadcrumb span { color:var(--text-muted); }
+    .filter-pills { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .filter-pill { padding:.25rem .7rem; border-radius:20px; font-size:.75rem; cursor:pointer; background:rgba(99,102,241,.08); border:1px solid var(--glass-border); color:var(--text-secondary); transition:all .3s ease; text-decoration:none; display:inline-block; }
+    .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
+    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); opacity:.15; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
+        @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
 </style>
 </head>
 <body>
@@ -110,10 +135,23 @@
     </div>
   </nav>
   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 relative" style="z-index:1;">
-    <div class="flex items-center gap-3 mb-6 animate-in">
-  <a href="javascript:history.back()" class="back-btn">&larr; 返回</a>
-  <span style="color:var(--text-muted);font-size:0.78rem;">|</span>
-  <a href=' + np + '/index.html" class="back-btn">首页</a>
+    <div class="mb-6 animate-in">
+  <nav class="breadcrumb">
+    <a href="../index.html">首页</a>
+    <span>/</span>
+    <span>Dify：开源的 LLMOps 平台</span>
+  </nav>
+  <div class="flex items-center justify-between gap-3" style="margin-top:0.5rem;">
+    <div class="flex items-center gap-2">
+      <a href="javascript:history.back()" class="back-btn">&larr; 返回</a>
+      <span style="color:var(--text-muted);font-size:0.78rem;">|</span>
+      <a href="../index.html" class="back-btn">首页</a>
+    </div>
+    <div class="flex gap-2">
+      <a href="https://twitter.com/intent/tweet?text=Dify：开源的 LLMOps 平台&url=https://ckang2927-commits.github.io/ai-news-site/../index.html" target="_blank" rel="noopener" class="share-btn" aria-label="分享到Twitter">⌘ Twitter</a>
+      <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(window.location.href);alert('链接已复制！')" class="share-btn" aria-label="复制链接">📋 复制链接</a>
+    </div>
+  </div>
 </div>
 <article class="prose glass-card" style="padding:1.5rem 2rem;animation:fadeInUp 0.6s ease forwards;">
   <h1>Dify：开源的 LLMOps 平台</h1>
@@ -189,7 +227,14 @@
   <div style="color:var(--text-secondary);font-size:0.85rem;line-height:1.7;">GitHub - https://github.com/langgenius/dify</div>
   <p style="color:var(--text-muted);font-size:0.75rem;margin-top:0.5rem;border-top:1px solid var(--glass-border);padding-top:0.5rem;">更新时间：2026-06-12</p>
 </div>
+<div class="flex justify-center gap-3 mt-6 animate-in" style="animation-delay:0.2s;">
+  <a href="javascript:history.back()" class="cyber-btn">&larr; 返回</a>
+  <a href="../index.html" class="cyber-btn">🏠 首页</a>
+</div>
   </main>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="back-to-top" id="backToTop" aria-label="回到顶部">↑</button>
+  <button onclick="document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark')" class="theme-toggle" id="themeToggle" aria-label="切换主题">☀</button>
+  <script>window.addEventListener('scroll',function(){document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)}); if(localStorage.getItem('theme')==='light')document.body.classList.add('light-theme');</script>
   <footer class="page-footer">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
       <p>&copy; 2026 AI 大模型资讯站 &middot; 由 Codex 构建与维护</p>
