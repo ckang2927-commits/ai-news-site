@@ -121,7 +121,7 @@ CSS_STYLE = r"""    :root {
     .filter-pills { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
     .filter-pill { padding:.25rem .7rem; border-radius:20px; font-size:.75rem; cursor:pointer; background:rgba(99,102,241,.08); border:1px solid var(--glass-border); color:var(--text-secondary); transition:all .3s ease; text-decoration:none; display:inline-block; }
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
-    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); opacity:.15; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
 """
@@ -213,7 +213,7 @@ CSS_STYLE = r"""    :root {
     .filter-pills { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
     .filter-pill { padding:.25rem .7rem; border-radius:20px; font-size:.75rem; cursor:pointer; background:rgba(99,102,241,.08); border:1px solid var(--glass-border); color:var(--text-secondary); transition:all .3s ease; text-decoration:none; display:inline-block; }
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
-    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); opacity:.15; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
 """
@@ -305,7 +305,7 @@ def content_card(title, desc, link, tags, date_str):
     elif "skill" in tag_text:
         icon_emoji = "\U0001f4bb"
     desc_preview = html_escape(desc[:150])
-    return f'<a href="{link}" class="content-card" style="padding-bottom:0.75rem;">\n  <div class="flex gap-3">\n    <div class="featured-image" style="width:70px;height:70px;min-width:70px;border-radius:10px;margin-bottom:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;">\n      <span style="font-size:1.8rem;opacity:0.4;">{icon_emoji}</span>\n    </div>\n    <div class="flex-1 min-w-0">\n      <h3 class="line-clamp-2" style="font-size:0.92rem;">{html_escape(title)}</h3>\n      <p style="color:var(--text-muted);font-size:0.75rem;line-height:1.45;margin-top:0.3rem;" class="line-clamp-2">{desc_preview}</p>\n      <div class="flex flex-wrap items-center gap-2 mt-2">\n        {tag_badges}\n        {date_html}\n      </div>\n    </div>\n  </div>\n</a>'
+    return f'<a href="{link}" class="content-card" style="padding-bottom:0.75rem;">\n  <div class="flex gap-3">\n    <div class="featured-image" style="width:70px;height:70px;min-width:70px;border-radius:10px;margin-bottom:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;">\n      <span style="font-size:1.8rem;opacity:0.7;">{icon_emoji}</span>\n    </div>\n    <div class="flex-1 min-w-0">\n      <h3 class="line-clamp-2" style="font-size:0.92rem;">{html_escape(title)}</h3>\n      <p style="color:var(--text-muted);font-size:0.75rem;line-height:1.45;margin-top:0.3rem;" class="line-clamp-2">{desc_preview}</p>\n      <div class="flex flex-wrap items-center gap-2 mt-2">\n        {tag_badges}\n        {date_html}\n      </div>\n    </div>\n  </div>\n</a>'
 
 
 
@@ -422,7 +422,8 @@ def build():
             with open(filepath, "r", encoding="utf-8") as f:
                 raw = f.read()
             fm, content = parse_frontmatter(raw)
-            html = markdown.markdown(content, extensions=["fenced_code", "codehilite", "tables"])
+            content_stripped = re.sub(r"^# .+\n?", "", content, count=1, flags=re.MULTILINE).strip()
+            html = markdown.markdown(content_stripped, extensions=["fenced_code", "codehilite", "tables"])
             slug_name = os.path.splitext(fname)[0]
             entries.append({**fm, "slug": slug_name, "html": html, "content": content})
         cards = []

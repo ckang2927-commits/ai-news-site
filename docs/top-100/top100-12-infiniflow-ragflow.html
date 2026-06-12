@@ -105,7 +105,7 @@
     .filter-pills { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
     .filter-pill { padding:.25rem .7rem; border-radius:20px; font-size:.75rem; cursor:pointer; background:rgba(99,102,241,.08); border:1px solid var(--glass-border); color:var(--text-secondary); transition:all .3s ease; text-decoration:none; display:inline-block; }
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
-    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); opacity:.15; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
 </style>
@@ -155,8 +155,7 @@
 </div>
 <article class="prose glass-card" style="padding:1.5rem 2rem;animation:fadeInUp 0.6s ease forwards;">
   <h1>第12名：RAGFlow - 企业级 RAG 引擎</h1>
-  <h1>第12名：RAGFlow</h1>
-<h2>项目简介</h2>
+  <h2>项目简介</h2>
 <p>RAGFlow 是一个专为企业级场景设计的检索增强生成（RAG）引擎，由 InfiniFlow 团队开发。该项目在 GitHub 上拥有超过 82,000 个 Star，是 RAG 技术领域最引人注目的开源项目之一。</p>
 <p>RAGFlow 的核心优势在于它解决了企业部署 RAG 系统时面临的一系列实际难题：复杂文档格式的解析、混合检索的准确性、大规模知识库的性能和系统的可扩展性。它不只是一个简单的向量检索工具，而是一个完整的端到端 RAG 解决方案。</p>
 <p>与普通的 RAG 方案相比，RAGFlow 特别注重文档解析的深度和检索的精度。它内置了强大的 OCR 引擎、版面分析器和表格识别器，即使面对扫描版 PDF、复杂表格和多栏排版也能准确提取信息。</p>

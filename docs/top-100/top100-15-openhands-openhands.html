@@ -105,7 +105,7 @@
     .filter-pills { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
     .filter-pill { padding:.25rem .7rem; border-radius:20px; font-size:.75rem; cursor:pointer; background:rgba(99,102,241,.08); border:1px solid var(--glass-border); color:var(--text-secondary); transition:all .3s ease; text-decoration:none; display:inline-block; }
     .filter-pill:hover,.filter-pill.active { background:rgba(99,102,241,.2); color:var(--accent-2); border-color:var(--border-glow); }
-    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); opacity:.15; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .featured-image { width:100%; height:180px; border-radius:12px; margin-bottom:1rem; background:var(--gradient-2); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     body.light-theme { --bg-primary: #f1f5f9; --bg-secondary: #e2e8f0; --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8; --glass-bg: rgba(255,255,255,0.7); --glass-border: rgba(0,0,0,0.08); }
         @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
 </style>
@@ -155,8 +155,7 @@
 </div>
 <article class="prose glass-card" style="padding:1.5rem 2rem;animation:fadeInUp 0.6s ease forwards;">
   <h1>第15名：OpenHands - AI 软件开发助手</h1>
-  <h1>第15名：OpenHands</h1>
-<h2>项目简介</h2>
+  <h2>项目简介</h2>
 <p>OpenHands（前身为 OpenDevin）是一个让 AI 代理自主进行软件开发的创新平台。该项目在 GitHub 上拥有超过 76,000 个 Star，代表了 AI 辅助编程从「代码补全」到「自主开发」的重大跨越。</p>
 <p>与 GitHub Copilot 等代码补全工具不同，OpenHands 的 AI 代理拥有自己独立的开发环境（Docker 容器），可以自主编写代码、运行命令、安装依赖、调试错误和管理项目文件。开发者只需要描述需求，AI 就能完成从设计到编码再到测试的全过程。</p>
 <p>该项目采用了「AI 软件工程师」的概念，Agent 可以通过终端操作、文件编辑和浏览器测试与开发环境交互。它的目标是让 AI 具备与人类开发者同等的能力：理解项目结构、编写可维护的代码和解决复杂的技术问题。</p>
