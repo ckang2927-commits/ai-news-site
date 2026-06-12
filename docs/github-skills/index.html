@@ -5,457 +5,459 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GitHub 精选 Skills - AI 大模型资讯站</title>
   <meta name="description" content="AI 大模型与 Codex Skills 知识库">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap");
-    * { font-family: "Noto Sans SC", system-ui, sans-serif; }
-    body { background: #f8fafc; }
-    .prose { max-width: 65ch; line-height: 1.8; color: #334155; }
-    .prose h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1e293b; }
-    .prose h2 { font-size: 1.35rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
-    .prose h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.4rem; color: #475569; }
-    .prose p { margin-bottom: 0.75rem; }
-    .prose ul, .prose ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
-    .prose li { margin-bottom: 0.3rem; }
-    .prose code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: #e11d48; }
-    .prose pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
-    .prose pre code { background: none; color: inherit; padding: 0; }
-    .prose a { color: #2563eb; text-decoration: underline; }
-    .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #64748b; margin-bottom: 0.75rem; }
-    .prose img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
-    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-    .prose th, .prose td { border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; text-align: left; }
-    .prose th { background: #f1f5f9; font-weight: 600; }
-    @media (max-width: 640px) { .container { padding-left: 1rem; padding-right: 1rem; } }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  </style>
+  <style>    :root {
+      --bg-primary: #0a0a1a; --bg-secondary: #12122a;
+      --bg-card: rgba(255,255,255,0.04);
+      --border-color: rgba(99,102,241,0.15);
+      --border-glow: rgba(6,182,212,0.3);
+      --text-primary: #e2e8f0; --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-1: #818cf8; --accent-2: #22d3ee; --accent-3: #a78bfa;
+      --gradient-2: linear-gradient(135deg, #06b6d4 0%, #6366f1 50%, #a78bfa 100%);
+      --glass-bg: rgba(18,18,42,0.6);
+      --glass-border: rgba(255,255,255,0.08);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:"Noto Sans SC",system-ui,sans-serif; background:var(--bg-primary); color:var(--text-primary); min-height:100vh; overflow-x:hidden; }
+    body::before { content:""; position:fixed; inset:0; background:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(99,102,241,0.15) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(6,182,212,0.1) 0%,transparent 50%),radial-gradient(ellipse 50% 40% at 20% 90%,rgba(167,139,250,0.08) 0%,transparent 50%); pointer-events:none; z-index:0; }
+    body::after { content:""; position:fixed; inset:0; background-image:linear-gradient(rgba(99,102,241,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.03) 1px,transparent 1px); background-size:60px 60px; pointer-events:none; z-index:0; }
+    @keyframes float { 0%{transform:translateY(100vh) scale(1);opacity:0;} 10%{opacity:.6;} 90%{opacity:.6;} 100%{transform:translateY(-10vh) scale(.5);opacity:0;} }
+    .glass-nav { position:sticky; top:0; z-index:100; backdrop-filter:blur(20px) saturate(1.8); -webkit-backdrop-filter:blur(20px) saturate(1.8); background:rgba(10,10,26,.75); border-bottom:1px solid var(--glass-border); }
+    .glass-nav .nav-link { position:relative; color:var(--text-secondary); text-decoration:none; padding:.25rem 0; font-size:.875rem; letter-spacing:.3px; transition:color .3s; }
+    .glass-nav .nav-link::after { content:""; position:absolute; bottom:-2px; left:0; width:0; height:2px; background:var(--gradient-2); transition:width .3s ease; border-radius:2px; }
+    .glass-nav .nav-link:hover { color:var(--accent-2); }
+    .glass-nav .nav-link:hover::after { width:100%; }
+    .site-logo { font-family:"Orbitron",sans-serif; font-weight:700; font-size:1.1rem; background:var(--gradient-2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; text-decoration:none; letter-spacing:1px; }
+    .glass-card { background:var(--glass-bg); backdrop-filter:blur(16px) saturate(1.4); -webkit-backdrop-filter:blur(16px) saturate(1.4); border:1px solid var(--glass-border); border-radius:16px; transition:all .4s cubic-bezier(.25,.46,.45,.94); position:relative; overflow:hidden; }
+    .glass-card::before { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent); transition:left .6s ease; }
+    .glass-card:hover::before { left:100%; }
+    .glass-card:hover { transform:translateY(-4px); border-color:var(--border-glow); box-shadow:0 8px 32px rgba(99,102,241,.15),0 0 60px rgba(6,182,212,.05); }
+    .glass-card .card-icon { font-size:2.2rem; line-height:1; margin-bottom:.5rem; }
+    .glass-card h2 { font-family:"Orbitron",sans-serif; font-size:.95rem; font-weight:600; letter-spacing:.5px; color:var(--text-primary); margin-bottom:.4rem; }
+    .content-card { background:var(--glass-bg); backdrop-filter:blur(12px) saturate(1.3); -webkit-backdrop-filter:blur(12px) saturate(1.3); border:1px solid var(--glass-border); border-radius:12px; padding:1.25rem; transition:all .35s ease; position:relative; overflow:hidden; display:block; text-decoration:none; }
+    .content-card::before { content:""; position:absolute; top:0; left:0; width:3px; height:0; background:var(--gradient-2); transition:height .4s ease; border-radius:0 2px 2px 0; }
+    .content-card:hover::before { height:100%; }
+    .content-card:hover { border-color:var(--border-glow); transform:translateY(-2px); box-shadow:0 4px 24px rgba(99,102,241,.12); }
+    .content-card h3 { font-size:1rem; font-weight:600; color:var(--text-primary); line-height:1.4; }
+    .tag { display:inline-block; padding:.15rem .55rem; border-radius:20px; font-size:.7rem; font-weight:500; background:rgba(99,102,241,.12); color:var(--accent-1); border:1px solid rgba(99,102,241,.2); letter-spacing:.3px; }
+    .prose { max-width:65ch; line-height:1.9; color:#cbd5e1; }
+    .prose h1 { font-family:"Orbitron",sans-serif; font-size:1.6rem; font-weight:700; letter-spacing:1px; margin-top:1.5rem; margin-bottom:1rem; background:var(--gradient-2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .prose h2 { font-size:1.25rem; font-weight:600; margin-top:1.5rem; margin-bottom:.6rem; color:#e2e8f0; padding-bottom:.4rem; border-bottom:1px solid rgba(99,102,241,.15); }
+    .prose h3 { font-size:1.05rem; font-weight:600; margin-top:1.2rem; margin-bottom:.5rem; color:#cbd5e1; }
+    .prose p { margin-bottom:.9rem; }
+    .prose ul,.prose ol { margin-bottom:.9rem; padding-left:1.5rem; }
+    .prose li { margin-bottom:.3rem; }
+    .prose code { font-family:"JetBrains Mono",monospace; background:rgba(99,102,241,.12); padding:.15rem .45rem; border-radius:4px; font-size:.85em; color:#67e8f9; }
+    .prose pre { background:rgba(10,10,26,.8); border:1px solid rgba(99,102,241,.15); color:#e2e8f0; padding:1rem; border-radius:12px; overflow-x:auto; margin-bottom:1rem; }
+    .prose pre code { background:none; color:inherit; padding:0; }
+    .prose a { color:#22d3ee; text-decoration:none; border-bottom:1px solid rgba(34,211,238,.3); transition:border-color .2s; }
+    .prose a:hover { border-color:#22d3ee; }
+    .prose blockquote { border-left:3px solid var(--accent-1); padding-left:1rem; color:var(--text-muted); margin-bottom:.9rem; background:rgba(99,102,241,.05); border-radius:0 8px 8px 0; padding:.6rem 1rem; }
+    .prose img { max-width:100%; border-radius:12px; margin:1rem 0; border:1px solid var(--glass-border); }
+    .prose table { width:100%; border-collapse:collapse; margin-bottom:1rem; border-radius:12px; overflow:hidden; }
+    .prose th,.prose td { border:1px solid rgba(99,102,241,.12); padding:.5rem .75rem; text-align:left; }
+    .prose th { background:rgba(99,102,241,.1); font-weight:600; color:#e2e8f0; }
+    .prose td { color:#cbd5e1; }
+    .source-footer { margin-top:2.5rem; padding:1.25rem; background:rgba(99,102,241,.06); border:1px solid var(--glass-border); border-radius:12px; }
+    .source-footer h3 { font-family:"Orbitron",sans-serif; font-size:.75rem; font-weight:600; letter-spacing:1px; color:var(--accent-2); text-transform:uppercase; margin-bottom:.5rem; }
+    .source-footer a { color:#22d3ee; text-decoration:none; border-bottom:1px solid rgba(34,211,238,.2); transition:border-color .2s; word-break:break-all; }
+    .source-footer a:hover { border-color:#22d3ee; }
+    .page-footer { border-top:1px solid var(--glass-border); margin-top:3rem; padding:1.5rem 0; text-align:center; position:relative; z-index:1; }
+    .page-footer p { color:var(--text-muted); font-size:.78rem; }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background:rgba(99,102,241,.3); border-radius:3px; }
+    ::-webkit-scrollbar-thumb:hover { background:rgba(99,102,241,.5); }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+    .animate-in { animation:fadeInUp .6s ease forwards; opacity:0; }
+    .hero-section { text-align:center; padding:3rem 1rem 2rem; }
+    .hero-section h1 { font-family:"Orbitron",sans-serif; font-size:clamp(1.6rem,4vw,2.5rem); font-weight:800; letter-spacing:2px; background:var(--gradient-2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:.6rem; }
+    .hero-section .subtitle { color:var(--text-secondary); font-size:.95rem; max-width:500px; margin:0 auto; line-height:1.6; }
+    .back-btn { display:inline-flex; align-items:center; gap:.4rem; color:var(--text-secondary); font-size:.85rem; text-decoration:none; transition:color .3s; }
+    .back-btn:hover { color:var(--accent-2); }
+    .module-badge { display:inline-block; font-family:"Orbitron",sans-serif; font-size:.7rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; padding:.3rem .8rem; border-radius:20px; background:rgba(99,102,241,.12); border:1px solid rgba(99,102,241,.2); color:var(--accent-1); }
+    .glow-text { text-shadow:0 0 20px rgba(6,182,212,.3); }
+    .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    @media (max-width:640px) { .glass-nav .nav-links { gap:.6rem; font-size:.75rem; overflow-x:auto; } .glass-nav .nav-link { font-size:.75rem; white-space:nowrap; } .prose h1 { font-size:1.2rem; } }
+</style>
 </head>
-<body class="min-h-screen">
-  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+<body>
+  <div class="particle" style="width:4px;height:4px;background:#818cf8;left:10%;animation-duration:18s;animation-delay:0s;"></div>
+  <div class="particle" style="width:3px;height:3px;background:#22d3ee;left:25%;animation-duration:22s;animation-delay:3s;"></div>
+  <div class="particle" style="width:5px;height:5px;background:#a78bfa;left:45%;animation-duration:20s;animation-delay:1s;"></div>
+  <div class="particle" style="width:3px;height:3px;background:#06b6d4;left:65%;animation-duration:25s;animation-delay:5s;"></div>
+  <div class="particle" style="width:4px;height:4px;background:#6366f1;left:85%;animation-duration:19s;animation-delay:2s;"></div>
+  <div class="particle" style="width:2px;height:2px;background:#67e8f9;left:35%;animation-duration:23s;animation-delay:7s;"></div>
+  <div class="particle" style="width:3px;height:3px;background:#818cf8;left:55%;animation-duration:21s;animation-delay:4s;"></div>
+  <div class="particle" style="width:4px;height:4px;background:#a78bfa;left:75%;animation-duration:17s;animation-delay:6s;"></div>
+
+  <nav class="glass-nav">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-14">
-        <a href="../index.html" class="text-lg font-bold text-primary-600 hover:text-primary-700 transition">AI 大模型资讯站</a>
-        <div class="flex gap-4 text-sm">
-          <a href="../skills/index.html" class="text-gray-600 hover:text-primary-600 transition">本地 Skills</a>
-          <a href="../plugin-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">插件 Skills</a>
-          <a href="../news/index.html" class="text-gray-600 hover:text-primary-600 transition">AI 新闻</a>
-          <a href="../github-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">GitHub Skills</a>
-          <a href="../top-100/index.html" class="text-gray-600 hover:text-primary-600 transition">Top 100</a>
+        <a href="../index.html" class="site-logo">🦢 AI 资讯站</a>
+        <div class="flex gap-3 sm:gap-5 nav-links">
+          <a href="../skills/index.html" class="nav-link">本地 Skills</a>
+          <a href="../plugin-skills/index.html" class="nav-link">插件 Skills</a>
+          <a href="../news/index.html" class="nav-link">AI 新闻</a>
+          <a href="../github-skills/index.html" class="nav-link">GitHub Skills</a>
+          <a href="../top-100/index.html" class="nav-link">Top 100</a>
         </div>
       </div>
     </div>
   </nav>
-  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-    
-    <div class="mb-6">
-      <a href="../index.html" class="text-sm text-primary-600 hover:text-primary-700 inline-flex items-center gap-1">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        返回首页
-      </a>
-    </div>
-    <div class="mb-8">
-      <h1 class="text-2xl font-bold text-gray-900">GitHub 精选 Skills</h1>
-      <p class="text-gray-500 mt-1">GitHub 上热门的 AI 相关项目</p>
-    </div>
-    <div class="grid gap-4 sm:grid-cols-2">
-      
-  <a href="browser-use-browser-use.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Browser Use：让 AI Agent 控制浏览器</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Browser Use 是一个让 AI Agent 通过自然语言指令自动操控浏览器的开源工具</p>
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 relative" style="z-index:1;">
+    <div class="mb-8 animate-in">
+  <a href=' + np + '/index.html" class="back-btn">&larr; 返回首页</a>
+  <h1 style="font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:1px;margin-top:0.5rem;background:var(--gradient-2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">GitHub 精选 Skills</h1>
+  <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:0.3rem;">GitHub 上热门的 AI 相关项目</p>
+</div>
+<div class="space-y-3">
+  <a href="browser-use-browser-use.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Browser Use：让 AI Agent 控制浏览器</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Browser Use 是一个让 AI Agent 通过自然语言指令自动操控浏览器的开源工具</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">AI工具</span><span class="tag">浏览器自动化</span><span class="tag">browser-automation</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI工具</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">浏览器自动化</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">browser-automation</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="bytedance-deer-flow.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Deer Flow：字节跳动开源的 AI Agent 工作流框架</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Deer Flow 是字节跳动开源的 AI Agent 工作流编排框架，帮助构建复杂的多步骤 AI 应用</p>
+  </div>
+</a>
+<a href="bytedance-deer-flow.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Deer Flow：字节跳动开源的 AI Agent 工作流框架</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Deer Flow 是字节跳动开源的 AI Agent 工作流编排框架，帮助构建复杂的多步骤 AI 应用</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">字节跳动</span><span class="tag">工作流</span><span class="tag">agentic-framework</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">字节跳动</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">工作流</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">agentic-framework</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="compvis-stable-diffusion.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Stable Diffusion：开创性的开源文生图模型</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Stable Diffusion 是由 CompVis 实验室推出的开源文本生成图像模型</p>
+  </div>
+</a>
+<a href="compvis-stable-diffusion.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Stable Diffusion：开创性的开源文生图模型</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Stable Diffusion 是由 CompVis 实验室推出的开源文本生成图像模型</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">图像生成</span><span class="tag">AI绘画</span><span class="tag">深度学习</span><span class="tag">Stable Diffusion</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">图像生成</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI绘画</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">深度学习</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Stable Diffusion</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="dair-ai-prompt-engineering-guide.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Prompt Engineering Guide：AI 提示工程权威指南</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">DAIR.AI 推出的提示工程指南，系统介绍提示词设计和优化技术</p>
+  </div>
+</a>
+<a href="dair-ai-prompt-engineering-guide.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Prompt Engineering Guide：AI 提示工程权威指南</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">DAIR.AI 推出的提示工程指南，系统介绍提示词设计和优化技术</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">提示工程</span><span class="tag">AI教程</span><span class="tag">LLM</span><span class="tag">prompt-engineering</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">提示工程</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI教程</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLM</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">prompt-engineering</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="foundationagents-metagpt.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">MetaGPT：多智能体协作的软件开发框架</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">MetaGPT 是一个多 Agent 协作框架，模拟软件公司角色分工自动完成软件开发</p>
+  </div>
+</a>
+<a href="foundationagents-metagpt.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">MetaGPT：多智能体协作的软件开发框架</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">MetaGPT 是一个多 Agent 协作框架，模拟软件公司角色分工自动完成软件开发</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">多智能体</span><span class="tag">软件开发</span><span class="tag">自动编程</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">多智能体</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">软件开发</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">自动编程</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="google-gemini-gemini-cli.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Gemini CLI：Google 官方 AI 命令行工具</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Gemini CLI 是 Google 推出的 AI 命令行工具，在终端中调用 Gemini 模型进行对话和编程</p>
+  </div>
+</a>
+<a href="google-gemini-gemini-cli.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Gemini CLI：Google 官方 AI 命令行工具</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Gemini CLI 是 Google 推出的 AI 命令行工具，在终端中调用 Gemini 模型进行对话和编程</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI 工具</span><span class="tag">Google</span><span class="tag">Gemini</span><span class="tag">命令行</span><span class="tag">cli</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI 工具</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Google</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Gemini</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">命令行</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">cli</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="hiyouga-llamafactory.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">LLaMA Factory：高效的大模型微调框架</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">LLaMA Factory 是一个专注于大语言模型高效微调的开源框架</p>
+  </div>
+</a>
+<a href="hiyouga-llamafactory.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">LLaMA Factory：高效的大模型微调框架</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">LLaMA Factory 是一个专注于大语言模型高效微调的开源框架</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI 框架</span><span class="tag">大模型微调</span><span class="tag">LLM</span><span class="tag">深度学习</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI 框架</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">大模型微调</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLM</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">深度学习</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="huggingface-transformers.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Transformers：Hugging Face 的深度学习中流砥柱</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Hugging Face Transformers 是业界最流行的 NLP 库，提供数千个预训练模型的统一接口</p>
+  </div>
+</a>
+<a href="huggingface-transformers.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Transformers：Hugging Face 的深度学习中流砥柱</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Hugging Face Transformers 是业界最流行的 NLP 库，提供数千个预训练模型的统一接口</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">LLM 框架</span><span class="tag">深度学习</span><span class="tag">NLP</span><span class="tag">Transformers</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLM 框架</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">深度学习</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">NLP</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Transformers</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="infiniflow-ragflow.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">RAGFlow：企业级 RAG 检索增强生成引擎</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">RAGFlow 是一个开源的检索增强生成引擎，为企业提供文档理解和知识问答能力</p>
+  </div>
+</a>
+<a href="infiniflow-ragflow.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">RAGFlow：企业级 RAG 检索增强生成引擎</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">RAGFlow 是一个开源的检索增强生成引擎，为企业提供文档理解和知识问答能力</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">RAG</span><span class="tag">检索增强生成</span><span class="tag">企业AI</span><span class="tag">知识库</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">RAG</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">检索增强生成</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">企业AI</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">知识库</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="josephmisiti-awesome-machine-learning.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Awesome Machine Learning：机器学习资源大全</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Awesome Machine Learning 是经典的机器学习资源合集，收录框架、库、教程和工具</p>
+  </div>
+</a>
+<a href="josephmisiti-awesome-machine-learning.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Awesome Machine Learning：机器学习资源大全</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Awesome Machine Learning 是经典的机器学习资源合集，收录框架、库、教程和工具</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">ML 框架</span><span class="tag">机器学习</span><span class="tag">资源列表</span><span class="tag">数据科学</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">ML 框架</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">机器学习</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">资源列表</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">数据科学</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="karpathy-autoresearch.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">AutoResearch：Andrej Karpathy 的 AI 自动研究助手</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">AutoResearch 是 Andrej Karpathy 开发的 AI 自主研究工具</p>
+  </div>
+</a>
+<a href="karpathy-autoresearch.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">AutoResearch：Andrej Karpathy 的 AI 自动研究助手</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">AutoResearch 是 Andrej Karpathy 开发的 AI 自主研究工具</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">自动研究</span><span class="tag">AndrejKarpathy</span><span class="tag">自主AI</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">自动研究</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AndrejKarpathy</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">自主AI</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="langchain-ai-langchain.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">LangChain：构建 LLM 应用的基石框架</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">LangChain 是最流行的 LLM 应用开发框架，提供链式调用、Agent、RAG 等模块化工具</p>
+  </div>
+</a>
+<a href="langchain-ai-langchain.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">LangChain：构建 LLM 应用的基石框架</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">LangChain 是最流行的 LLM 应用开发框架，提供链式调用、Agent、RAG 等模块化工具</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">LLM框架</span><span class="tag">LangChain</span><span class="tag">AI开发</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLM框架</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LangChain</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI开发</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="langflow-ai-langflow.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Langflow：可视化的 LLM 应用构建平台</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Langflow 是一个低代码的 LLM 应用构建工具，通过拖拽式界面编排 AI 应用</p>
+  </div>
+</a>
+<a href="langflow-ai-langflow.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Langflow：可视化的 LLM 应用构建平台</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Langflow 是一个低代码的 LLM 应用构建工具，通过拖拽式界面编排 AI 应用</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">低代码</span><span class="tag">可视化</span><span class="tag">LLM应用</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">低代码</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">可视化</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLM应用</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="langgenius-dify.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Dify：开源的 LLMOps 平台</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Dify 是一个开源的 LLM 应用开发与运维平台，融合 RAG、Agent 和工作流能力</p>
+  </div>
+</a>
+<a href="langgenius-dify.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Dify：开源的 LLMOps 平台</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Dify 是一个开源的 LLM 应用开发与运维平台，融合 RAG、Agent 和工作流能力</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">LLMOps</span><span class="tag">低代码</span><span class="tag">RAG</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLMOps</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">低代码</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">RAG</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="lobehub-lobehub.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">LobeHub：现代化 AI 聊天平台</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">LobeHub 是一个功能丰富的开源 AI 聊天平台，支持多模型接入和插件系统</p>
+  </div>
+</a>
+<a href="lobehub-lobehub.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">LobeHub：现代化 AI 聊天平台</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">LobeHub 是一个功能丰富的开源 AI 聊天平台，支持多模型接入和插件系统</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">聊天平台</span><span class="tag">AI助手</span><span class="tag">多模型</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">聊天平台</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI助手</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">多模型</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="msitarzewski-agency-agents.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Agency Agents：轻量级 AI Agent 协作框架</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Agency Agents 是一个轻量级的多 Agent 协作框架</p>
+  </div>
+</a>
+<a href="msitarzewski-agency-agents.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Agency Agents：轻量级 AI Agent 协作框架</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Agency Agents 是一个轻量级的多 Agent 协作框架</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">多智能体</span><span class="tag">轻量级</span><span class="tag">agentic-framework</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">多智能体</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">轻量级</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">agentic-framework</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="nousresearch-hermes-agent.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Hermes Agent：Nous Research 的高性能 AI Agent</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Nous Research 开发的通用 AI Agent 系统，结合专用模型与工具调用能力</p>
+  </div>
+</a>
+<a href="nousresearch-hermes-agent.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Hermes Agent：Nous Research 的高性能 AI Agent</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Nous Research 开发的通用 AI Agent 系统，结合专用模型与工具调用能力</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">NousResearch</span><span class="tag">hermes</span><span class="tag">agentic-ai</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">NousResearch</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">hermes</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">agentic-ai</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="openbb-finance-openbb.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">OpenBB：开源金融投资研究平台</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">OpenBB 是开源的投资研究平台，提供金融数据聚合与分析工具</p>
+  </div>
+</a>
+<a href="openbb-finance-openbb.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">OpenBB：开源金融投资研究平台</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">OpenBB 是开源的投资研究平台，提供金融数据聚合与分析工具</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">金融科技</span><span class="tag">量化分析</span><span class="tag">投资研究</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">金融科技</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">量化分析</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">投资研究</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="openhands-openhands.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">OpenHands：AI 软件工程助手</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">OpenHands 是一个 AI 编程助手，让 AI Agent 自主完成代码编写、调试和部署</p>
+  </div>
+</a>
+<a href="openhands-openhands.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">OpenHands：AI 软件工程助手</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">OpenHands 是一个 AI 编程助手，让 AI Agent 自主完成代码编写、调试和部署</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">编程助手</span><span class="tag">自动编程</span><span class="tag">软件工程</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">编程助手</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">自动编程</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">软件工程</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="pathwaycom-pathway.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Pathway：高性能实时数据管道引擎</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Pathway 是一个高性能的数据处理框架，支持实时流处理和批处理</p>
+  </div>
+</a>
+<a href="pathwaycom-pathway.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Pathway：高性能实时数据管道引擎</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Pathway 是一个高性能的数据处理框架，支持实时流处理和批处理</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">数据处理</span><span class="tag">实时流处理</span><span class="tag">ETL</span><span class="tag">数据管道</span><span class="tag">AI基础设施</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">数据处理</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">实时流处理</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">ETL</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">数据管道</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI基础设施</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="redis-redis.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Redis：开源内存数据库的行业标准</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">Redis 是世界最流行的开源内存数据库，兼具缓存、消息队列和向量检索能力</p>
+  </div>
+</a>
+<a href="redis-redis.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Redis：开源内存数据库的行业标准</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">Redis 是世界最流行的开源内存数据库，兼具缓存、消息队列和向量检索能力</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">数据库</span><span class="tag">缓存</span><span class="tag">内存数据库</span><span class="tag">分布式系统</span><span class="tag">redis</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">数据库</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">缓存</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">内存数据库</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">分布式系统</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">redis</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="shubhamsaboo-awesome-llm-apps.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Awesome LLM Apps：大模型应用集锦</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">精选的 LLM 应用项目集合，从聊天机器人到 Agent 系统的各种 AI 应用</p>
+  </div>
+</a>
+<a href="shubhamsaboo-awesome-llm-apps.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Awesome LLM Apps：大模型应用集锦</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">精选的 LLM 应用项目集合，从聊天机器人到 Agent 系统的各种 AI 应用</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">LLM应用</span><span class="tag">AI项目集锦</span><span class="tag">Python</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLM应用</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI项目集锦</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Python</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="snailclimb-javaguide.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">JavaGuide：Java 开发者面试和学习指南</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">JavaGuide 是中文互联网最受欢迎的 Java 学习指南之一</p>
+  </div>
+</a>
+<a href="snailclimb-javaguide.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">JavaGuide：Java 开发者面试和学习指南</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">JavaGuide 是中文互联网最受欢迎的 Java 学习指南之一</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">Java</span><span class="tag">编程教程</span><span class="tag">面试指南</span><span class="tag">程序员学习</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Java</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">编程教程</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">面试指南</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">程序员学习</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="tauricresearch-tradingagents.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">TradingAgents：多 Agent 交易分析框架</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">基于多 Agent 协作的金融交易分析框架</p>
+  </div>
+</a>
+<a href="tauricresearch-tradingagents.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">TradingAgents：多 Agent 交易分析框架</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">基于多 Agent 协作的金融交易分析框架</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">金融交易</span><span class="tag">量化分析</span><span class="tag">多智能体</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">金融交易</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">量化分析</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">多智能体</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="thedaviddias-front-end-checklist.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Front-End Checklist：前端开发全流程清单</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">详尽的前端开发检查清单，覆盖 HTML、CSS、性能、安全等最佳实践</p>
+  </div>
+</a>
+<a href="thedaviddias-front-end-checklist.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Front-End Checklist：前端开发全流程清单</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">详尽的前端开发检查清单，覆盖 HTML、CSS、性能、安全等最佳实践</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">前端开发</span><span class="tag">Web开发</span><span class="tag">最佳实践</span><span class="tag">开发清单</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">前端开发</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Web开发</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">最佳实践</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">开发清单</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="thedotmack-claude-mem.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">Claude Mem：为 Claude 注入长期记忆能力</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">为 Claude AI 提供长期记忆功能的浏览器扩展</p>
+  </div>
+</a>
+<a href="thedotmack-claude-mem.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">Claude Mem：为 Claude 注入长期记忆能力</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">为 Claude AI 提供长期记忆功能的浏览器扩展</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">Claude</span><span class="tag">记忆扩展</span><span class="tag">浏览器插件</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">Claude</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">记忆扩展</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">浏览器插件</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="vllm-project-vllm.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">vLLM：大模型高性能推理引擎</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">业界领先的大语言模型推理引擎，通过 PagedAttention 技术大幅提升推理效率</p>
+  </div>
+</a>
+<a href="vllm-project-vllm.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">vLLM：大模型高性能推理引擎</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">业界领先的大语言模型推理引擎，通过 PagedAttention 技术大幅提升推理效率</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">推理引擎</span><span class="tag">LLM</span><span class="tag">AI基础设施</span><span class="tag">GPU加速</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">推理引擎</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">LLM</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI基础设施</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">GPU加速</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-
-  <a href="x1xhlol-system-prompts-and-models-of-ai-tools.html" class="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-primary-300 transition-all duration-200 group">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-semibold text-gray-900 group-hover:text-primary-600 transition text-base truncate">System Prompts &amp; Models：AI 工具系统提示词汇总</h3>
-        <p class="text-sm text-gray-500 mt-1 line-clamp-2">收集各种 AI 工具的系统提示词和模型信息</p>
+  </div>
+</a>
+<a href="x1xhlol-system-prompts-and-models-of-ai-tools.html" class="content-card">
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1 min-w-0">
+      <h3 class="line-clamp-2">System Prompts &amp; Models：AI 工具系统提示词汇总</h3>
+      <p style="color:var(--text-muted);font-size:0.78rem;line-height:1.5;margin-top:0.4rem;" class="line-clamp-2">收集各种 AI 工具的系统提示词和模型信息</p>
+      <div class="flex flex-wrap items-center gap-2 mt-2.5">
+        <span class="tag">AI Agent</span><span class="tag">系统提示词</span><span class="tag">AI工具</span><span class="tag">提示工程</span>
+        <span style="color:var(--text-muted);font-size:0.72rem;">2026-06-12</span>
       </div>
-      <svg class="w-5 h-5 text-gray-300 group-hover:text-primary-400 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </div>
-    <div class="flex items-center gap-2 mt-2 flex-wrap">
-      <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI Agent</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">系统提示词</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">AI工具</span> <span class="inline-block bg-primary-50 text-primary-600 text-xs px-2 py-0.5 rounded-full">提示工程</span>
-      <span class="text-xs text-gray-400 ml-auto">2026-06-12</span>
-    </div>
-  </a>
-    </div>
+  </div>
+</a>
+</div>
   </main>
-  <footer class="bg-white border-t border-gray-200 mt-12 py-6">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
-      <p>&copy; 2026 AI 大模型资讯站 | 由 Codex 构建与维护</p>
-      <p class="mt-1">数据来源标注于各文章底部</p>
+  <footer class="page-footer">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+      <p>&copy; 2026 AI 大模型资讯站 &middot; 由 Codex 构建与维护</p>
+      <p style="color:var(--text-muted);font-size:0.72rem;margin-top:0.25rem;">数据来源标注于各文章底部 &middot; 探索 AI 的无限可能</p>
     </div>
   </footer>
 </body>
