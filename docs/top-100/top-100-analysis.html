@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 项目实时数据分析 - AI 大模型资讯站</title>
+  <meta name="description" content="AI 大模型与 Codex Skills 知识库">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap");
+    * { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    body { background: #f8fafc; }
+    .prose { max-width: 65ch; line-height: 1.8; color: #334155; }
+    .prose h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1e293b; }
+    .prose h2 { font-size: 1.35rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
+    .prose h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.4rem; color: #475569; }
+    .prose p { margin-bottom: 0.75rem; }
+    .prose ul, .prose ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+    .prose li { margin-bottom: 0.3rem; }
+    .prose code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: #e11d48; }
+    .prose pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
+    .prose pre code { background: none; color: inherit; padding: 0; }
+    .prose a { color: #2563eb; text-decoration: underline; }
+    .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #64748b; margin-bottom: 0.75rem; }
+    .prose img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose th, .prose td { border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; text-align: left; }
+    .prose th { background: #f1f5f9; font-weight: 600; }
+    @media (max-width: 640px) { .container { padding-left: 1rem; padding-right: 1rem; } }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-14">
+        <a href="../index.html" class="text-lg font-bold text-primary-600 hover:text-primary-700 transition">AI 大模型资讯站</a>
+        <div class="flex gap-4 text-sm">
+          <a href="../skills/index.html" class="text-gray-600 hover:text-primary-600 transition">本地 Skills</a>
+          <a href="../plugin-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">插件 Skills</a>
+          <a href="../news/index.html" class="text-gray-600 hover:text-primary-600 transition">AI 新闻</a>
+          <a href="../github-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">GitHub Skills</a>
+          <a href="../top-100/index.html" class="text-gray-600 hover:text-primary-600 transition">Top 100</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+    
+    <div class="mb-6 flex gap-4 text-sm">
+      <a href="javascript:history.back()" class="text-primary-600 hover:text-primary-700 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <a href="../index.html" class="text-gray-400 hover:text-primary-600 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        首页
+      </a>
+    </div>
+    <article class="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">AI 项目实时数据分析</h1>
+      <div class="prose"><h1>AI 项目实时数据分析</h1>
+<h2>数据概览</h2>
+<p>本次分析涵盖 GitHub 上最热门的 AI 开源项目，数据基于 2026 年 6 月 12 日的 GitHub API 实时抓取。Top 20 项目的 Star 总数超过 <strong>200 万</strong>，反映了 AI 开源生态的强劲增长势头。</p>
+<h3>类别分布</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>数量</th>
+<th>代表项目</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Agent</td>
+<td>6</td>
+<td>hermes-agent, browser-use, OpenHands, agency-agents</td>
+</tr>
+<tr>
+<td>LLM 框架/工具</td>
+<td>5</td>
+<td>transformers, langchain, LlamaFactory, RAGFlow</td>
+</tr>
+<tr>
+<td>应用平台</td>
+<td>3</td>
+<td>dify, langflow, lobehub</td>
+</tr>
+<tr>
+<td>提示工程</td>
+<td>2</td>
+<td>system-prompts, prompt-engineering-guide</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>4</td>
+<td>awesome-llm-apps, awesome-ml, Front-End-Checklist, gemini-cli</td>
+</tr>
+</tbody>
+</table>
+<h2>当前 Top 10</h2>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>项目</th>
+<th>Stars</th>
+<th>类别</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>NousResearch/hermes-agent</td>
+<td>191,318</td>
+<td>AI Agent</td>
+</tr>
+<tr>
+<td>2</td>
+<td>huggingface/transformers</td>
+<td>161,518</td>
+<td>LLM 框架</td>
+</tr>
+<tr>
+<td>3</td>
+<td>langflow-ai/langflow</td>
+<td>149,571</td>
+<td>AI Agent 平台</td>
+</tr>
+<tr>
+<td>4</td>
+<td>langgenius/dify</td>
+<td>144,928</td>
+<td>AI 应用平台</td>
+</tr>
+<tr>
+<td>5</td>
+<td>x1xhlol/system-prompts</td>
+<td>139,984</td>
+<td>提示工程</td>
+</tr>
+<tr>
+<td>6</td>
+<td>langchain-ai/langchain</td>
+<td>139,098</td>
+<td>LLM 框架</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Shubhamsaboo/awesome-llm-apps</td>
+<td>114,316</td>
+<td>AI 应用集锦</td>
+</tr>
+<tr>
+<td>8</td>
+<td>msitarzewski/agency-agents</td>
+<td>111,792</td>
+<td>AI Agent</td>
+</tr>
+<tr>
+<td>9</td>
+<td>google-gemini/gemini-cli</td>
+<td>105,183</td>
+<td>CLI 工具</td>
+</tr>
+<tr>
+<td>10</td>
+<td>browser-use/browser-use</td>
+<td>98,377</td>
+<td>AI Agent</td>
+</tr>
+</tbody>
+</table>
+<h2>关键趋势</h2>
+<h3>1. AI Agent 占据主导地位</h3>
+<p>Top 20 中有 6 个项目属于 AI Agent 类别，hermes-agent 以 191K Stars 位居榜首。Agent 技术正在从概念走向生产级应用。</p>
+<h3>2. 低代码/无代码平台崛起</h3>
+<p>langflow（149K）和 dify（144K）表明开发者对可视化 AI 工作流构建工具的需求强劲。</p>
+<h3>3. 开源生态持续繁荣</h3>
+<p>huggingface/transformers（161K）作为 ML 基础设施长青项目持续增长，而新项目如 browser-use、deer-flow 等快速崛起。</p>
+<h2>完整 Top 20</h2>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>项目</th>
+<th>Stars</th>
+<th>语言</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>NousResearch/hermes-agent</td>
+<td>191,318</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>2</td>
+<td>huggingface/transformers</td>
+<td>161,518</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>3</td>
+<td>langflow-ai/langflow</td>
+<td>149,571</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>4</td>
+<td>langgenius/dify</td>
+<td>144,928</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td>5</td>
+<td>x1xhlol/system-prompts-and-models-of-ai-tools</td>
+<td>139,984</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>6</td>
+<td>langchain-ai/langchain</td>
+<td>139,098</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Shubhamsaboo/awesome-llm-apps</td>
+<td>114,316</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>8</td>
+<td>msitarzewski/agency-agents</td>
+<td>111,792</td>
+<td>Shell</td>
+</tr>
+<tr>
+<td>9</td>
+<td>google-gemini/gemini-cli</td>
+<td>105,183</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td>10</td>
+<td>browser-use/browser-use</td>
+<td>98,377</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>11</td>
+<td>karpathy/autoresearch</td>
+<td>86,258</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>12</td>
+<td>infiniflow/ragflow</td>
+<td>82,512</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>13</td>
+<td>thedotmack/claude-mem</td>
+<td>81,874</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>14</td>
+<td>lobehub/lobehub</td>
+<td>78,538</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td>15</td>
+<td>OpenHands/OpenHands</td>
+<td>76,529</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>16</td>
+<td>dair-ai/Prompt-Engineering-Guide</td>
+<td>75,554</td>
+<td>Jupyter Notebook</td>
+</tr>
+<tr>
+<td>17</td>
+<td>thedaviddias/Front-End-Checklist</td>
+<td>72,898</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>18</td>
+<td>josephmisiti/awesome-machine-learning</td>
+<td>72,750</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>19</td>
+<td>hiyouga/LlamaFactory</td>
+<td>72,103</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>20</td>
+<td>bytedance/deer-flow</td>
+<td>71,026</td>
+<td>Python</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>数据来源：</strong> GitHub API
+<strong>数据更新时间：</strong> 2026-06-12
+<strong>说明：</strong> Star 数据为近似值，实际数值可能略有浮动</p></div>
+      <div class="mt-10 pt-6 border-t border-gray-200">
+        <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-500">
+          <p class="font-medium text-gray-700">&#128203; 数据来源</p>
+          <p class="mt-1">GitHub Search API</p>
+          <p class="mt-1">更新时间：2026-06-12</p>
+        </div>
+      </div>
+    </article>
+  </main>
+  <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+      <p>&copy; 2026 AI 大模型资讯站 | 由 Codex 构建与维护</p>
+      <p class="mt-1">数据来源标注于各文章底部</p>
+    </div>
+  </footer>
+</body>
+</html>

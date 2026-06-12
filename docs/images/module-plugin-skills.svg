@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="16" fill="#2196F3" opacity="0.1"/>
+  <rect x="10" y="10" width="180" height="180" rx="12" fill="none" stroke="#2196F3" stroke-width="2" opacity="0.3"/>
+  <rect x="40" y="40" width="120" height="120" rx="8" fill="#2196F3" opacity="0.15"/>
+  <text x="100" y="110" text-anchor="middle" fill="#2196F3" font-size="16" font-weight="bold" font-family="Arial">插件 Skills</text>
+</svg>

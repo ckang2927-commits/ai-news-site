@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="gb" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d2ff"/>
+      <stop offset="100%" stop-color="#3a7bd5"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#bg)" rx="16"/>
+  <circle cx="400" cy="180" r="70" fill="url(#gb)" opacity="0.9"/>
+  <circle cx="400" cy="180" r="45" fill="#0f3460" opacity="0.5"/>
+  <text x="400" y="188" text-anchor="middle" fill="white" font-size="24" font-weight="bold" font-family="Arial">AI</text>
+  <g stroke="#00d2ff" stroke-width="1.5" opacity="0.6">
+    <line x1="400" y1="180" x2="150" y2="80"/><circle cx="150" cy="80" r="5" fill="#00d2ff"/>
+    <line x1="400" y1="180" x2="650" y2="80"/><circle cx="650" cy="80" r="5" fill="#00d2ff"/>
+    <line x1="400" y1="180" x2="130" y2="300"/><circle cx="130" cy="300" r="5" fill="#00d2ff"/>
+    <line x1="400" y1="180" x2="670" y2="300"/><circle cx="670" cy="300" r="5" fill="#00d2ff"/>
+  </g>
+  <text x="400" y="350" text-anchor="middle" fill="#8be9fd" font-size="30" font-weight="bold" font-family="Arial">AI 大模型资讯站</text>
+  <text x="400" y="378" text-anchor="middle" fill="#6272a4" font-size="14" font-family="Arial">追踪 AI 最新动态 - 收录实用 Skills</text>
+</svg>

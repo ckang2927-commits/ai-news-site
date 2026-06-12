@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redis：开源内存数据库的行业标准 - AI 大模型资讯站</title>
+  <meta name="description" content="AI 大模型与 Codex Skills 知识库">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap");
+    * { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    body { background: #f8fafc; }
+    .prose { max-width: 65ch; line-height: 1.8; color: #334155; }
+    .prose h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1e293b; }
+    .prose h2 { font-size: 1.35rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
+    .prose h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.4rem; color: #475569; }
+    .prose p { margin-bottom: 0.75rem; }
+    .prose ul, .prose ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+    .prose li { margin-bottom: 0.3rem; }
+    .prose code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: #e11d48; }
+    .prose pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
+    .prose pre code { background: none; color: inherit; padding: 0; }
+    .prose a { color: #2563eb; text-decoration: underline; }
+    .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #64748b; margin-bottom: 0.75rem; }
+    .prose img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose th, .prose td { border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; text-align: left; }
+    .prose th { background: #f1f5f9; font-weight: 600; }
+    @media (max-width: 640px) { .container { padding-left: 1rem; padding-right: 1rem; } }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-14">
+        <a href="../index.html" class="text-lg font-bold text-primary-600 hover:text-primary-700 transition">AI 大模型资讯站</a>
+        <div class="flex gap-4 text-sm">
+          <a href="../skills/index.html" class="text-gray-600 hover:text-primary-600 transition">本地 Skills</a>
+          <a href="../plugin-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">插件 Skills</a>
+          <a href="../news/index.html" class="text-gray-600 hover:text-primary-600 transition">AI 新闻</a>
+          <a href="../github-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">GitHub Skills</a>
+          <a href="../top-100/index.html" class="text-gray-600 hover:text-primary-600 transition">Top 100</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+    
+    <div class="mb-6 flex gap-4 text-sm">
+      <a href="javascript:history.back()" class="text-primary-600 hover:text-primary-700 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <a href="../index.html" class="text-gray-400 hover:text-primary-600 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        首页
+      </a>
+    </div>
+    <article class="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">Redis：开源内存数据库的行业标准</h1>
+      <div class="prose"><h1>Redis：开源内存数据库的行业标准</h1>
+<h2>项目简介</h2>
+<p>Redis 是全球最流行的开源内存数据库，以其卓越的性能和丰富的数据结构闻名于世。它支持字符串、哈希、列表、集合等多种数据结构，同时提供了发布订阅、事务、Lua 脚本和集群等高级功能。在 AI 时代，Redis 通过 Stack 扩展支持了向量检索能力。</p>
+<h2>基本信息</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub</strong></td>
+<td><a href="https://github.com/redis/redis">https://github.com/redis/redis</a></td>
+</tr>
+<tr>
+<td><strong>Star 数</strong></td>
+<td>74,835</td>
+</tr>
+<tr>
+<td><strong>编程语言</strong></td>
+<td>C</td>
+</tr>
+<tr>
+<td><strong>分类</strong></td>
+<td>数据库</td>
+</tr>
+<tr>
+<td><strong>作者</strong></td>
+<td>redis</td>
+</tr>
+<tr>
+<td><strong>创建时间</strong></td>
+<td>2009-03-22</td>
+</tr>
+<tr>
+<td><strong>最近更新</strong></td>
+<td>2026-06-09</td>
+</tr>
+</tbody>
+</table>
+<h2>功能介绍</h2>
+<h3>核心功能</h3>
+<ul>
+<li><strong>内存数据存储</strong>：微秒级读写延迟，支持数据持久化和过期策略</li>
+<li><strong>丰富数据结构</strong>：字符串、哈希、列表、集合、位图等 10+ 种数据结构</li>
+<li><strong>向量检索支持</strong>：通过 Redis Stack 支持向量嵌入的存储和相似性搜索</li>
+</ul>
+<h3>应用场景</h3>
+<ul>
+<li>应用缓存：作为数据库查询缓存、会话缓存，大幅提升应用响应速度</li>
+<li>实时消息队列：利用发布订阅功能实现任务队列和实时消息推送</li>
+<li>AI 向量数据库：存储和检索 AI 生成的向量嵌入，支持语义搜索和 RAG</li>
+</ul>
+<h3>优势特点</h3>
+<ol>
+<li>极致性能：纯内存操作，读写吞吐量可达每秒百万级</li>
+<li>高可用架构：支持主从复制、哨兵模式和 Redis Cluster 集群架构</li>
+<li>生态完善：几乎所有编程语言都有成熟的 Redis 客户端库</li>
+</ol>
+<hr />
+<p><strong>数据来源：</strong> GitHub - <a href="https://github.com/redis/redis">https://github.com/redis/redis</a>
+<strong>发布时间：</strong> 2026-06-12
+<strong>作者：</strong> redis
+<strong>原文链接：</strong> <a href="https://github.com/redis/redis">https://github.com/redis/redis</a></p></div>
+      <div class="mt-10 pt-6 border-t border-gray-200">
+        <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-500">
+          <p class="font-medium text-gray-700">&#128203; 数据来源</p>
+          <p class="mt-1">GitHub - https://github.com/redis/redis</p>
+          <p class="mt-1">更新时间：2026-06-12</p>
+        </div>
+      </div>
+    </article>
+  </main>
+  <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+      <p>&copy; 2026 AI 大模型资讯站 | 由 Codex 构建与维护</p>
+      <p class="mt-1">数据来源标注于各文章底部</p>
+    </div>
+  </footer>
+</body>
+</html>

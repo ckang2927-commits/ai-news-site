@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第6名：LangChain - 构建 LLM 应用的综合性框架 - AI 大模型资讯站</title>
+  <meta name="description" content="AI 大模型与 Codex Skills 知识库">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap");
+    * { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    body { background: #f8fafc; }
+    .prose { max-width: 65ch; line-height: 1.8; color: #334155; }
+    .prose h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1e293b; }
+    .prose h2 { font-size: 1.35rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
+    .prose h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.4rem; color: #475569; }
+    .prose p { margin-bottom: 0.75rem; }
+    .prose ul, .prose ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+    .prose li { margin-bottom: 0.3rem; }
+    .prose code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: #e11d48; }
+    .prose pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
+    .prose pre code { background: none; color: inherit; padding: 0; }
+    .prose a { color: #2563eb; text-decoration: underline; }
+    .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #64748b; margin-bottom: 0.75rem; }
+    .prose img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose th, .prose td { border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; text-align: left; }
+    .prose th { background: #f1f5f9; font-weight: 600; }
+    @media (max-width: 640px) { .container { padding-left: 1rem; padding-right: 1rem; } }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-14">
+        <a href="../index.html" class="text-lg font-bold text-primary-600 hover:text-primary-700 transition">AI 大模型资讯站</a>
+        <div class="flex gap-4 text-sm">
+          <a href="../skills/index.html" class="text-gray-600 hover:text-primary-600 transition">本地 Skills</a>
+          <a href="../plugin-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">插件 Skills</a>
+          <a href="../news/index.html" class="text-gray-600 hover:text-primary-600 transition">AI 新闻</a>
+          <a href="../github-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">GitHub Skills</a>
+          <a href="../top-100/index.html" class="text-gray-600 hover:text-primary-600 transition">Top 100</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+    
+    <div class="mb-6 flex gap-4 text-sm">
+      <a href="javascript:history.back()" class="text-primary-600 hover:text-primary-700 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <a href="../index.html" class="text-gray-400 hover:text-primary-600 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        首页
+      </a>
+    </div>
+    <article class="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">第6名：LangChain - 构建 LLM 应用的综合性框架</h1>
+      <div class="prose"><h1>第6名：LangChain</h1>
+<h2>项目简介</h2>
+<p>LangChain 是一个强大的 LLM 应用开发框架，旨在帮助开发者构建基于大语言模型的复杂应用。该项目在 GitHub 上拥有超过 139,000 个 Star，是 LLM 应用开发领域最具影响力的框架之一。</p>
+<p>LangChain 之所以成为行业标准，是因为它解决了 LLM 应用开发中的一系列关键挑战：如何有效地串联多次 LLM 调用、如何让 LLM 使用外部工具、如何管理和维护对话记忆、如何从外部知识库检索信息。LangChain 提供了优雅的抽象层来处理这些问题。</p>
+<p>框架的核心设计理念是「链式组合」（Chaining），开发者可以将多个处理步骤组合成流水线，每一步都可以是 LLM 调用、工具操作或数据转换。LangChain 还提供了丰富的集成生态，连接超过 100 个外部服务和数据源。</p>
+<h2>基本信息</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>排名</strong></td>
+<td>#6</td>
+</tr>
+<tr>
+<td><strong>GitHub</strong></td>
+<td><a href="https://github.com/langchain-ai/langchain">langchain-ai/langchain</a></td>
+</tr>
+<tr>
+<td><strong>Star 数</strong></td>
+<td>139,098 ⭐</td>
+</tr>
+<tr>
+<td><strong>编程语言</strong></td>
+<td>Python</td>
+</tr>
+<tr>
+<td><strong>分类</strong></td>
+<td>LLM 框架</td>
+</tr>
+<tr>
+<td><strong>作者</strong></td>
+<td>LangChain AI</td>
+</tr>
+<tr>
+<td><strong>最近更新</strong></td>
+<td>2026-06-12</td>
+</tr>
+</tbody>
+</table>
+<h2>功能介绍</h2>
+<h3>核心功能</h3>
+<ul>
+<li>
+<p><strong>链式调用框架</strong>：提供丰富的内置 Chain 类型（LLMChain、SequentialChain、RouterChain 等），支持自定义 Chain。Chain 可以组合嵌套，构建任意复杂度的处理流水线。内置缓存和批处理优化，提升执行效率。</p>
+</li>
+<li>
+<p><strong>Agent 系统</strong>：支持 ReAct、Plan-and-Execute 等多种 Agent 架构。Agent 可以自主决定调用哪些工具以及如何响应。提供 AgentExecutor 管理多步推理循环，支持最大迭代次数和停止条件控制。</p>
+</li>
+<li>
+<p><strong>RAG 组件</strong>：完整的检索增强生成管道，包括文档加载器（50+ 格式）、文本分割器、向量存储集成（20+ 数据库）和检索器。支持高级检索策略如 MultiQuery Retrieval、Contextual Compression 和 Parent Document Retriever。</p>
+</li>
+<li>
+<p><strong>回调与监控</strong>：完善的回调系统，支持在 LLM 调用的各个阶段插入自定义逻辑。集成 LangSmith 平台，提供可视化追踪、性能分析和调试功能。支持 LangServe 一键部署为 REST API。</p>
+</li>
+</ul>
+<h3>应用场景</h3>
+<ul>
+<li><strong>文档问答系统</strong>：企业使用 LangChain 构建智能文档问答系统，整合内部知识库，员工可以用自然语言查询技术文档和项目资料</li>
+<li><strong>智能数据分析</strong>：数据团队构建自然语言数据查询助手，用户用中文描述分析需求，LangChain Agent 自动生成 SQL 并执行返回可视化结果</li>
+<li><strong>自动化工作流</strong>：运营团队构建内容审核工作流，串联多个 LLM 进行内容分类、敏感信息检测和合规性检查</li>
+</ul>
+<h3>优势特点</h3>
+<ol>
+<li><strong>生态最完善</strong>：拥有最大的 LLM 工具生态，集成 100+ 模型提供商、向量数据库、文档格式和外部工具</li>
+<li><strong>抽象层优雅</strong>：提供高层次的抽象，让开发者用声明式方式构建复杂 LLM 应用，减少样板代码</li>
+<li><strong>企业级支持</strong>：LangSmith 提供生产级监控和调试，LangServe 简化部署流程，满足企业应用需求</li>
+</ol>
+<hr />
+<p><strong>数据来源：</strong> GitHub - <a href="https://github.com/langchain-ai/langchain">https://github.com/langchain-ai/langchain</a><br />
+<strong>发布时间：</strong> 2026-06-12<br />
+<strong>数据由 GitHub API 实时获取</strong></p></div>
+      <div class="mt-10 pt-6 border-t border-gray-200">
+        <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-500">
+          <p class="font-medium text-gray-700">&#128203; 数据来源</p>
+          <p class="mt-1">GitHub - https://github.com/langchain-ai/langchain</p>
+          <p class="mt-1">更新时间：2026-06-12</p>
+        </div>
+      </div>
+    </article>
+  </main>
+  <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+      <p>&copy; 2026 AI 大模型资讯站 | 由 Codex 构建与维护</p>
+      <p class="mt-1">数据来源标注于各文章底部</p>
+    </div>
+  </footer>
+</body>
+</html>

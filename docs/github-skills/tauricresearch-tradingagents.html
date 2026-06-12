@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradingAgents：多 Agent 交易分析框架 - AI 大模型资讯站</title>
+  <meta name="description" content="AI 大模型与 Codex Skills 知识库">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap");
+    * { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    body { background: #f8fafc; }
+    .prose { max-width: 65ch; line-height: 1.8; color: #334155; }
+    .prose h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1e293b; }
+    .prose h2 { font-size: 1.35rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
+    .prose h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.4rem; color: #475569; }
+    .prose p { margin-bottom: 0.75rem; }
+    .prose ul, .prose ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+    .prose li { margin-bottom: 0.3rem; }
+    .prose code { background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: #e11d48; }
+    .prose pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
+    .prose pre code { background: none; color: inherit; padding: 0; }
+    .prose a { color: #2563eb; text-decoration: underline; }
+    .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #64748b; margin-bottom: 0.75rem; }
+    .prose img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose th, .prose td { border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; text-align: left; }
+    .prose th { background: #f1f5f9; font-weight: 600; }
+    @media (max-width: 640px) { .container { padding-left: 1rem; padding-right: 1rem; } }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-14">
+        <a href="../index.html" class="text-lg font-bold text-primary-600 hover:text-primary-700 transition">AI 大模型资讯站</a>
+        <div class="flex gap-4 text-sm">
+          <a href="../skills/index.html" class="text-gray-600 hover:text-primary-600 transition">本地 Skills</a>
+          <a href="../plugin-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">插件 Skills</a>
+          <a href="../news/index.html" class="text-gray-600 hover:text-primary-600 transition">AI 新闻</a>
+          <a href="../github-skills/index.html" class="text-gray-600 hover:text-primary-600 transition">GitHub Skills</a>
+          <a href="../top-100/index.html" class="text-gray-600 hover:text-primary-600 transition">Top 100</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+    
+    <div class="mb-6 flex gap-4 text-sm">
+      <a href="javascript:history.back()" class="text-primary-600 hover:text-primary-700 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <a href="../index.html" class="text-gray-400 hover:text-primary-600 inline-flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        首页
+      </a>
+    </div>
+    <article class="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">TradingAgents：多 Agent 交易分析框架</h1>
+      <div class="prose"><h1>TradingAgents：多 Agent 交易分析框架</h1>
+<h2>项目简介</h2>
+<p>TradingAgents 是一个基于多 Agent 协作的金融交易分析框架。它利用多个 AI Agent 分别扮演分析师、风险官和交易员等角色，协作完成市场分析、风险评估和交易策略制定。这种"AI 交易团队"的模式克服了单一模型的局限性。</p>
+<h2>基本信息</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub</strong></td>
+<td><a href="https://github.com/TauricResearch/TradingAgents">https://github.com/TauricResearch/TradingAgents</a></td>
+</tr>
+<tr>
+<td><strong>Star 数</strong></td>
+<td>85,263</td>
+</tr>
+<tr>
+<td><strong>编程语言</strong></td>
+<td>Python</td>
+</tr>
+<tr>
+<td><strong>分类</strong></td>
+<td>AI + 金融</td>
+</tr>
+<tr>
+<td><strong>作者</strong></td>
+<td>TauricResearch</td>
+</tr>
+<tr>
+<td><strong>创建时间</strong></td>
+<td>2024-12-28</td>
+</tr>
+<tr>
+<td><strong>最近更新</strong></td>
+<td>2026-06-01</td>
+</tr>
+</tbody>
+</table>
+<h2>功能介绍</h2>
+<h3>核心功能</h3>
+<ul>
+<li><strong>多角色 Agent 系统</strong>：分析师 Agent 负责市场分析，风险官 Agent 评估风险</li>
+<li><strong>实时市场数据接入</strong>：集成多种市场数据源，实时获取价格和新闻数据</li>
+<li><strong>策略回测与评估</strong>：提供历史回测框架，验证交易策略的收益和风险指标</li>
+</ul>
+<h3>应用场景</h3>
+<ul>
+<li>量化交易研究：研究人员利用多 Agent 系统探索新的交易策略</li>
+<li>风险管理分析：多角度评估投资组合的风险敞口和潜在损失</li>
+<li>市场情绪分析：综合分析新闻、社交媒体和财报数据评估市场情绪</li>
+</ul>
+<h3>优势特点</h3>
+<ol>
+<li>多 Agent 协作决策：不同角色的 Agent 相互制衡和补充，决策更全面</li>
+<li>透明可解释：每个 Agent 的分析过程和决策依据都可追溯审查</li>
+<li>灵活可定制：用户可根据需要自定义 Agent 角色和分析逻辑</li>
+</ol>
+<hr />
+<p><strong>数据来源：</strong> GitHub - <a href="https://github.com/TauricResearch/TradingAgents">https://github.com/TauricResearch/TradingAgents</a>
+<strong>发布时间：</strong> 2026-06-12
+<strong>作者：</strong> TauricResearch
+<strong>原文链接：</strong> <a href="https://github.com/TauricResearch/TradingAgents">https://github.com/TauricResearch/TradingAgents</a></p></div>
+      <div class="mt-10 pt-6 border-t border-gray-200">
+        <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-500">
+          <p class="font-medium text-gray-700">&#128203; 数据来源</p>
+          <p class="mt-1">GitHub - https://github.com/TauricResearch/TradingAgents</p>
+          <p class="mt-1">更新时间：2026-06-12</p>
+        </div>
+      </div>
+    </article>
+  </main>
+  <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+      <p>&copy; 2026 AI 大模型资讯站 | 由 Codex 构建与维护</p>
+      <p class="mt-1">数据来源标注于各文章底部</p>
+    </div>
+  </footer>
+</body>
+</html>
