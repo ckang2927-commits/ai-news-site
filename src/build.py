@@ -514,7 +514,7 @@ def detail_page(title, content_html, source="", nav_d=1, search_data=None):
     </div>
     <div class="flex gap-2">
       <a href="https://twitter.com/intent/tweet?text={html_escape(title)}&url=https://ckang2927-commits.github.io/ai-news-site/{np}/index.html" target="_blank" rel="noopener" class="share-btn" aria-label="分享到Twitter">? Twitter</a>
-      <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(window.location.href);alert('链接已复制！')" class="share-btn" aria-label="复制链接">?? 复制链接</a>
+      <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(window.location.href);alert('链接已复制！')" class="share-btn" aria-label="复制链接">⌘ 复制链接</a>
     </div>
   </div>
 </div>
@@ -523,13 +523,13 @@ def detail_page(title, content_html, source="", nav_d=1, search_data=None):
   {content_html}
 </article>
 <div class="source-footer animate-in" style="animation-delay:0.15s;">
-  <h3>?? 数据来源</h3>
+  <h3>▶ 数据来源</h3>
   <div style="color:var(--text-secondary);font-size:0.85rem;line-height:1.7;">{html_escape(source)}</div>
   <p style="color:var(--text-muted);font-size:0.75rem;margin-top:0.5rem;border-top:1px solid var(--glass-border);padding-top:0.5rem;">更新时间：{NOW.strftime('%Y-%m-%d')}</p>
 </div>
 <div class="flex justify-center gap-3 mt-6 animate-in" style="animation-delay:0.2s;">
   <a href="javascript:history.back()" class="cyber-btn">&larr; 返回</a>
-  <a href="{np}/index.html" class="cyber-btn">?? 首页</a>
+  <a href="{np}/index.html" class="cyber-btn">← 首页</a>
 </div>'''
     return page_frame(title, body, nav_depth=nav_d, og_desc=title, search_data=search_data)
 
@@ -539,7 +539,7 @@ def index_page(module_cards, search_data=None):
     nav_d = 0
     body = f'''<div class="hero-section animate-in">
   <div class="module-badge" style="margin-bottom:1rem;">? LIVE &middot; 2026</div>
-  <h1 class="glow-text">?? {SITE_NAME}</h1>
+  <h1 class="glow-text">{SITE_NAME}</h1>
   <p class="subtitle">追踪 AI 前沿动态 &middot; 收录实用 Skills &middot; 打造你的 AI 知识库</p>
 </div>
 <div class="grid gap-5 sm:grid-cols-2 mb-8">
@@ -547,7 +547,7 @@ def index_page(module_cards, search_data=None):
 </div>
 <div class="glass-card" style="padding:1.5rem;margin-top:1rem;animation:fadeInUp 0.6s ease forwards;animation-delay:0.3s;opacity:0;">
   <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;">
-    <span style="font-size:1.2rem;">??</span>
+    <span style="font-size:1.2rem;">▶</span>
     <span style="font-family:'Orbitron',sans-serif;font-size:0.8rem;font-weight:600;letter-spacing:1px;color:var(--accent-2);">ABOUT</span>
   </div>
   <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.7;">
@@ -598,7 +598,7 @@ def build():
             cards.append(content_card(title, desc_text, link, tags, date_str))
             module_search_data.append({
                 "t": title,
-                "u": f"{slug}/{link}",
+                "u": f"/{slug}/{link}",
                 "d": desc_text,
                 "g": tags[0] if tags else label,
                 "s": label,
