@@ -283,6 +283,7 @@ def page_frame(title, body_html, nav_depth=0, og_desc=None, og_image=None, searc
     # Build search JS with inline data
     search_js_funcs = Template("""
 var searchData = $SD;
+var basePath = "$BP";
 var curFocus = -1;
 function initSearch(inpId, dropId, scope) {
   var inp = document.getElementById(inpId), drop = document.getElementById(dropId);
@@ -303,7 +304,7 @@ function showPop(inp,drop,scope){
   drop.innerHTML="";var src=scope?searchData.filter(function(d){return d.s===scope;}):searchData;
   var pop=src.filter(function(d){return d.pop}).slice(0,10);if(!pop.length)pop=src.slice(0,10);
   pop.forEach(function(d,i){
-    var rc=i===0?"top1":i===1?"top2":i===2?"top3":"";var item=document.createElement("a");item.className="search-item";item.href=d.u;
+    var rc=i===0?"top1":i===1?"top2":i===2?"top3":"";var item=document.createElement("a");item.className="search-item";item.href=basePath?basePath+"/"+d.u:d.u;
     var rank=i<3?'<span class="rank '+rc+'">#'+(i+1)+'</span>':'<span class="rank">'+(i+1)+'</span>';
     item.innerHTML=rank+'<span>'+d.t+'</span><span class="item-tag">'+d.g+'</span>';drop.appendChild(item);
   });drop.classList.add("show");
@@ -320,13 +321,13 @@ function doSearch(inp,drop,scope){
   });res.sort(function(a,b){return b.s-a.s;});var top=res.slice(0,8);
   if(!top.length){drop.innerHTML='<div class="search-empty">没有匹配结果</div>';}
   else{top.forEach(function(r){
-    var item=document.createElement("a");item.className="search-item";item.href=r.d.u;
+    var item=document.createElement("a");item.className="search-item";item.href=basePath?basePath+"/"+r.d.u:r.d.u;
     var idx2=r.d.t.toLowerCase().indexOf(q);
     var th=idx2>=0?r.d.t.substring(0,idx2)+'<span class="match-text">'+r.d.t.substring(idx2,idx2+q.length)+'</span>'+r.d.t.substring(idx2+q.length):r.d.t;
     item.innerHTML='<span class="rank"></span><span>'+th+'</span><span class="item-tag">'+r.d.g+'</span>';drop.appendChild(item);
   })}drop.classList.add("show");
 }
-""").substitute(SD=search_data_json)
+""").substitute(SD=search_data_json, BP=np)
     is_home_str = "true" if nav_depth == 0 else "false"
     scoped_title = html_escape(title).replace("'", "\\\\'")
     search_init_js = "var isHm=" + is_home_str + ";var scp=null;document.addEventListener('DOMContentLoaded',function(){initSearch('globalSearch','globalDropdown',scp);});"
@@ -426,6 +427,7 @@ function doSearch(inp,drop,scope){
         CSS_STYLE=CSS_STYLE,
         BODY_HTML=body_html,
         SEARCH_JS_FUNCS=search_js_funcs,
+        BP=np,
         SEARCH_INIT_JS=search_init_js,
         SCROLL_JS=scroll_js,
         THEME_JS=theme_js,
@@ -538,7 +540,7 @@ def detail_page(title, content_html, source="", nav_d=1, search_data=None):
 def index_page(module_cards, search_data=None):
     nav_d = 0
     body = f'''<div class="hero-section animate-in">
-  <div class="module-badge" style="margin-bottom:1rem;">? LIVE &middot; 2026</div>
+  <div class="module-badge" style="margin-bottom:1rem;">&#9889; LIVE &middot; 2026</div>
   <h1 class="glow-text">{SITE_NAME}</h1>
   <p class="subtitle">追踪 AI 前沿动态 &middot; 收录实用 Skills &middot; 打造你的 AI 知识库</p>
 </div>
@@ -598,7 +600,7 @@ def build():
             cards.append(content_card(title, desc_text, link, tags, date_str))
             module_search_data.append({
                 "t": title,
-                "u": f"/{slug}/{link}",
+                "u": f"{slug}/{link}",
                 "d": desc_text,
                 "g": tags[0] if tags else label,
                 "s": label,
