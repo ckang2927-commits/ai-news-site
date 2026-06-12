@@ -132,6 +132,8 @@ CSS_STYLE = r"""    :root {
     body.light-theme .prose h3 { color: #334155; }
     body.light-theme .prose p { color: #475569; }
     body.light-theme .prose li { color: #475569; }
+    body.light-theme .prose th { color: #1e293b; }
+    body.light-theme .prose td { color: #334155; }
         
     .glass-nav .nav-link.active { color:var(--accent-2); }
     .glass-nav .nav-link.active::after { width:100%; }
@@ -257,6 +259,8 @@ CSS_STYLE = r"""    :root {
     body.light-theme .prose h3 { color: #334155; }
     body.light-theme .prose p { color: #475569; }
     body.light-theme .prose li { color: #475569; }
+    body.light-theme .prose th { color: #1e293b; }
+    body.light-theme .prose td { color: #334155; }
         
     .glass-nav .nav-link.active { color:var(--accent-2); }
     .glass-nav .nav-link.active::after { width:100%; }
