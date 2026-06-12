@@ -524,7 +524,7 @@ def list_page(title, desc, cards_html, nav_d=1, search_data=None):
   {cards_html}
 </div>
 <div style="display:flex;justify-content:center;gap:.5rem;margin-bottom:.8rem;" class="animate-in">
-  <a href="javascript:void(0)" onclick="var u=encodeURIComponent(window.location.href);var t=encodeURIComponent('{html_escape(title)}');window.open('https://connect.qq.com/widget/shareqq/index.html?url='+u+'&title='+t,'_blank','width=700,height=520')" class="share-btn" aria-label="分享到QQ">QQ</a>
+  <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=URL_P&title=TITLE_P&pics=&summary=" target="_blank" rel="noopener" class="share-btn" aria-label="分享到QQ空间" onclick="var u=encodeURIComponent(window.location.href);var t=encodeURIComponent(document.title);this.href='https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url='+u+'&title='+t">QQ空间</a>
   <a href="javascript:void(0)" onclick="showQRCode(window.location.href)" class="share-btn" aria-label="微信分享">微信</a>
   <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(window.location.href).then(function(){{alert('链接已复制！')}})" class="share-btn" aria-label="复制链接">⌘</a>
 </div>
@@ -554,7 +554,7 @@ def detail_page(title, content_html, source="", nav_d=1, search_data=None):
       <a href="{np}/index.html" class="back-btn">首页</a>
     </div>
     <div class="flex gap-2">
-      <a href="javascript:void(0)" onclick="var u=encodeURIComponent(window.location.href);var t=encodeURIComponent('{html_escape(title)}');window.open('https://connect.qq.com/widget/shareqq/index.html?url='+u+'&title='+t+'&desc=&summary=&site=AI%E8%B5%84%E8%AE%AF%E7%AB%99','_blank','width=700,height=520')" class="share-btn" aria-label="分享到QQ">QQ</a>
+      <a href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=URL_P&title=TITLE_P&pics=&summary=" target="_blank" rel="noopener" class="share-btn" aria-label="分享到QQ空间" onclick="var u=encodeURIComponent(window.location.href);var t=encodeURIComponent('{html_escape(title)}');this.href='https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url='+u+'&title='+t">QQ空间</a>
       <a href="javascript:void(0)" onclick="showQRCode(window.location.href)" class="share-btn" aria-label="微信分享">微信</a>
       <a href="https://twitter.com/intent/tweet?text={html_escape(title)}&url=https://ckang2927-commits.github.io/ai-news-site/{np}/index.html" target="_blank" rel="noopener" class="share-btn" aria-label="分享到Twitter">𝕏</a>
       <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(window.location.href).then(function(){{alert('链接已复制！')}})" class="share-btn" aria-label="复制链接">⌘</a>
