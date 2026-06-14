@@ -639,6 +639,11 @@ function skipCam() {
 
 // ═══════ BOOT
 async function boot() {
+  // Safety: auto-hide loading after 4s no matter what
+  setTimeout(() => { $('#loading').classList.add('hidden'); }, 4000);
+  // Show prompt after 500ms if not already dismissed
+  setTimeout(() => { if (!prompt.classList.contains('show')) prompt.classList.add('show'); }, 500);
+
   prog(10, '启动粒子...');
   ps = new PS();
   prog(50, '渲染就绪');
@@ -660,3 +665,4 @@ boot();
 </script>
 </body>
 </html>
+
