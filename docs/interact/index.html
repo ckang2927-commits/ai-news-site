@@ -7,677 +7,97 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
+html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif}
 canvas#main{position:fixed;top:0;left:0;width:100%;height:100%}
-canvas#debug{position:fixed;bottom:16px;right:16px;width:160px;height:120px;border-radius:12px;z-index:15;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);display:none}
+canvas#debug{position:fixed;bottom:12px;right:12px;width:140px;height:105px;border-radius:10px;z-index:15;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.05);display:none}
 canvas#debug.show{display:block}
 #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s}
 #loading.hidden{opacity:0;pointer-events:none}
-#loading .spinner{width:40px;height:40px;border:2px solid rgba(6,182,212,.1);border-top-color:#06b6d4;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#loading p{color:#94a3b8;margin-top:12px;font-size:12px}
-#loading .bar{width:180px;height:2px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:8px;overflow:hidden}
-#loading .bar-inner{height:100%;width:0%;background:linear-gradient(90deg,#06b6d4,#6366f1);border-radius:2px;transition:width .3s}
-
-#top{position:fixed;top:12px;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px;pointer-events:none}
+#loading .sp{width:36px;height:36px;border:2px solid rgba(6,182,212,.08);border-top-color:#06b6d4;border-radius:50%;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+#loading p{color:#94a3b8;margin-top:10px;font-size:12px}
+#loading .bar{width:160px;height:2px;background:rgba(255,255,255,.04);border-radius:2px;margin-top:8px;overflow:hidden}
+#loading .bar-in{height:100%;width:0%;background:linear-gradient(90deg,#06b6d4,#6366f1);border-radius:2px;transition:width .3s}
+#top{position:fixed;top:10px;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;pointer-events:none}
 #top>*{pointer-events:auto}
-.back-btn{width:34px;height:34px;border-radius:50%;background:rgba(10,10,26,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);color:#94a3b8;font-size:14px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .2s;cursor:pointer;position:absolute;left:16px}
-.back-btn:hover{color:#22d3ee;border-color:rgba(6,182,212,.25)}
-#gl{display:flex;align-items:center;gap:8px;background:rgba(10,10,26,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:4px 14px 4px 16px;transition:all .3s}
-#gl.glow{border-color:rgba(6,182,212,.25);box-shadow:0 0 20px rgba(6,182,212,.06)}
-#gl .txt{color:#94a3b8;font-size:12px;font-weight:500;white-space:nowrap}
-#gl .num{width:28px;height:28px;border-radius:50%;background:rgba(6,182,212,.1);color:#06b6d4;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;transition:all .2s}
-#gl .num.ok{background:rgba(6,182,212,.15);color:#22d3ee;box-shadow:0 0 12px rgba(6,182,212,.1)}
-
-#guide{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.3);font-size:10px;text-align:center;pointer-events:none;transition:opacity 1s;line-height:1.6;letter-spacing:.2px}
-#guide.hidden{opacity:0}
-#dist-hint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.2);font-size:9px;text-align:center;pointer-events:none;transition:opacity 1s;letter-spacing:.5px}
-#dist-hint.hidden{opacity:0}
-
-#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-#prompt.show{display:flex}
-#prompt .icon{font-size:36px;margin-bottom:10px}
-#prompt h2{color:#e2e8f0;font-size:16px;margin-bottom:3px}
-#prompt p{color:#94a3b8;font-size:12px;text-align:center;max-width:260px;line-height:1.5;margin-bottom:14px}
-#prompt .row{display:flex;flex-direction:column;gap:6px;align-items:center}
-#prompt button{padding:8px 28px;border-radius:20px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
-#prompt .btn1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
-#prompt .btn1:hover{transform:scale(1.04)}
-#prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
+.bk{width:32px;height:32px;border-radius:50%;background:rgba(10,10,26,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.05);color:#94a3b8;font-size:13px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .2s;cursor:pointer;position:absolute;left:12px}
+.bk:hover{color:#22d3ee;border-color:rgba(6,182,212,.2)}
+#gl{display:flex;align-items:center;gap:6px;background:rgba(10,10,26,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.05);border-radius:16px;padding:3px 12px 3px 14px;transition:all .3s}
+#gl.on{border-color:rgba(6,182,212,.2);box-shadow:0 0 16px rgba(6,182,212,.05)}
+#gl .t{color:#94a3b8;font-size:12px;font-weight:500;white-space:nowrap}
+#gl .n{width:26px;height:26px;border-radius:50%;background:rgba(6,182,212,.08);color:#06b6d4;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;transition:all .2s}
+#gl .n.ok{background:rgba(6,182,212,.12);color:#22d3ee;box-shadow:0 0 10px rgba(6,182,212,.08)}
+#hint{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.25);font-size:10px;text-align:center;pointer-events:none;transition:opacity 1s;line-height:1.6;letter-spacing:.2px}
+#hint.hidden{opacity:0}
+#dh{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.15);font-size:9px;text-align:center;pointer-events:none;transition:opacity 1s;letter-spacing:.3px}
+#dh.hidden{opacity:0}
+#pm{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px)}
+#pm.show{display:flex}
+#pm .ic{font-size:34px;margin-bottom:8px}
+#pm h2{color:#e2e8f0;font-size:15px;margin-bottom:2px}
+#pm p{color:#94a3b8;font-size:11px;text-align:center;max-width:240px;line-height:1.5;margin-bottom:12px}
+#pm .r{display:flex;flex-direction:column;gap:6px;align-items:center}
+#pm button{padding:7px 26px;border-radius:18px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+#pm .b1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
+#pm .b1:hover{transform:scale(1.04)}
+#pm .b2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.06);padding:5px 14px;font-size:11px}
 video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 @media(max-width:640px){
-  #top{padding:0 10px}
-  #gl{padding:3px 10px 3px 12px;border-radius:14px}
-  #gl .txt{font-size:11px}
-  #gl .num{width:24px;height:24px;font-size:14px}
-  canvas#debug{width:120px;height:90px;bottom:10px;right:10px}
-  #guide{font-size:9px;bottom:48px}
-  #dist-hint{font-size:8px;bottom:74px}
+  #top{padding:0 8px}
+  #gl{padding:2px 8px 2px 10px;border-radius:12px}
+  #gl .t{font-size:11px}
+  #gl .n{width:22px;height:22px;font-size:13px}
+  canvas#debug{width:100px;height:75px;bottom:8px;right:8px}
+  #hint{font-size:9px;bottom:40px}
+  #dh{font-size:8px;bottom:62px}
 }
 </style>
 </head>
 <body>
-<script>
-(function(){
-  // Force-hide loading screen after 3s no matter what
-  setTimeout(function(){
-    var el = document.getElementById('loading');
-    if(el) el.classList.add('hidden');
-  }, 3000);
-  // Also show camera prompt after 1s as backup
-  setTimeout(function(){
-    var p = document.getElementById('prompt');
-    if(p && !p.classList.contains('show')) p.classList.add('show');
-  }, 1000);
-})();
-</script>
-
-<div id="loading">
-  <div class="spinner"></div>
-  <p id="load-text">启动中...</p>
-  <div class="bar"><div class="bar-inner" id="load-bar"></div></div>
-</div>
-
-<div id="prompt">
-  <div class="icon">📷</div>
-  <h2>启用手势交互</h2>
-  <p>摄像头识别手指 · 本地处理不上传</p>
-  <div class="row">
-    <button class="btn1" id="btn-cam">启用摄像头</button>
-    <button class="btn2" id="btn-skip">鼠标/触控模式</button>
-  </div>
-</div>
-
-<div id="top">
-  <a href="../index.html" class="back-btn">←</a>
-  <div id="gl">
-    <span class="txt" id="gl-txt">👋 等待手势</span>
-    <span class="num" id="gl-num">-</span>
-  </div>
-</div>
-<div id="dist-hint">📏 距离摄像头 30~50cm · 手掌正对镜头 · 手指分开</div>
-<div id="guide">☝️1「我」 ✌️2「爱」 🤟3「欣欣」 🖐️4「我爱欣欣」 ✋5「球形」 · 快速滑动起风暴</div>
-
-<video id="webcam" playsinline></video>
-<canvas id="main"></canvas>
-<canvas id="debug"></canvas>
-
+<script>setTimeout(function(){var e=document.getElementById('loading');if(e)e.classList.add('hidden')},4000);setTimeout(function(){var p=document.getElementById('pm');if(p&&!p.classList.contains('show'))p.classList.add('show')},800);</script>
+<div id="loading"><div class="sp"></div><p id="lt">启动中...</p><div class="bar"><div class="bar-in" id="lb"></div></div></div>
+<div id="pm"><div class="ic">📷</div><h2>启用手势交互</h2><p>摄像头识别手指 · 本地处理</p><div class="r"><button class="b1" id="b1">启用摄像头</button><button class="b2" id="b2">鼠标模式</button></div></div>
+<div id="top"><a href="../index.html" class="bk">←</a><div id="gl"><span class="t" id="gt">✊ 等待手势</span><span class="n" id="gn">-</span></div></div>
+<div id="dh">📏 距离30~50cm · 手指分开</div>
+<div id="hint">✊0「小行星」 ☝️1「我」 ✌️2「爱」 🤟3「欣欣」 🖐️4「我爱欣欣」 ✋5「球形」 · 划动起风暴</div>
+<video id="w" playsinline></video><canvas id="main"></canvas><canvas id="debug"></canvas>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin></script>
 <script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin></script>
-
 <script type="module">
-import * as THREE from 'three';
-
-// ═══════ CONFIG
-const C = {
-  N: 24000,
-  speed: 4.5,
-  boom: 6,
-  damp: 0.92,
-  stormThresh: 0.02,
-  stormPow: 22,
-  depthSens: 0.5,
-  cooldown: 0.2,
-  smooth: 6
-};
-
-// ═══════ DOM
-const $ = s => document.querySelector(s);
-const loadBar = $('#load-bar'), loadTxt = $('#load-text');
-const glTxt = $('#gl-txt'), glNum = $('#gl-num'), gl = $('#gl');
-const guide = $('#guide'), distHint = $('#dist-hint');
-const prompt = $('#prompt'), video = $('#webcam');
-const mainCanvas = $('#main'), debugCanvas = $('#debug');
-
-function prog(p, t) {
-  loadBar.style.width = p + '%';
-  if (t) loadTxt.textContent = t;
-}
-
-// ═══════ 3D DIST
-const d3 = (a, b) => Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2 + (a.z-b.z)**2);
-const d2 = (a, b) => Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2);
-
-// ═══════ TEXT → POSITIONS
-function textPts(text, n, scale) {
-  const c = document.createElement('canvas');
-  c.width = 512; c.height = 160;
-  const ctx = c.getContext('2d');
-  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 512, 160);
-  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  let fs = 95;
-  if (text.length >= 4) fs = 62;
-  else if (text.length >= 3) fs = 75;
-  ctx.font = `bold ${fs}px "PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif`;
-  ctx.fillText(text, 256, 80);
-  const d = ctx.getImageData(0, 0, 512, 160).data;
-  const pts = [];
-  for (let y = 0; y < 160; y += 2)
-    for (let x = 0; x < 512; x += 2)
-      if (d[(y*512+x)*4] > 128)
-        pts.push({ x: (x-256)/55*scale, y: (80-y)/55*scale });
-  const pos = new Float32Array(n*3);
-  if (pts.length < 5) {
-    for (let i = 0; i < n; i++) {
-      pos[i*3] = (Math.random()-0.5)*scale*2;
-      pos[i*3+1] = (Math.random()-0.5)*scale*.6;
-      pos[i*3+2] = (Math.random()-0.5)*scale*.2;
-    }
-    return pos;
-  }
-  for (let i = 0; i < n; i++) {
-    const p = pts[Math.floor(Math.random()*pts.length)];
-    pos[i*3] = p.x + (Math.random()-.5)*.03;
-    pos[i*3+1] = p.y + (Math.random()-.5)*.03;
-    pos[i*3+2] = (Math.random()-.5)*scale*.06;
-  }
-  return pos;
-}
-
-function spherePts(n, r) {
-  const p = new Float32Array(n*3);
-  for (let i = 0; i < n; i++) {
-    const t = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
-    p[i*3] = r*Math.sin(ph)*Math.cos(t);
-    p[i*3+1] = r*Math.cos(ph);
-    p[i*3+2] = r*Math.sin(ph)*Math.sin(t);
-  }
-  return p;
-}
-
-function rndPts(n, r) {
-  const p = new Float32Array(n*3);
-  for (let i = 0; i < n; i++) {
-    p[i*3] = (Math.random()-.5)*r*2;
-    p[i*3+1] = (Math.random()-.5)*r*2;
-    p[i*3+2] = (Math.random()-.5)*r*2;
-  }
-  return p;
-}
-
-const G = {
-  1: { l: '我', g: () => textPts('我', C.N, 2.0) },
-  2: { l: '爱', g: () => textPts('爱', C.N, 2.0) },
-  3: { l: '欣欣', g: () => textPts('欣欣', C.N, 2.2) },
-  4: { l: '我爱欣欣', g: () => textPts('我爱欣欣', C.N, 2.5) },
-  5: { l: '球形', g: () => spherePts(C.N, 1.8) }
-};
-
-// ═══════ 🔥 ROBUST FINGER COUNTER (multi-method majority vote)
-function countFingers(lm) {
-  if (!lm || lm.length < 21) return -1;
-
-  const wrist = lm[0], palm = lm[9];
-  const handSz = d3(wrist, lm[5]); // wrist to index MCP
-  if (handSz < 0.005) return -1;
-
-  // Palm center
-  const pc = {
-    x: (lm[0].x+lm[5].x+lm[9].x+lm[13].x+lm[17].x)/5,
-    y: (lm[0].y+lm[5].y+lm[9].y+lm[13].y+lm[17].y)/5,
-    z: (lm[0].z+lm[5].z+lm[9].z+lm[13].z+lm[17].z)/5
-  };
-
-  const tips = [4, 8, 12, 16, 20];
-  const pips = [3, 6, 10, 14, 18];
-  const mcps = [2, 5, 9, 13, 17];
-
-  let count = 0;
-
-  for (let f = 0; f < 5; f++) {
-    const tip = lm[tips[f]], pip = lm[pips[f]], mcp = lm[mcps[f]];
-
-    // Method A: tip.y < pip.y (y-coordinate, works for palm-facing-camera)
-    const methodY = tip.y < pip.y - 0.015;
-
-    // Method B: tip distance from palm > pip distance from palm (rotation-invariant)
-    const dTipPalm = d3(tip, pc);
-    const dPipPalm = d3(pip, pc);
-    const methodPalm = dTipPalm > dPipPalm * 1.35;
-
-    // Method C: angle at PIP joint
-    const v1x = pip.x-mcp.x, v1y = pip.y-mcp.y;
-    const v2x = tip.x-pip.x, v2y = tip.y-pip.y;
-    const dot = v1x*v2x + v1y*v2y;
-    const m1 = Math.sqrt(v1x*v1x+v1y*v1y) || .001;
-    const m2 = Math.sqrt(v2x*v2x+v2y*v2y) || .001;
-    const ang = Math.acos(Math.max(-1,Math.min(1,dot/(m1*m2)))) * 180 / Math.PI;
-    const methodAng = ang > 145;
-
-    // Thumb special handling
-    if (f === 0) {
-      const idxMcp = lm[5];
-      const spread = d2(tip, idxMcp);
-      const thumbExtended = spread > handSz * 0.35;
-      // Thumb: need spread + at least one method
-      if (thumbExtended && (methodY || methodPalm)) count++;
-    } else {
-      // Majority vote: at least 2 out of 3 methods agree
-      let votes = methodY + methodPalm + methodAng;
-      if (this && this._debugFingers) {
-        // Store for debug
-        if (!this._debugData) this._debugData = {};
-        this._debugData[f] = { y: methodY, palm: methodPalm, ang: methodAng, votes };
-      }
-      if (votes >= 2) count++;
-    }
-  }
-
-  return count;
-}
-
-// ═══════ SMOOTHING
-let hist = [];
-function smooth(v) {
-  if (v < 0) return -1;
-  hist.push(v);
-  if (hist.length > C.smooth) hist.shift();
-  const t = {};
-  for (const x of hist) t[x] = (t[x]||0)+1;
-  let best = 0, bestN = 0;
-  for (const [k,c] of Object.entries(t))
-    if (c > bestN) { bestN = c; best = parseInt(k); }
-  return bestN > hist.length/2 ? best : -1; // require majority
-}
-
-// ═══════ DEBUG SKETCH
-function drawHand(lm, ctx, w, h) {
-  ctx.clearRect(0, 0, w, h);
-  if (!lm) return;
-
-  const connections = [
-    [0,1],[1,2],[2,3],[3,4],        // thumb
-    [0,5],[5,6],[6,7],[7,8],        // index
-    [0,9],[9,10],[10,11],[11,12],   // middle
-    [0,13],[13,14],[14,15],[15,16], // ring
-    [0,17],[17,18],[18,19],[19,20], // pinky
-    [5,9],[9,13],[13,17]            // palm
-  ];
-
-  // Lines
-  ctx.strokeStyle = 'rgba(6,182,212,.35)';
-  ctx.lineWidth = 1.5;
-  for (const [i,j] of connections) {
-    ctx.beginPath();
-    ctx.moveTo(lm[i].x*w, lm[i].y*h);
-    ctx.lineTo(lm[j].x*w, lm[j].y*h);
-    ctx.stroke();
-  }
-
-  // Fingertip dots
-  const tips = [4, 8, 12, 16, 20];
-  const colors = ['#f472b6','#22d3ee','#818cf8','#34d399','#fbbf24'];
-  for (let f = 0; f < 5; f++) {
-    const t = lm[tips[f]];
-    ctx.fillStyle = colors[f];
-    ctx.beginPath();
-    ctx.arc(t.x*w, t.y*h, 4, 0, Math.PI*2);
-    ctx.fill();
-  }
-
-  // Wrist dot
-  ctx.fillStyle = '#64748b';
-  ctx.beginPath();
-  ctx.arc(lm[0].x*w, lm[0].y*h, 3, 0, Math.PI*2);
-  ctx.fill();
-}
-
-// ═══════ PARTICLE SYSTEM
-class PS {
-  constructor() {
-    this.N = C.N;
-    this.pos = new Float32Array(this.N*3);
-    this.vel = new Float32Array(this.N*3);
-    this.acc = new Float32Array(this.N*3);
-    this.tgt = new Float32Array(this.N*3);
-    this.siz = new Float32Array(this.N);
-    this.col = new Float32Array(this.N*3);
-    this.key = null;
-    this.storm = {x:0,y:0,z:0};
-    this.depth = 1;
-    this.boomT = 0; this.boomD = 0.25; this.boom = false;
-    this.rot = 0; this._debugFingers = true; this._debugData = {};
-
-    const s = rndPts(this.N, 4.5);
-    this.pos.set(s); this.tgt.set(s);
-    for (let i = 0; i < this.N; i++) {
-      this.siz[i] = 0.025 + Math.random() * 0.055;
-      this.col[i*3] = 0.1 + Math.random() * 0.3;
-      this.col[i*3+1] = 0.4 + Math.random() * 0.5;
-      this.col[i*3+2] = 0.5 + Math.random() * 0.5;
-    }
-    this._gl();
-  }
-
-  _gl() {
-    this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
-    this.r.setPixelRatio(Math.min(devicePixelRatio, 2));
-    this.r.setSize(innerWidth, innerHeight);
-    this.r.setClearColor(0x070714);
-
-    this.s = new THREE.Scene();
-    this.c = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
-    this.c.position.z = 5.5;
-
-    // Stars
-    const sg = new THREE.BufferGeometry();
-    const sp = new Float32Array(500*3);
-    for (let i = 0; i < 500; i++) {
-      sp[i*3] = (Math.random()-.5)*50;
-      sp[i*3+1] = (Math.random()-.5)*50;
-      sp[i*3+2] = (Math.random()-.5)*50-12;
-    }
-    sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-    const sm = new THREE.PointsMaterial({ color: 0x334488, size: 0.025, transparent: true, opacity: 0.3 });
-    this.s.add(new THREE.Points(sg, sm));
-
-    // Connector lines
-    const cn = 120;
-    this.cNodes = new Float32Array(cn*3);
-    for (let i = 0; i < cn; i++) {
-      this.cNodes[i*3] = (Math.random()-.5)*4;
-      this.cNodes[i*3+1] = (Math.random()-.5)*4;
-      this.cNodes[i*3+2] = (Math.random()-.5)*4;
-    }
-    this.cPairs = [];
-    for (let i = 0; i < cn; i++)
-      for (let j = i+1; j < cn; j++)
-        if (Math.random() < 0.05) this.cPairs.push([i,j]);
-
-    const lp = new Float32Array(this.cPairs.length*6);
-    const lg = new THREE.BufferGeometry();
-    lg.setAttribute('position', new THREE.BufferAttribute(lp, 3));
-    const lm = new THREE.LineBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.06, blending: THREE.AdditiveBlending });
-    this.lines = new THREE.LineSegments(lg, lm);
-    this.s.add(this.lines);
-    this._lp = lp;
-
-    // Particles
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
-    geo.setAttribute('size', new THREE.BufferAttribute(this.siz, 1));
-    geo.setAttribute('color', new THREE.BufferAttribute(this.col, 3));
-
-    const vs = `
-      attribute float size; attribute vec3 color;
-      varying vec3 vc; varying float va;
-      void main() {
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = size * (350.0 / -mv.z);
-        gl_Position = projectionMatrix * mv;
-        vc = color; va = 0.6 + 0.4 * (1.0 - abs(position.x) / 8.0);
-      }
-    `;
-    const fs = `
-      varying vec3 vc; varying float va; uniform float t;
-      void main() {
-        vec2 c = gl_PointCoord - vec2(0.5);
-        float d = length(c);
-        if (d > 0.5) discard;
-        float a = smoothstep(0.5, 0.0, d) * va * 0.85;
-        float g = exp(-d * 12.0);
-        vec3 col = vc + vec3(0.15, 0.2, 0.25) * g;
-        gl_FragColor = vec4(col, a);
-      }
-    `;
-    const mat = new THREE.ShaderMaterial({
-      uniforms: { t: { value: 0 } },
-      vertexShader: vs, fragmentShader: fs,
-      transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
-    });
-    this.mesh = new THREE.Points(geo, mat);
-    this.s.add(this.mesh);
-
-    onresize = () => {
-      this.c.aspect = innerWidth/innerHeight;
-      this.c.updateProjectionMatrix();
-      this.r.setSize(innerWidth, innerHeight);
-    };
-  }
-
-  setTarget(k) {
-    if (k === this.key) return;
-    this.key = k;
-    const g = G[k]; if (!g) return;
-    this.tgt.set(g.g());
-    this.boom = true; this.boomT = 0;
-    for (let i = 0; i < this.N; i++) {
-      this.vel[i*3] += (Math.random()-.5)*C.boom;
-      this.vel[i*3+1] += (Math.random()-.5)*C.boom;
-      this.vel[i*3+2] += (Math.random()-.5)*C.boom;
-    }
-    glTxt.textContent = `${k} · ${G[k].l}`;
-    gl.classList.add('glow');
-    glNum.textContent = k;
-    glNum.classList.add('ok');
-    setTimeout(() => gl.classList.remove('glow'), 1000);
-  }
-
-  addStorm(dx, dy, s) {
-    this.storm.x += dx*s; this.storm.y += dy*s; this.storm.z += (Math.random()-.5)*s*.15;
-  }
-  setDepth(s) { this.depth = s; }
-
-  update(dt) {
-    dt = Math.min(dt, 0.05);
-    this.rot += dt * 0.06;
-
-    if (this.boom) { this.boomT += dt; if (this.boomT > this.boomD) this.boom = false; }
-    const ep = this.boom ? Math.min(this.boomT/this.boomD, 1) : 1;
-    const sd = Math.exp(-dt*4);
-    const attr = this.boom ? C.speed*0.5 : C.speed;
-    const df = this.depth > 1.1 ? (this.depth-1)*C.depthSens*3 : this.depth < 0.85 ? -(1-this.depth)*C.depthSens*3 : 0;
-
-    // Update connector nodes
-    for (let i = 0; i < this.cNodes.length/3; i++) {
-      this.cNodes[i*3] += (Math.random()-.5)*.004;
-      this.cNodes[i*3+1] += (Math.random()-.5)*.004;
-      this.cNodes[i*3+2] += (Math.random()-.5)*.004;
-      this.cNodes[i*3] *= .99; this.cNodes[i*3+1] *= .99; this.cNodes[i*3+2] *= .99;
-    }
-
-    const lp = this._lp, pairs = this.cPairs;
-    let idx = 0;
-    for (const [i,j] of pairs) {
-      const dx = this.cNodes[i*3]-this.cNodes[j*3];
-      const dy = this.cNodes[i*3+1]-this.cNodes[j*3+1];
-      const dz = this.cNodes[i*3+2]-this.cNodes[j*3+2];
-      if (Math.sqrt(dx*dx+dy*dy+dz*dz) < 2) {
-        lp[idx*3]=this.cNodes[i*3]; lp[idx*3+1]=this.cNodes[i*3+1]; lp[idx*3+2]=this.cNodes[i*3+2];
-        lp[(idx+1)*3]=this.cNodes[j*3]; lp[(idx+1)*3+1]=this.cNodes[j*3+1]; lp[(idx+1)*3+2]=this.cNodes[j*3+2];
-        idx++;
-      }
-    }
-    for (let i = idx*6; i < lp.length; i++) lp[i] = 0;
-    this.lines.geometry.attributes.position.needsUpdate = true;
-    this.lines.geometry.setDrawRange(0, idx*2);
-
-    const cr = Math.cos(this.rot), sr = Math.sin(this.rot);
-
-    for (let i = 0; i < this.N; i++) {
-      const i3 = i*3;
-      const dx = this.tgt[i3]-this.pos[i3];
-      const dy = this.tgt[i3+1]-this.pos[i3+1];
-      const dz = this.tgt[i3+2]-this.pos[i3+2];
-
-      this.acc[i3] = dx*attr + this.storm.x*(1-ep) + this.pos[i3]*df;
-      this.acc[i3+1] = dy*attr + this.storm.y*(1-ep) + this.pos[i3+1]*df;
-      this.acc[i3+2] = dz*attr + this.storm.z*(1-ep) + this.pos[i3+2]*df;
-
-      this.vel[i3] += this.acc[i3]*dt;
-      this.vel[i3+1] += this.acc[i3+1]*dt;
-      this.vel[i3+2] += this.acc[i3+2]*dt;
-
-      this.vel[i3] *= C.damp;
-      this.vel[i3+1] *= C.damp;
-      this.vel[i3+2] *= C.damp;
-
-      // Rotate
-      const px = this.pos[i3], pz = this.pos[i3+2];
-      this.pos[i3] = this.pos[i3] + this.vel[i3]*dt;
-      this.pos[i3+1] += this.vel[i3+1]*dt;
-      this.pos[i3+2] = pz + this.vel[i3+2]*dt;
-    }
-
-    this.storm.x *= sd; this.storm.y *= sd; this.storm.z *= sd;
-    this.mesh.geometry.attributes.position.needsUpdate = true;
-    this.mesh.material.uniforms.t.value += dt;
-  }
-
-  render() { this.r.render(this.s, this.c); }
-}
-
-let ps;
-
-// ═══════ HAND TRACKING
-let hpos = [];
-let prevK = -1, cd = 0, idle = 0;
-let lastLM = null;
-
-function onHand(r) {
-  if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
-    idle += 0.03;
-    if (idle > 1.5) {
-      glTxt.textContent = '👋 等待手势';
-      glNum.textContent = '-';
-      glNum.classList.remove('ok');
-    }
-    lastLM = null;
-    // Clear debug
-    const dc = debugCanvas.getContext('2d');
-    if (dc) dc.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
-    return;
-  }
-  idle = 0;
-  const lm = r.multiHandLandmarks[0];
-  lastLM = lm;
-
-  // Storm
-  const cx = lm[0].x, cy = lm[0].y;
-  hpos.push({x:cx,y:cy});
-  if (hpos.length > 6) hpos.shift();
-  if (hpos.length >= 3) {
-    const p1 = hpos[hpos.length-3], p2 = hpos[hpos.length-1];
-    const sp = Math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2);
-    if (sp > C.stormThresh && ps)
-      ps.addStorm((p2.x-p1.x)/sp, -(p2.y-p1.y)/sp, Math.min(sp*C.stormPow, C.stormPow*2));
-  }
-
-  // Depth
-  let mx=1,xx=0,my=1,xy=0;
-  for (const p of lm) { if(p.x<mx)mx=p.x; if(p.x>xx)xx=p.x; if(p.y<my)my=p.y; if(p.y>xy)xy=p.y; }
-  const bboxArea = (xx-mx)*(xy-my);
-  if (ps) ps.setDepth(Math.max(0.3, Math.min(4, bboxArea*15)));
-
-  // Distance hint
-  if (bboxArea < 0.04) distHint.textContent = '📏 手太远了，靠近一些 (30~50cm)';
-  else if (bboxArea > 0.4) distHint.textContent = '📏 手太近了，离远一点';
-  else distHint.textContent = '✅ 距离合适！';
-
-  // Finger count
-  cd -= 0.03;
-  const raw = countFingers(lm);
-  const k = smooth(raw);
-
-  if (cd <= 0 && k >= 1 && k <= 5 && k !== prevK && ps) {
-    prevK = k; cd = C.cooldown;
-    ps.setTarget(k);
-  }
-
-  // Draw debug
-  const dc = debugCanvas.getContext('2d');
-  if (dc && debugCanvas.classList.contains('show')) {
-    debugCanvas.width = debugCanvas.clientWidth * (devicePixelRatio||1);
-    debugCanvas.height = debugCanvas.clientHeight * (devicePixelRatio||1);
-    const s = debugCanvas.width / 160;
-    dc.scale(s, s);
-    drawHand(lm, dc, 160, 120);
-  }
-}
-
-// ═══════ MOUSE
-let mpos = [];
-let cycle = 0;
-const CYCLE = [1,2,3,4,5];
-
-function setupMouse() {
-  const h = (x,y) => {
-    mpos.push({x,y});
-    if (mpos.length > 6) mpos.shift();
-    if (mpos.length >= 3) {
-      const p1=mpos[mpos.length-3], p2=mpos[mpos.length-1];
-      const sp=Math.sqrt((p2.x-p1.x)**2+(p2.y-p1.y)**2);
-      if (sp > 0.01 && ps)
-        ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
-    }
-  };
-  mainCanvas.addEventListener('mousemove', e => h(e.clientX/innerWidth, e.clientY/innerHeight));
-  mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
-  mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
-  mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
-  setTimeout(() => { if(ps) { ps.setTarget(1); glNum.textContent='1'; glNum.classList.add('ok'); glTxt.textContent='1 · 我'; } }, 600);
-}
-
-// ═══════ CAMERA
-async function startCam() {
-  prompt.classList.remove('show');
-  guide.classList.add('hidden');
-  distHint.classList.remove('hidden');
-  debugCanvas.classList.add('show');
-
-  try {
-    const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
-    video.srcObject = s; await video.play();
-    prog(60, '加载手势识别...');
-    const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
-    hands.onResults(onHand);
-    const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
-    prog(85, '就绪！'); await cam.start();
-    prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
-  } catch(e) {
-    console.warn(e);
-    glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
-    debugCanvas.classList.remove('show');
-    setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
-  }
-}
-
-function skipCam() {
-  prompt.classList.remove('show');
-  glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
-  debugCanvas.classList.remove('show');
-  setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
-}
-
-// ═══════ BOOT
-async function boot() {
-  // Safety: auto-hide loading after 4s no matter what
-  setTimeout(() => { $('#loading').classList.add('hidden'); }, 4000);
-  // Show prompt after 500ms if not already dismissed
-  setTimeout(() => { if (!prompt.classList.contains('show')) prompt.classList.add('show'); }, 500);
-
-  prog(10, '启动粒子...');
-  ps = new PS();
-  prog(50, '渲染就绪');
-  await new Promise(r => setTimeout(r, 100));
-  prompt.classList.add('show');
-  $('#btn-cam').onclick = startCam;
-  $('#btn-skip').onclick = skipCam;
-
-  let last = performance.now();
-  function loop() {
-    const n = performance.now(), dt = (n-last)/1000;
-    last = n;
-    if (ps) { ps.update(dt); ps.render(); }
-    requestAnimationFrame(loop);
-  }
-  loop();
-}
+import*as THREE from 'three';
+const C={N:24000,speed:5,boom:6,damp:.92,st:.02,sp:22,dp:.5,cd:.25,sm:8};
+const $=s=>document.querySelector(s);
+const lb=$('#lb'),lt=$('#lt');
+const gt=$('#gt'),gn=$('#gn'),gl=$('#gl');
+const dh=$('#dh'),hint=$('#hint'),pm=$('#pm');
+const w=$('#w'),mc=$('#main'),dc=$('#debug');
+function pr(p,t){lb.style.width=p+'%';if(t)lt.textContent=t}
+const d3=(a,b)=>Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2+(a.z-b.z)**2);
+const d2=(a,b)=>Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);
+function txP(tx,n,s){const c=document.createElement('canvas');c.width=512;c.height=160;const x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,512,160);x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';let fs=95;if(tx.length>=4)fs=62;else if(tx.length>=3)fs=75;x.font='bold '+fs+'px "PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif';x.fillText(tx,256,80);const d=x.getImageData(0,0,512,160).data;const pts=[];for(let y=0;y<160;y+=2)for(let x=0;x<512;x+=2)if(d[(y*512+x)*4]>128)pts.push({x:(x-256)/55*s,y:(80-y)/55*s});const p=new Float32Array(n*3);if(pts.length<5){for(let i=0;i<n;i++){p[i*3]=(Math.random()-.5)*s*2;p[i*3+1]=(Math.random()-.5)*s*.6;p[i*3+2]=(Math.random()-.5)*s*.2}return p}for(let i=0;i<n;i++){const p2=pts[Math.floor(Math.random()*pts.length)];p[i*3]=p2.x+(Math.random()-.5)*.03;p[i*3+1]=p2.y+(Math.random()-.5)*.03;p[i*3+2]=(Math.random()-.5)*s*.06}return p}
+function spP(n,r){const p=new Float32Array(n*3);for(let i=0;i<n;i++){const t=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t)}return p}
+function rdP(n,r){const p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=(Math.random()-.5)*r*2;p[i*3+1]=(Math.random()-.5)*r*2;p[i*3+2]=(Math.random()-.5)*r*2}return p}
+function asP(n,s){const p=new Float32Array(n*3);const bd=Math.floor(n*.65),rg=n-bd;const sc=s*1.5;for(let i=0;i<bd;i++){const t=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);const r=sc*(.35+Math.random()*.25)*(.8+.3*Math.sin(t*4)*Math.cos(ph*3));p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t)}for(let i=0;i<rg;i++){const a=Math.random()*Math.PI*2;const r=sc*(.7+Math.random()*.6);const idx=bd+i;p[idx*3]=r*Math.cos(a);p[idx*3+1]=r*Math.sin(a)*.35+(Math.random()-.5)*sc*.05;p[idx*3+2]=r*Math.sin(a)*.6}return p}
+const G={0:{l:"小行星",g:()=>asP(C.N,1.8)},1:{l:"我",g:()=>txP("我",C.N,2.0)},2:{l:"爱",g:()=>txP("爱",C.N,2.0)},3:{l:"欣欣",g:()=>txP("欣欣",C.N,2.2)},4:{l:"我爱欣欣",g:()=>txP("我爱欣欣",C.N,2.5)},5:{l:"球形",g:()=>spP(C.N,1.8)}};
+let fHist=[];let fCfm=-1;let fCnt=0;
+function sm(v){if(v<0)return-1;fHist.push(v);if(fHist.length>C.sm)fHist.shift();const o={};for(const x of fHist)o[x]=(o[x]||0)+1;let b=-1,bn=0;for(const[k,c]of Object.entries(o))if(c>bn){bn=c;b=parseInt(k)}if(bn>=fHist.length*.55){if(b!==fCfm){fCnt++;if(fCnt>=3){fCfm=b;fCnt=0;return b}}else fCnt=0}else fCnt=0;return-1}
+function cF(lm){if(!lm||lm.length<21)return-1;const w=lm[0],pc={x:(lm[0].x+lm[5].x+lm[9].x+lm[13].x+lm[17].x)/5,y:(lm[0].y+lm[5].y+lm[9].y+lm[13].y+lm[17].y)/5,z:(lm[0].z+lm[5].z+lm[9].z+lm[13].z+lm[17].z)/5};const hs=d3(w,lm[5]);if(hs<.005)return-1;const tips=[4,8,12,16,20],pips=[3,6,10,14,18],mcps=[2,5,9,13,17];let ext=0;for(let f=0;f<5;f++){const tip=lm[tips[f]],pip=lm[pips[f]],mcp=lm[mcps[f]];const yM=tip.y<pip.y-.015;const dTP=d3(tip,pc),dPP=d3(pip,pc),pM=dTP>dPP*1.35;const v1x=pip.x-mcp.x,v1y=pip.y-mcp.y,v2x=tip.x-pip.x,v2y=tip.y-pip.y;const dot=v1x*v2x+v1y*v2y,m1=Math.sqrt(v1x*v1x+v1y*v1y)||.001,m2=Math.sqrt(v2x*v2x+v2y*v2y)||.001;const aM=Math.acos(Math.max(-1,Math.min(1,dot/(m1*m2))))*180/Math.PI>145;if(f===0){const iM=lm[5];if(d2(tip,iM)>hs*.35&&(yM||pM))ext++}else{if(yM+pM+aM>=2)ext++}}return ext}
+let hPos=[];let pK=-1,cd=0,idle=0;let lLM=null;
+function onH(r){if(!r.multiHandLandmarks||!r.multiHandLandmarks.length){idle+=.03;if(idle>1.5){gt.textContent="✊ 等待手势";gn.textContent="-";gn.classList.remove("ok")}lLM=null;const x=dc.getContext("2d");if(x)x.clearRect(0,0,dc.width,dc.height);return}idle=0;const lm=r.multiHandLandmarks[0];lLM=lm;const cx=lm[0].x,cy=lm[0].y;hPos.push({x:cx,y:cy});if(hPos.length>6)hPos.shift();if(hPos.length>=3){const p1=hPos[hPos.length-3],p2=hPos[hPos.length-1];const sp=Math.sqrt((p2.x-p1.x)**2+(p2.y-p1.y)**2);if(sp>C.st&&ps)ps.addStorm((p2.x-p1.x)/sp,-(p2.y-p1.y)/sp,Math.min(sp*C.sp,C.sp*2))}let mx=1,xx=0,my=1,xy=0;for(const p of lm){if(p.x<mx)mx=p.x;if(p.x>xx)xx=p.x;if(p.y<my)my=p.y;if(p.y>xy)xy=p.y}const ba=(xx-mx)*(xy-my);if(ps)ps.setDepth(Math.max(.3,Math.min(4,ba*15)));if(ba<.03)dh.textContent="📏 手太远了，靠近30~50cm";else if(ba>.45)dh.textContent="📏 手太近了，离远一点";else dh.textContent="✅ 距离合适";cd-=.03;const raw=cF(lm);const k=sm(raw);if(cd<=0&&k>=0&&k<=5&&k!==pK&&ps){pK=k;cd=C.cd;ps.setTarget(k)}const x=dc.getContext("2d");if(x&&dc.classList.contains("show")){dc.width=dc.clientWidth*(devicePixelRatio||1);dc.height=dc.clientHeight*(devicePixelRatio||1);const s=dc.width/140;x.scale(s,s);x.clearRect(0,0,140,105);if(lm){const cn=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]];x.strokeStyle="rgba(6,182,212,.3)";x.lineWidth=1.2;for(const[i,j]of cn){x.beginPath();x.moveTo(lm[i].x*140,lm[i].y*105);x.lineTo(lm[j].x*140,lm[j].y*105);x.stroke()}const ts=[4,8,12,16,20],cs=["#f472b6","#22d3ee","#818cf8","#34d399","#fbbf24"];for(let f=0;f<5;f++){x.fillStyle=cs[f];x.beginPath();x.arc(lm[ts[f]].x*140,lm[ts[f]].y*105,3.5,0,Math.PI*2);x.fill()}x.fillStyle="#64748b";x.beginPath();x.arc(lm[0].x*140,lm[0].y*105,2.5,0,Math.PI*2);x.fill()}}}
+class PS{constructor(){this.N=C.N;this.pos=new Float32Array(this.N*3);this.vel=new Float32Array(this.N*3);this.acc=new Float32Array(this.N*3);this.tgt=new Float32Array(this.N*3);this.siz=new Float32Array(this.N);this.col=new Float32Array(this.N*3);this.key=null;this.storm={x:0,y:0,z:0};this.depth=1;this.bt=0;this.bd=.25;this.bo=false;this.rot=0;const s=rdP(this.N,4.5);this.pos.set(s);this.tgt.set(s);for(let i=0;i<this.N;i++){this.siz[i]=.02+Math.random()*.05;this.col[i*3]=.1+Math.random()*.3;this.col[i*3+1]=.4+Math.random()*.45;this.col[i*3+2]=.5+Math.random()*.45}this._gl()}
+_gl(){this.r=new THREE.WebGLRenderer({canvas:mc,antialias:true});this.r.setPixelRatio(Math.min(devicePixelRatio,2));this.r.setSize(innerWidth,innerHeight);this.r.setClearColor(0x070714);this.s=new THREE.Scene();this.c=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,100);this.c.position.z=5.5;const sg=new THREE.BufferGeometry();const sp=new Float32Array(500*3);for(let i=0;i<500;i++){sp[i*3]=(Math.random()-.5)*50;sp[i*3+1]=(Math.random()-.5)*50;sp[i*3+2]=(Math.random()-.5)*50-12}sg.setAttribute("position",new THREE.BufferAttribute(sp,3));const sm=new THREE.PointsMaterial({color:0x334488,size:.025,transparent:true,opacity:.3});this.s.add(new THREE.Points(sg,sm));const cn=120;this.cN=new Float32Array(cn*3);for(let i=0;i<cn;i++){this.cN[i*3]=(Math.random()-.5)*4;this.cN[i*3+1]=(Math.random()-.5)*4;this.cN[i*3+2]=(Math.random()-.5)*4}this.cP=[];for(let i=0;i<cn;i++)for(let j=i+1;j<cn;j++)if(Math.random()<.05)this.cP.push([i,j]);const lp=new Float32Array(this.cP.length*6);const lg=new THREE.BufferGeometry();lg.setAttribute("position",new THREE.BufferAttribute(lp,3));const lm2=new THREE.LineBasicMaterial({color:0x06b6d4,transparent:true,opacity:.05,blending:THREE.AdditiveBlending});this.ln=new THREE.LineSegments(lg,lm2);this.s.add(this.ln);this._lp=lp;const geo=new THREE.BufferGeometry();geo.setAttribute("position",new THREE.BufferAttribute(this.pos,3));geo.setAttribute("size",new THREE.BufferAttribute(this.siz,1));geo.setAttribute("color",new THREE.BufferAttribute(this.col,3));const vs="attribute float size;attribute vec3 color;varying vec3 vc;varying float va;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=size*(350.0/-mv.z);gl_Position=projectionMatrix*mv;vc=color;va=.6+.4*(1.0-abs(position.x)/8.0)}";const fs="varying vec3 vc;varying float va;uniform float t;void main(){vec2 c=gl_PointCoord-vec2(.5);float d=length(c);if(d>.5)discard;float a=smoothstep(.5,0.,d)*va*.85;float g=exp(-d*12.0);vec3 col=vc+vec3(.15,.2,.25)*g;gl_FragColor=vec4(col,a)}";const mat=new THREE.ShaderMaterial({uniforms:{t:{value:0}},vertexShader:vs,fragmentShader:fs,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false});this.mesh=new THREE.Points(geo,mat);this.s.add(this.mesh);onresize=()=>{this.c.aspect=innerWidth/innerHeight;this.c.updateProjectionMatrix();this.r.setSize(innerWidth,innerHeight)}}
+setTarget(k){if(k===this.key)return;this.key=k;const g=G[k];if(!g)return;this.tgt.set(g.g());this.bo=true;this.bt=0;for(let i=0;i<this.N;i++){this.vel[i*3]+=(Math.random()-.5)*C.boom;this.vel[i*3+1]+=(Math.random()-.5)*C.boom;this.vel[i*3+2]+=(Math.random()-.5)*C.boom}gt.textContent=k+" · "+G[k].l;gl.classList.add("on");gn.textContent=k;gn.classList.add("ok");setTimeout(()=>gl.classList.remove("on"),1000)}
+addStorm(dx,dy,s){this.storm.x+=dx*s;this.storm.y+=dy*s;this.storm.z+=(Math.random()-.5)*s*.15}
+setDepth(s){this.depth=s}
+update(dt){dt=Math.min(dt,.05);this.rot+=dt*.06;if(this.bo){this.bt+=dt;if(this.bt>this.bd)this.bo=false}const ep=this.bo?Math.min(this.bt/this.bd,1):1;const sd=Math.exp(-dt*4);const attr=this.bo?C.speed*.5:C.speed;const df=this.depth>1.1?(this.depth-1)*C.dp*3:this.depth<.85?-(1-this.depth)*C.dp*3:0;for(let i=0;i<this.cN.length/3;i++){this.cN[i*3]+=(Math.random()-.5)*.004;this.cN[i*3+1]+=(Math.random()-.5)*.004;this.cN[i*3+2]+=(Math.random()-.5)*.004;this.cN[i*3]*=.99;this.cN[i*3+1]*=.99;this.cN[i*3+2]*=.99}const lp=this._lp,pp=this.cP;let ii=0;for(const[i,j]of pp){const dx=this.cN[i*3]-this.cN[j*3],dy=this.cN[i*3+1]-this.cN[j*3+1],dz=this.cN[i*3+2]-this.cN[j*3+2];if(Math.sqrt(dx*dx+dy*dy+dz*dz)<2){lp[ii*6]=this.cN[i*3];lp[ii*6+1]=this.cN[i*3+1];lp[ii*6+2]=this.cN[i*3+2];lp[ii*6+3]=this.cN[j*3];lp[ii*6+4]=this.cN[j*3+1];lp[ii*6+5]=this.cN[j*3+2];ii++}}for(let i=ii*6;i<lp.length;i++)lp[i]=0;this.ln.geometry.attributes.position.needsUpdate=true;this.ln.geometry.setDrawRange(0,ii*2);const cr=Math.cos(this.rot),sr=Math.sin(this.rot);for(let i=0;i<this.N;i++){const i3=i*3;const dx=this.tgt[i3]-this.pos[i3],dy=this.tgt[i3+1]-this.pos[i3+1],dz=this.tgt[i3+2]-this.pos[i3+2];this.acc[i3]=dx*attr+this.storm.x*(1-ep)+this.pos[i3]*df;this.acc[i3+1]=dy*attr+this.storm.y*(1-ep)+this.pos[i3+1]*df;this.acc[i3+2]=dz*attr+this.storm.z*(1-ep)+this.pos[i3+2]*df;this.vel[i3]+=this.acc[i3]*dt;this.vel[i3+1]+=this.acc[i3+1]*dt;this.vel[i3+2]+=this.acc[i3+2]*dt;this.vel[i3]*=C.damp;this.vel[i3+1]*=C.damp;this.vel[i3+2]*=C.damp;this.pos[i3]+=this.vel[i3]*dt;this.pos[i3+1]+=this.vel[i3+1]*dt;this.pos[i3+2]+=this.vel[i3+2]*dt}this.storm.x*=sd;this.storm.y*=sd;this.storm.z*=sd;this.mesh.geometry.attributes.position.needsUpdate=true;this.mesh.material.uniforms.t.value+=dt}
+render(){this.r.render(this.s,this.c)}}
+let ps;let mPos=[];let cyc=0;const CYC=[0,1,2,3,4,5];
+function setupM(){const h=(x,y)=>{mPos.push({x,y});if(mPos.length>6)mPos.shift();if(mPos.length>=3){const p1=mPos[mPos.length-3],p2=mPos[mPos.length-1];const sp=Math.sqrt((p2.x-p1.x)**2+(p2.y-p1.y)**2);if(sp>.01&&ps)ps.addStorm((p2.x-p1.x)/Math.max(sp,.001),-(p2.y-p1.y)/Math.max(sp,.001),Math.min(sp*350,35))}};mc.addEventListener("mousemove",e=>h(e.clientX/innerWidth,e.clientY/innerHeight));mc.addEventListener("click",()=>{if(!ps)return;cyc=(cyc+1)%CYC.length;ps.setTarget(CYC[cyc])});mc.addEventListener("touchmove",e=>{e.preventDefault();const t=e.touches[0];h(t.clientX/innerWidth,t.clientY/innerHeight)},{passive:false});mc.addEventListener("touchstart",e=>{e.preventDefault();if(!ps)return;cyc=(cyc+1)%CYC.length;ps.setTarget(CYC[cyc])},{passive:false});setTimeout(()=>{if(ps){ps.setTarget(0);gn.textContent="0";gn.classList.add("ok");gt.textContent="0 · 小行星"}},600)}
+async function startC(){pm.classList.remove("show");hint.classList.add("hidden");dh.classList.remove("hidden");dc.classList.add("show");try{const s=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:"user"}});w.srcObject=s;await w.play();pr(60,"加载识别...");const h2=new Hands({locateFile:f=>"https://unpkg.com/@mediapipe/hands@0.4.1675469240/"+f});h2.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.5,minTrackingConfidence:.3});h2.onResults(onH);const cm=new Camera(w,{onFrame:async()=>{try{await h2.send({image:w})}catch(e){}},width:640,height:480});pr(85,"就绪！");await cm.start();pr(100);setTimeout(()=>$("#loading").classList.add("hidden"),200)}catch(e){console.warn(e);gt.textContent="🖱️ 鼠标模式 · 点击切换";dc.classList.remove("show");setupM();pr(100);setTimeout(()=>$("#loading").classList.add("hidden"),200)}}
+function skipC(){pm.classList.remove("show");gt.textContent="🖱️ 鼠标模式 · 点击切换形态";dc.classList.remove("show");setupM();pr(100);setTimeout(()=>$("#loading").classList.add("hidden"),200)}
+async function boot(){pr(10,"启动粒子...");ps=new PS();pr(50,"渲染就绪");await new Promise(r=>setTimeout(r,100));pm.classList.add("show");$("#b1").onclick=startC;$("#b2").onclick=skipC;let last=performance.now();function loop(){const n=performance.now(),dt=(n-last)/1000;last=n;if(ps){ps.update(dt);ps.render()}requestAnimationFrame(loop)}loop()}
 boot();
 </script>
 </body>
 </html>
-
-
