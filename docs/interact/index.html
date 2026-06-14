@@ -3,51 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>✨ 粒子手势交互 - AI 大模型资讯站</title>
+<title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#07071a;font-family:sans-serif}
-canvas#main{position:fixed;top:0;left:0;width:100%;height:100%;display:block}
-#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#07071a;z-index:1000;transition:opacity .8s}
+html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
+canvas#main{position:fixed;top:0;left:0;width:100%;height:100%}
+canvas#debug{position:fixed;bottom:16px;right:16px;width:160px;height:120px;border-radius:12px;z-index:15;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);display:none}
+canvas#debug.show{display:block}
+#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s}
 #loading.hidden{opacity:0;pointer-events:none}
-#loading .spinner{width:44px;height:44px;border:2px solid rgba(6,182,212,.12);border-top-color:#06b6d4;border-radius:50%;animation:spin 1s linear infinite}
+#loading .spinner{width:40px;height:40px;border:2px solid rgba(6,182,212,.1);border-top-color:#06b6d4;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-#loading p{color:#94a3b8;margin-top:14px;font-size:13px}
-#loading .bar{width:200px;height:2px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:10px;overflow:hidden}
-#loading .bar-inner{height:100%;width:0%;background:linear-gradient(90deg,#06b6d4,#6366f1,#c084fc);border-radius:2px;transition:width .3s}
+#loading p{color:#94a3b8;margin-top:12px;font-size:12px}
+#loading .bar{width:180px;height:2px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:8px;overflow:hidden}
+#loading .bar-inner{height:100%;width:0%;background:linear-gradient(90deg,#06b6d4,#6366f1);border-radius:2px;transition:width .3s}
 
-#top-ui{position:fixed;top:0;left:0;right:0;z-index:10;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
-#top-ui>*{pointer-events:auto}
-.back-btn{width:36px;height:36px;border-radius:50%;background:rgba(10,10,26,.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);color:#94a3b8;font-size:15px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .3s;cursor:pointer;flex-shrink:0}
-.back-btn:hover{color:#22d3ee;border-color:rgba(6,182,212,.3)}
+#top{position:fixed;top:12px;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px;pointer-events:none}
+#top>*{pointer-events:auto}
+.back-btn{width:34px;height:34px;border-radius:50%;background:rgba(10,10,26,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);color:#94a3b8;font-size:14px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .2s;cursor:pointer;position:absolute;left:16px}
+.back-btn:hover{color:#22d3ee;border-color:rgba(6,182,212,.25)}
+#gl{display:flex;align-items:center;gap:8px;background:rgba(10,10,26,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:4px 14px 4px 16px;transition:all .3s}
+#gl.glow{border-color:rgba(6,182,212,.25);box-shadow:0 0 20px rgba(6,182,212,.06)}
+#gl .txt{color:#94a3b8;font-size:12px;font-weight:500;white-space:nowrap}
+#gl .num{width:28px;height:28px;border-radius:50%;background:rgba(6,182,212,.1);color:#06b6d4;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;transition:all .2s}
+#gl .num.ok{background:rgba(6,182,212,.15);color:#22d3ee;box-shadow:0 0 12px rgba(6,182,212,.1)}
 
-#gesture-label{padding:5px 16px;border-radius:16px;background:rgba(10,10,26,.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.07);color:#94a3b8;font-size:13px;font-weight:500;transition:all .3s;margin:0 8px;white-space:nowrap}
-#gesture-label.glow{color:#22d3ee;border-color:rgba(6,182,212,.25);box-shadow:0 0 16px rgba(6,182,212,.08)}
+#guide{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.3);font-size:10px;text-align:center;pointer-events:none;transition:opacity 1s;line-height:1.6;letter-spacing:.2px}
+#guide.hidden{opacity:0}
+#dist-hint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.2);font-size:9px;text-align:center;pointer-events:none;transition:opacity 1s;letter-spacing:.5px}
+#dist-hint.hidden{opacity:0}
 
-#count-badge{width:36px;height:36px;border-radius:50%;background:rgba(10,10,26,.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);color:#22d3ee;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Orbitron',monospace;transition:all .2s}
-
-#hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.35);font-size:11px;text-align:center;pointer-events:none;transition:opacity 1s;line-height:1.6;letter-spacing:.3px}
-#hint.hidden{opacity:0}
-
-#camera-prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,26,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
-#camera-prompt.show{display:flex}
-#camera-prompt .icon{font-size:40px;margin-bottom:12px}
-#camera-prompt h2{color:#e2e8f0;font-size:17px;margin-bottom:4px;letter-spacing:.3px}
-#camera-prompt p{color:#94a3b8;font-size:12px;text-align:center;max-width:280px;line-height:1.5;margin-bottom:16px}
-#camera-prompt .btn-row{display:flex;flex-direction:column;gap:8px;align-items:center}
-#camera-prompt button{padding:9px 30px;border-radius:22px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
-#camera-prompt .primary{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
-#camera-prompt .primary:hover{transform:scale(1.04)}
-#camera-prompt .skip{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.08);padding:7px 18px;font-size:12px}
-#camera-prompt .skip:hover{color:#94a3b8;border-color:rgba(255,255,255,.15)}
+#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+#prompt.show{display:flex}
+#prompt .icon{font-size:36px;margin-bottom:10px}
+#prompt h2{color:#e2e8f0;font-size:16px;margin-bottom:3px}
+#prompt p{color:#94a3b8;font-size:12px;text-align:center;max-width:260px;line-height:1.5;margin-bottom:14px}
+#prompt .row{display:flex;flex-direction:column;gap:6px;align-items:center}
+#prompt button{padding:8px 28px;border-radius:20px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+#prompt .btn1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
+#prompt .btn1:hover{transform:scale(1.04)}
+#prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
 video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
-
 @media(max-width:640px){
-  #top-ui{padding:8px 10px}
-  #gesture-label{font-size:11px;padding:4px 12px}
-  #count-badge{width:32px;height:32px;font-size:17px}
-  #hint{font-size:10px;bottom:14px}
+  #top{padding:0 10px}
+  #gl{padding:3px 10px 3px 12px;border-radius:14px}
+  #gl .txt{font-size:11px}
+  #gl .num{width:24px;height:24px;font-size:14px}
+  canvas#debug{width:120px;height:90px;bottom:10px;right:10px}
+  #guide{font-size:9px;bottom:48px}
+  #dist-hint{font-size:8px;bottom:74px}
 }
 </style>
 </head>
@@ -55,29 +60,33 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 
 <div id="loading">
   <div class="spinner"></div>
-  <p id="load-text">启动粒子系统...</p>
+  <p id="load-text">启动中...</p>
   <div class="bar"><div class="bar-inner" id="load-bar"></div></div>
 </div>
 
-<div id="camera-prompt">
+<div id="prompt">
   <div class="icon">📷</div>
   <h2>启用手势交互</h2>
-  <p>摄像头识别手指数量 · 本地处理不上传</p>
-  <div class="btn-row">
-    <button class="primary" id="btn-cam">启用摄像头</button>
-    <button class="skip" id="btn-skip">鼠标/触控模式</button>
+  <p>摄像头识别手指 · 本地处理不上传</p>
+  <div class="row">
+    <button class="btn1" id="btn-cam">启用摄像头</button>
+    <button class="btn2" id="btn-skip">鼠标/触控模式</button>
   </div>
 </div>
 
-<div id="top-ui">
+<div id="top">
   <a href="../index.html" class="back-btn">←</a>
-  <div id="gesture-label">👋 等待手势...</div>
-  <div id="count-badge">-</div>
+  <div id="gl">
+    <span class="txt" id="gl-txt">👋 等待手势</span>
+    <span class="num" id="gl-num">-</span>
+  </div>
 </div>
-<div id="hint">☝️1「我」 ✌️2「爱」 🤟3「欣欣」 🖐️4「我爱欣欣」 ✋5「球形」 · 快速滑动起风暴</div>
+<div id="dist-hint">📏 距离摄像头 30~50cm · 手掌正对镜头 · 手指分开</div>
+<div id="guide">☝️1「我」 ✌️2「爱」 🤟3「欣欣」 🖐️4「我爱欣欣」 ✋5「球形」 · 快速滑动起风暴</div>
 
 <video id="webcam" playsinline></video>
 <canvas id="main"></canvas>
+<canvas id="debug"></canvas>
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
 <script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin></script>
@@ -89,38 +98,35 @@ import * as THREE from 'three';
 // ═══════ CONFIG
 const C = {
   N: 24000,
-  spread: 5,
-  speed: 4.0,
-  boom: 5.5,
-  damp: 0.93,
-  stormThresh: 0.025,
-  stormPow: 20,
-  depthSens: 0.6,
-  cooldown: 0.25,
+  speed: 4.5,
+  boom: 6,
+  damp: 0.92,
+  stormThresh: 0.02,
+  stormPow: 22,
+  depthSens: 0.5,
+  cooldown: 0.2,
   smooth: 6
 };
 
 // ═══════ DOM
 const $ = s => document.querySelector(s);
-const loadBar = $('#load-bar');
-const loadText = $('#load-text');
-const label = $('#gesture-label');
-const badge = $('#count-badge');
-const hint = $('#hint');
-const prompt = $('#camera-prompt');
-const video = $('#webcam');
-const canvas = $('#main');
+const loadBar = $('#load-bar'), loadTxt = $('#load-text');
+const glTxt = $('#gl-txt'), glNum = $('#gl-num'), gl = $('#gl');
+const guide = $('#guide'), distHint = $('#dist-hint');
+const prompt = $('#prompt'), video = $('#webcam');
+const mainCanvas = $('#main'), debugCanvas = $('#debug');
 
 function prog(p, t) {
   loadBar.style.width = p + '%';
-  if (t) loadText.textContent = t;
+  if (t) loadTxt.textContent = t;
 }
 
-// ═══════ 3D HELPERS
+// ═══════ 3D DIST
 const d3 = (a, b) => Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2 + (a.z-b.z)**2);
+const d2 = (a, b) => Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2);
 
-// ═══════ TEXT → PARTICLE POSITIONS
-function txtPts(text, n, scale) {
+// ═══════ TEXT → POSITIONS
+function textPts(text, n, scale) {
   const c = document.createElement('canvas');
   c.width = 512; c.height = 160;
   const ctx = c.getContext('2d');
@@ -131,252 +137,286 @@ function txtPts(text, n, scale) {
   else if (text.length >= 3) fs = 75;
   ctx.font = `bold ${fs}px "PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif`;
   ctx.fillText(text, 256, 80);
-
   const d = ctx.getImageData(0, 0, 512, 160).data;
   const pts = [];
   for (let y = 0; y < 160; y += 2)
     for (let x = 0; x < 512; x += 2)
-      if (d[(y * 512 + x) * 4] > 128)
-        pts.push({ x: (x - 256) / 55 * scale, y: (80 - y) / 55 * scale });
-
-  if (pts.length < 10) { // fallback
-    const p = new Float32Array(n * 3);
+      if (d[(y*512+x)*4] > 128)
+        pts.push({ x: (x-256)/55*scale, y: (80-y)/55*scale });
+  const pos = new Float32Array(n*3);
+  if (pts.length < 5) {
     for (let i = 0; i < n; i++) {
-      p[i*3] = (Math.random() - 0.5) * scale * 2;
-      p[i*3+1] = (Math.random() - 0.5) * scale * 0.6;
-      p[i*3+2] = (Math.random() - 0.5) * scale * 0.2;
+      pos[i*3] = (Math.random()-0.5)*scale*2;
+      pos[i*3+1] = (Math.random()-0.5)*scale*.6;
+      pos[i*3+2] = (Math.random()-0.5)*scale*.2;
     }
-    return p;
+    return pos;
   }
-
-  const pos = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) {
-    const p = pts[Math.floor(Math.random() * pts.length)];
-    pos[i*3] = p.x + (Math.random() - 0.5) * 0.03;
-    pos[i*3+1] = p.y + (Math.random() - 0.5) * 0.03;
-    pos[i*3+2] = (Math.random() - 0.5) * scale * 0.08;
+    const p = pts[Math.floor(Math.random()*pts.length)];
+    pos[i*3] = p.x + (Math.random()-.5)*.03;
+    pos[i*3+1] = p.y + (Math.random()-.5)*.03;
+    pos[i*3+2] = (Math.random()-.5)*scale*.06;
   }
   return pos;
 }
 
 function spherePts(n, r) {
-  const p = new Float32Array(n * 3);
+  const p = new Float32Array(n*3);
   for (let i = 0; i < n; i++) {
-    const t = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
-    p[i*3] = r * Math.sin(ph) * Math.cos(t);
-    p[i*3+1] = r * Math.cos(ph);
-    p[i*3+2] = r * Math.sin(ph) * Math.sin(t);
+    const t = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+    p[i*3] = r*Math.sin(ph)*Math.cos(t);
+    p[i*3+1] = r*Math.cos(ph);
+    p[i*3+2] = r*Math.sin(ph)*Math.sin(t);
   }
   return p;
 }
 
 function rndPts(n, r) {
-  const p = new Float32Array(n * 3);
+  const p = new Float32Array(n*3);
   for (let i = 0; i < n; i++) {
-    p[i*3] = (Math.random() - 0.5) * r * 2;
-    p[i*3+1] = (Math.random() - 0.5) * r * 2;
-    p[i*3+2] = (Math.random() - 0.5) * r * 2;
+    p[i*3] = (Math.random()-.5)*r*2;
+    p[i*3+1] = (Math.random()-.5)*r*2;
+    p[i*3+2] = (Math.random()-.5)*r*2;
   }
   return p;
 }
 
 const G = {
-  1: { l: '☝️ 我', g: () => txtPts('我', C.N, 2.0) },
-  2: { l: '✌️ 爱', g: () => txtPts('爱', C.N, 2.0) },
-  3: { l: '🤟 欣欣', g: () => txtPts('欣欣', C.N, 2.2) },
-  4: { l: '🖐️ 我爱欣欣', g: () => txtPts('我爱欣欣', C.N, 2.5) },
-  5: { l: '✋ 球形', g: () => spherePts(C.N, 1.8) }
+  1: { l: '我', g: () => textPts('我', C.N, 2.0) },
+  2: { l: '爱', g: () => textPts('爱', C.N, 2.0) },
+  3: { l: '欣欣', g: () => textPts('欣欣', C.N, 2.2) },
+  4: { l: '我爱欣欣', g: () => textPts('我爱欣欣', C.N, 2.5) },
+  5: { l: '球形', g: () => spherePts(C.N, 1.8) }
 };
 
-// ═══════ ROBUST FINGER COUNTER (3D ratio-based)
+// ═══════ 🔥 ROBUST FINGER COUNTER (multi-method majority vote)
 function countFingers(lm) {
   if (!lm || lm.length < 21) return -1;
+
   const wrist = lm[0], palm = lm[9];
-  const handSz = d3(wrist, lm[5]);
-  if (handSz < 0.008) return -1;
+  const handSz = d3(wrist, lm[5]); // wrist to index MCP
+  if (handSz < 0.005) return -1;
 
-  const cfg = [
-    { tip: 4, base: 2 },  // thumb
-    { tip: 8, base: 5 },  // index
-    { tip: 12, base: 9 }, // middle
-    { tip: 16, base: 13 },// ring
-    { tip: 20, base: 18 } // pinky
-  ];
+  // Palm center
+  const pc = {
+    x: (lm[0].x+lm[5].x+lm[9].x+lm[13].x+lm[17].x)/5,
+    y: (lm[0].y+lm[5].y+lm[9].y+lm[13].y+lm[17].y)/5,
+    z: (lm[0].z+lm[5].z+lm[9].z+lm[13].z+lm[17].z)/5
+  };
 
-  let ext = 0;
+  const tips = [4, 8, 12, 16, 20];
+  const pips = [3, 6, 10, 14, 18];
+  const mcps = [2, 5, 9, 13, 17];
+
+  let count = 0;
+
   for (let f = 0; f < 5; f++) {
-    const tip = lm[cfg[f].tip], base = lm[cfg[f].base];
-    const tipD = d3(tip, wrist), baseD = d3(base, wrist);
-    const ratio = tipD / Math.max(baseD, 0.001);
+    const tip = lm[tips[f]], pip = lm[pips[f]], mcp = lm[mcps[f]];
 
-    if (f === 0) { // thumb: check spread from index
+    // Method A: tip.y < pip.y (y-coordinate, works for palm-facing-camera)
+    const methodY = tip.y < pip.y - 0.015;
+
+    // Method B: tip distance from palm > pip distance from palm (rotation-invariant)
+    const dTipPalm = d3(tip, pc);
+    const dPipPalm = d3(pip, pc);
+    const methodPalm = dTipPalm > dPipPalm * 1.35;
+
+    // Method C: angle at PIP joint
+    const v1x = pip.x-mcp.x, v1y = pip.y-mcp.y;
+    const v2x = tip.x-pip.x, v2y = tip.y-pip.y;
+    const dot = v1x*v2x + v1y*v2y;
+    const m1 = Math.sqrt(v1x*v1x+v1y*v1y) || .001;
+    const m2 = Math.sqrt(v2x*v2x+v2y*v2y) || .001;
+    const ang = Math.acos(Math.max(-1,Math.min(1,dot/(m1*m2)))) * 180 / Math.PI;
+    const methodAng = ang > 145;
+
+    // Thumb special handling
+    if (f === 0) {
       const idxMcp = lm[5];
-      const spread = d3(tip, idxMcp);
-      if (spread > handSz * 0.4 && ratio > 1.3) ext++;
+      const spread = d2(tip, idxMcp);
+      const thumbExtended = spread > handSz * 0.35;
+      // Thumb: need spread + at least one method
+      if (thumbExtended && (methodY || methodPalm)) count++;
     } else {
-      // Extended if tip is significantly further from wrist than base
-      // Also check if tip is above PIP in 2D (more reliable for side views)
-      const pip = lm[cfg[f].tip - 1]; // PIP is one index before tip
-      const yAbove = tip.y < pip.y - 0.01; // in MediaPipe, y increases downward
-      if (ratio > 1.5 || (ratio > 1.2 && yAbove)) ext++;
+      // Majority vote: at least 2 out of 3 methods agree
+      let votes = methodY + methodPalm + methodAng;
+      if (this && this._debugFingers) {
+        // Store for debug
+        if (!this._debugData) this._debugData = {};
+        this._debugData[f] = { y: methodY, palm: methodPalm, ang: methodAng, votes };
+      }
+      if (votes >= 2) count++;
     }
   }
-  return ext;
+
+  return count;
 }
 
-// Smoothing
+// ═══════ SMOOTHING
 let hist = [];
 function smooth(v) {
   if (v < 0) return -1;
   hist.push(v);
   if (hist.length > C.smooth) hist.shift();
   const t = {};
-  for (const x of hist) t[x] = (t[x] || 0) + 1;
+  for (const x of hist) t[x] = (t[x]||0)+1;
   let best = 0, bestN = 0;
-  for (const [k, c] of Object.entries(t))
+  for (const [k,c] of Object.entries(t))
     if (c > bestN) { bestN = c; best = parseInt(k); }
-  return best;
+  return bestN > hist.length/2 ? best : -1; // require majority
+}
+
+// ═══════ DEBUG SKETCH
+function drawHand(lm, ctx, w, h) {
+  ctx.clearRect(0, 0, w, h);
+  if (!lm) return;
+
+  const connections = [
+    [0,1],[1,2],[2,3],[3,4],        // thumb
+    [0,5],[5,6],[6,7],[7,8],        // index
+    [0,9],[9,10],[10,11],[11,12],   // middle
+    [0,13],[13,14],[14,15],[15,16], // ring
+    [0,17],[17,18],[18,19],[19,20], // pinky
+    [5,9],[9,13],[13,17]            // palm
+  ];
+
+  // Lines
+  ctx.strokeStyle = 'rgba(6,182,212,.35)';
+  ctx.lineWidth = 1.5;
+  for (const [i,j] of connections) {
+    ctx.beginPath();
+    ctx.moveTo(lm[i].x*w, lm[i].y*h);
+    ctx.lineTo(lm[j].x*w, lm[j].y*h);
+    ctx.stroke();
+  }
+
+  // Fingertip dots
+  const tips = [4, 8, 12, 16, 20];
+  const colors = ['#f472b6','#22d3ee','#818cf8','#34d399','#fbbf24'];
+  for (let f = 0; f < 5; f++) {
+    const t = lm[tips[f]];
+    ctx.fillStyle = colors[f];
+    ctx.beginPath();
+    ctx.arc(t.x*w, t.y*h, 4, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Wrist dot
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath();
+  ctx.arc(lm[0].x*w, lm[0].y*h, 3, 0, Math.PI*2);
+  ctx.fill();
 }
 
 // ═══════ PARTICLE SYSTEM
 class PS {
   constructor() {
     this.N = C.N;
-    this.pos = new Float32Array(this.N * 3);
-    this.vel = new Float32Array(this.N * 3);
-    this.acc = new Float32Array(this.N * 3);
-    this.tgt = new Float32Array(this.N * 3);
+    this.pos = new Float32Array(this.N*3);
+    this.vel = new Float32Array(this.N*3);
+    this.acc = new Float32Array(this.N*3);
+    this.tgt = new Float32Array(this.N*3);
     this.siz = new Float32Array(this.N);
-    this.col = new Float32Array(this.N * 3); // per-particle color
+    this.col = new Float32Array(this.N*3);
     this.key = null;
-    this.storm = { x: 0, y: 0, z: 0 };
+    this.storm = {x:0,y:0,z:0};
     this.depth = 1;
-    this.boomT = 0;
-    this.boomD = 0.3;
-    this.boom = false;
-    this.rot = 0;
+    this.boomT = 0; this.boomD = 0.25; this.boom = false;
+    this.rot = 0; this._debugFingers = true; this._debugData = {};
 
-    this._init();
+    const s = rndPts(this.N, 4.5);
+    this.pos.set(s); this.tgt.set(s);
+    for (let i = 0; i < this.N; i++) {
+      this.siz[i] = 0.025 + Math.random() * 0.055;
+      this.col[i*3] = 0.1 + Math.random() * 0.3;
+      this.col[i*3+1] = 0.4 + Math.random() * 0.5;
+      this.col[i*3+2] = 0.5 + Math.random() * 0.5;
+    }
     this._gl();
   }
 
-  _init() {
-    const s = rndPts(this.N, C.spread);
-    this.pos.set(s); this.tgt.set(s);
-    this.vel.fill(0); this.acc.fill(0);
-    for (let i = 0; i < this.N; i++) {
-      this.siz[i] = 0.02 + Math.random() * 0.05;
-      this.col[i*3] = 0.2 + Math.random() * 0.3;
-      this.col[i*3+1] = 0.5 + Math.random() * 0.4;
-      this.col[i*3+2] = 0.6 + Math.random() * 0.4;
-    }
-  }
-
   _gl() {
-    this.r = new THREE.WebGLRenderer({ canvas, antialias: true });
+    this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
     this.r.setPixelRatio(Math.min(devicePixelRatio, 2));
     this.r.setSize(innerWidth, innerHeight);
-    this.r.setClearColor(0x07071a);
+    this.r.setClearColor(0x070714);
 
     this.s = new THREE.Scene();
-    this.c = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 100);
+    this.c = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
     this.c.position.z = 5.5;
 
-    // Stars bg
+    // Stars
     const sg = new THREE.BufferGeometry();
-    const sp = new Float32Array(400 * 3);
-    for (let i = 0; i < 400; i++) {
-      sp[i*3] = (Math.random() - 0.5) * 40;
-      sp[i*3+1] = (Math.random() - 0.5) * 40;
-      sp[i*3+2] = (Math.random() - 0.5) * 40 - 10;
+    const sp = new Float32Array(500*3);
+    for (let i = 0; i < 500; i++) {
+      sp[i*3] = (Math.random()-.5)*50;
+      sp[i*3+1] = (Math.random()-.5)*50;
+      sp[i*3+2] = (Math.random()-.5)*50-12;
     }
     sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-    const sm = new THREE.PointsMaterial({ color: 0x334488, size: 0.03, transparent: true, opacity: 0.35 });
+    const sm = new THREE.PointsMaterial({ color: 0x334488, size: 0.025, transparent: true, opacity: 0.3 });
     this.s.add(new THREE.Points(sg, sm));
 
-    // Connection lines
-    const connN = 150;
-    this.connNodes = new Float32Array(connN * 3);
-    this.connActive = new Float32Array(connN);
-    for (let i = 0; i < connN; i++) {
-      this.connNodes[i*3] = (Math.random() - 0.5) * 4;
-      this.connNodes[i*3+1] = (Math.random() - 0.5) * 4;
-      this.connNodes[i*3+2] = (Math.random() - 0.5) * 4;
-      this.connActive[i] = 0;
+    // Connector lines
+    const cn = 120;
+    this.cNodes = new Float32Array(cn*3);
+    for (let i = 0; i < cn; i++) {
+      this.cNodes[i*3] = (Math.random()-.5)*4;
+      this.cNodes[i*3+1] = (Math.random()-.5)*4;
+      this.cNodes[i*3+2] = (Math.random()-.5)*4;
     }
+    this.cPairs = [];
+    for (let i = 0; i < cn; i++)
+      for (let j = i+1; j < cn; j++)
+        if (Math.random() < 0.05) this.cPairs.push([i,j]);
 
-    this.connPairs = [];
-    for (let i = 0; i < connN; i++) {
-      for (let j = i + 1; j < connN; j++) {
-        if (Math.random() < 0.06) { // sparse connections
-          this.connPairs.push([i, j]);
-        }
-      }
-    }
-
-    const linePos = new Float32Array(this.connPairs.length * 2 * 3);
+    const lp = new Float32Array(this.cPairs.length*6);
     const lg = new THREE.BufferGeometry();
-    lg.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
-    const lm = new THREE.LineBasicMaterial({
-      color: 0x06b6d4,
-      transparent: true,
-      opacity: 0.08,
-      blending: THREE.AdditiveBlending
-    });
+    lg.setAttribute('position', new THREE.BufferAttribute(lp, 3));
+    const lm = new THREE.LineBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.06, blending: THREE.AdditiveBlending });
     this.lines = new THREE.LineSegments(lg, lm);
     this.s.add(this.lines);
+    this._lp = lp;
 
-    // Main particles
+    // Particles
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
     geo.setAttribute('size', new THREE.BufferAttribute(this.siz, 1));
     geo.setAttribute('color', new THREE.BufferAttribute(this.col, 3));
 
     const vs = `
-      attribute float size;
-      attribute vec3 color;
-      varying vec3 vc;
-      varying float va;
+      attribute float size; attribute vec3 color;
+      varying vec3 vc; varying float va;
       void main() {
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = size * (320.0 / -mv.z);
+        gl_PointSize = size * (350.0 / -mv.z);
         gl_Position = projectionMatrix * mv;
-        vc = color;
-        va = 0.5 + 0.5 * (1.0 - abs(position.x) / 7.0);
+        vc = color; va = 0.6 + 0.4 * (1.0 - abs(position.x) / 8.0);
       }
     `;
     const fs = `
-      varying vec3 vc;
-      varying float va;
-      uniform float t;
+      varying vec3 vc; varying float va; uniform float t;
       void main() {
         vec2 c = gl_PointCoord - vec2(0.5);
         float d = length(c);
         if (d > 0.5) discard;
         float a = smoothstep(0.5, 0.0, d) * va * 0.85;
-        float g = exp(-d * 10.0);
-        vec3 col = mix(vc, vc + vec3(0.3, 0.2, 0.4), g * 0.5);
-        col += vec3(0.1, 0.15, 0.2) * g;
+        float g = exp(-d * 12.0);
+        vec3 col = vc + vec3(0.15, 0.2, 0.25) * g;
         gl_FragColor = vec4(col, a);
       }
     `;
     const mat = new THREE.ShaderMaterial({
       uniforms: { t: { value: 0 } },
-      vertexShader: vs,
-      fragmentShader: fs,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
+      vertexShader: vs, fragmentShader: fs,
+      transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
     });
-
     this.mesh = new THREE.Points(geo, mat);
     this.s.add(this.mesh);
 
-    // Adjust connection node positions to follow particles
-    this.linePos = linePos;
-
     onresize = () => {
-      this.c.aspect = innerWidth / innerHeight;
+      this.c.aspect = innerWidth/innerHeight;
       this.c.updateProjectionMatrix();
       this.r.setSize(innerWidth, innerHeight);
     };
@@ -385,107 +425,85 @@ class PS {
   setTarget(k) {
     if (k === this.key) return;
     this.key = k;
-    const g = G[k];
-    if (!g) return;
+    const g = G[k]; if (!g) return;
     this.tgt.set(g.g());
     this.boom = true; this.boomT = 0;
     for (let i = 0; i < this.N; i++) {
-      this.vel[i*3] += (Math.random() - 0.5) * C.boom;
-      this.vel[i*3+1] += (Math.random() - 0.5) * C.boom;
-      this.vel[i*3+2] += (Math.random() - 0.5) * C.boom;
+      this.vel[i*3] += (Math.random()-.5)*C.boom;
+      this.vel[i*3+1] += (Math.random()-.5)*C.boom;
+      this.vel[i*3+2] += (Math.random()-.5)*C.boom;
     }
-    label.textContent = g.l;
-    label.classList.add('glow');
-    badge.textContent = k;
-    setTimeout(() => label.classList.remove('glow'), 1200);
+    glTxt.textContent = `${k} · ${G[k].l}`;
+    gl.classList.add('glow');
+    glNum.textContent = k;
+    glNum.classList.add('ok');
+    setTimeout(() => gl.classList.remove('glow'), 1000);
   }
 
   addStorm(dx, dy, s) {
-    this.storm.x += dx * s;
-    this.storm.y += dy * s;
-    this.storm.z += (Math.random() - 0.5) * s * 0.15;
+    this.storm.x += dx*s; this.storm.y += dy*s; this.storm.z += (Math.random()-.5)*s*.15;
   }
-
   setDepth(s) { this.depth = s; }
 
   update(dt) {
     dt = Math.min(dt, 0.05);
-    this.rot += dt * 0.08;
+    this.rot += dt * 0.06;
 
-    if (this.boom) {
-      this.boomT += dt;
-      if (this.boomT > this.boomD) this.boom = false;
-    }
-    const ep = this.boom ? Math.min(this.boomT / this.boomD, 1) : 1;
+    if (this.boom) { this.boomT += dt; if (this.boomT > this.boomD) this.boom = false; }
+    const ep = this.boom ? Math.min(this.boomT/this.boomD, 1) : 1;
+    const sd = Math.exp(-dt*4);
+    const attr = this.boom ? C.speed*0.5 : C.speed;
+    const df = this.depth > 1.1 ? (this.depth-1)*C.depthSens*3 : this.depth < 0.85 ? -(1-this.depth)*C.depthSens*3 : 0;
 
-    const sd = Math.exp(-dt * 4);
-    const attr = this.boom ? C.speed * 0.45 : C.speed;
-    const dp = this.depth;
-    const df = dp > 1.1 ? (dp - 1) * C.depthSens * 2.5 : dp < 0.85 ? -(1 - dp) * C.depthSens * 2.5 : 0;
-
-    // Update connection nodes
-    const cn = this.connNodes;
-    for (let i = 0; i < cn.length / 3; i++) {
-      cn[i*3] += (Math.random() - 0.5) * 0.005;
-      cn[i*3+1] += (Math.random() - 0.5) * 0.005;
-      cn[i*3+2] += (Math.random() - 0.5) * 0.005;
-      // Keep within bounds
-      cn[i*3] *= 0.99; cn[i*3+1] *= 0.99; cn[i*3+2] *= 0.99;
+    // Update connector nodes
+    for (let i = 0; i < this.cNodes.length/3; i++) {
+      this.cNodes[i*3] += (Math.random()-.5)*.004;
+      this.cNodes[i*3+1] += (Math.random()-.5)*.004;
+      this.cNodes[i*3+2] += (Math.random()-.5)*.004;
+      this.cNodes[i*3] *= .99; this.cNodes[i*3+1] *= .99; this.cNodes[i*3+2] *= .99;
     }
 
-    // Update connection lines
-    const lp = this.linePos;
-    const pairs = this.connPairs;
+    const lp = this._lp, pairs = this.cPairs;
     let idx = 0;
-    for (const [i, j] of pairs) {
-      const dx = cn[i*3] - cn[j*3];
-      const dy = cn[i*3+1] - cn[j*3+1];
-      const dz = cn[i*3+2] - cn[j*3+2];
-      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-      if (dist < 1.8 && dist > 0.01) {
-        lp[idx*3] = cn[i*3]; lp[idx*3+1] = cn[i*3+1]; lp[idx*3+2] = cn[i*3+2];
-        lp[(idx+1)*3] = cn[j*3]; lp[(idx+1)*3+1] = cn[j*3+1]; lp[(idx+1)*3+2] = cn[j*3+2];
+    for (const [i,j] of pairs) {
+      const dx = this.cNodes[i*3]-this.cNodes[j*3];
+      const dy = this.cNodes[i*3+1]-this.cNodes[j*3+1];
+      const dz = this.cNodes[i*3+2]-this.cNodes[j*3+2];
+      if (Math.sqrt(dx*dx+dy*dy+dz*dz) < 2) {
+        lp[idx*3]=this.cNodes[i*3]; lp[idx*3+1]=this.cNodes[i*3+1]; lp[idx*3+2]=this.cNodes[i*3+2];
+        lp[(idx+1)*3]=this.cNodes[j*3]; lp[(idx+1)*3+1]=this.cNodes[j*3+1]; lp[(idx+1)*3+2]=this.cNodes[j*3+2];
         idx++;
       }
     }
-    // Zero out remaining
-    for (let i = idx * 6; i < lp.length; i++) lp[i] = 0;
+    for (let i = idx*6; i < lp.length; i++) lp[i] = 0;
     this.lines.geometry.attributes.position.needsUpdate = true;
-    // Update line count
-    this.lines.geometry.setDrawRange(0, idx * 2);
+    this.lines.geometry.setDrawRange(0, idx*2);
 
-    // Rotate system
-    const rot = this.rot;
-    const cr = Math.cos(rot), sr = Math.sin(rot);
+    const cr = Math.cos(this.rot), sr = Math.sin(this.rot);
 
-    // Update particles
     for (let i = 0; i < this.N; i++) {
-      const i3 = i * 3;
-      const dx = this.tgt[i3] - this.pos[i3];
-      const dy = this.tgt[i3+1] - this.pos[i3+1];
-      const dz = this.tgt[i3+2] - this.pos[i3+2];
+      const i3 = i*3;
+      const dx = this.tgt[i3]-this.pos[i3];
+      const dy = this.tgt[i3+1]-this.pos[i3+1];
+      const dz = this.tgt[i3+2]-this.pos[i3+2];
 
-      this.acc[i3] = dx * attr + this.storm.x * (1 - ep) + this.pos[i3] * df;
-      this.acc[i3+1] = dy * attr + this.storm.y * (1 - ep) + this.pos[i3+1] * df;
-      this.acc[i3+2] = dz * attr + this.storm.z * (1 - ep) + this.pos[i3+2] * df;
+      this.acc[i3] = dx*attr + this.storm.x*(1-ep) + this.pos[i3]*df;
+      this.acc[i3+1] = dy*attr + this.storm.y*(1-ep) + this.pos[i3+1]*df;
+      this.acc[i3+2] = dz*attr + this.storm.z*(1-ep) + this.pos[i3+2]*df;
 
-      this.vel[i3] += this.acc[i3] * dt;
-      this.vel[i3+1] += this.acc[i3+1] * dt;
-      this.vel[i3+2] += this.acc[i3+2] * dt;
+      this.vel[i3] += this.acc[i3]*dt;
+      this.vel[i3+1] += this.acc[i3+1]*dt;
+      this.vel[i3+2] += this.acc[i3+2]*dt;
 
       this.vel[i3] *= C.damp;
       this.vel[i3+1] *= C.damp;
       this.vel[i3+2] *= C.damp;
 
-      // Apply rotation
-      const px = this.pos[i3], py = this.pos[i3+1], pz = this.pos[i3+2];
-      this.pos[i3] = px * cr - pz * sr;
-      this.pos[i3+2] = px * sr + pz * cr;
-
-      // Add velocity after rotation
-      this.pos[i3] += this.vel[i3] * dt;
-      this.pos[i3+1] += this.vel[i3+1] * dt;
-      this.pos[i3+2] += this.vel[i3+2] * dt;
+      // Rotate
+      const px = this.pos[i3], pz = this.pos[i3+2];
+      this.pos[i3] = this.pos[i3] + this.vel[i3]*dt;
+      this.pos[i3+1] += this.vel[i3+1]*dt;
+      this.pos[i3+2] = pz + this.vel[i3+2]*dt;
     }
 
     this.storm.x *= sd; this.storm.y *= sd; this.storm.z *= sd;
@@ -500,106 +518,138 @@ let ps;
 
 // ═══════ HAND TRACKING
 let hpos = [];
-let prevK = -1;
-let cd = 0;
-let idle = 0;
+let prevK = -1, cd = 0, idle = 0;
+let lastLM = null;
 
 function onHand(r) {
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
     idle += 0.03;
-    if (idle > 1.5) { label.textContent = '👋 等待手势...'; badge.textContent = '-'; }
+    if (idle > 1.5) {
+      glTxt.textContent = '👋 等待手势';
+      glNum.textContent = '-';
+      glNum.classList.remove('ok');
+    }
+    lastLM = null;
+    // Clear debug
+    const dc = debugCanvas.getContext('2d');
+    if (dc) dc.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
     return;
   }
   idle = 0;
   const lm = r.multiHandLandmarks[0];
+  lastLM = lm;
 
   // Storm
   const cx = lm[0].x, cy = lm[0].y;
-  hpos.push({ x: cx, y: cy });
+  hpos.push({x:cx,y:cy});
   if (hpos.length > 6) hpos.shift();
   if (hpos.length >= 3) {
-    const p1 = hpos[hpos.length - 3], p2 = hpos[hpos.length - 1];
+    const p1 = hpos[hpos.length-3], p2 = hpos[hpos.length-1];
     const sp = Math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2);
     if (sp > C.stormThresh && ps)
-      ps.addStorm((p2.x-p1.x)/sp, -(p2.y-p1.y)/sp, Math.min(sp * C.stormPow, C.stormPow * 2));
+      ps.addStorm((p2.x-p1.x)/sp, -(p2.y-p1.y)/sp, Math.min(sp*C.stormPow, C.stormPow*2));
   }
 
   // Depth
-  let mx = 1, xx = 0, my = 1, xy = 0;
-  for (const p of lm) { if (p.x < mx) mx = p.x; if (p.x > xx) xx = p.x; if (p.y < my) my = p.y; if (p.y > xy) xy = p.y; }
-  if (ps) ps.setDepth(Math.max(0.4, Math.min(3.5, (xx-mx)*(xy-my) * 12)));
+  let mx=1,xx=0,my=1,xy=0;
+  for (const p of lm) { if(p.x<mx)mx=p.x; if(p.x>xx)xx=p.x; if(p.y<my)my=p.y; if(p.y>xy)xy=p.y; }
+  const bboxArea = (xx-mx)*(xy-my);
+  if (ps) ps.setDepth(Math.max(0.3, Math.min(4, bboxArea*15)));
+
+  // Distance hint
+  if (bboxArea < 0.04) distHint.textContent = '📏 手太远了，靠近一些 (30~50cm)';
+  else if (bboxArea > 0.4) distHint.textContent = '📏 手太近了，离远一点';
+  else distHint.textContent = '✅ 距离合适！';
 
   // Finger count
   cd -= 0.03;
-  if (cd > 0) return;
   const raw = countFingers(lm);
   const k = smooth(raw);
-  if (k >= 1 && k <= 5 && k !== prevK && ps) {
+
+  if (cd <= 0 && k >= 1 && k <= 5 && k !== prevK && ps) {
     prevK = k; cd = C.cooldown;
     ps.setTarget(k);
   }
+
+  // Draw debug
+  const dc = debugCanvas.getContext('2d');
+  if (dc && debugCanvas.classList.contains('show')) {
+    debugCanvas.width = debugCanvas.clientWidth * (devicePixelRatio||1);
+    debugCanvas.height = debugCanvas.clientHeight * (devicePixelRatio||1);
+    const s = debugCanvas.width / 160;
+    dc.scale(s, s);
+    drawHand(lm, dc, 160, 120);
+  }
 }
 
-// ═══════ MOUSE FALLBACK
+// ═══════ MOUSE
 let mpos = [];
 let cycle = 0;
-const CYCLE = [1, 2, 3, 4, 5];
+const CYCLE = [1,2,3,4,5];
 
 function setupMouse() {
-  const handler = (x, y) => {
-    mpos.push({ x, y });
+  const h = (x,y) => {
+    mpos.push({x,y});
     if (mpos.length > 6) mpos.shift();
     if (mpos.length >= 3) {
-      const p1 = mpos[mpos.length - 3], p2 = mpos[mpos.length - 1];
-      const sp = Math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2);
-      if (sp > 0.012 && ps)
-        ps.addStorm((p2.x-p1.x)/Math.max(sp,0.001), -(p2.y-p1.y)/Math.max(sp,0.001), Math.min(sp * 300, 30));
+      const p1=mpos[mpos.length-3], p2=mpos[mpos.length-1];
+      const sp=Math.sqrt((p2.x-p1.x)**2+(p2.y-p1.y)**2);
+      if (sp > 0.01 && ps)
+        ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
     }
   };
-  canvas.addEventListener('mousemove', e => handler(e.clientX/innerWidth, e.clientY/innerHeight));
-  canvas.addEventListener('click', () => { if (!ps) return; cycle = (cycle+1) % CYCLE.length; ps.setTarget(CYCLE[cycle]); });
-  canvas.addEventListener('touchmove', e => { e.preventDefault(); const t = e.touches[0]; handler(t.clientX/innerWidth, t.clientY/innerHeight); }, { passive: false });
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); if (!ps) return; cycle = (cycle+1) % CYCLE.length; ps.setTarget(CYCLE[cycle]); }, { passive: false });
-  setTimeout(() => { if (ps) { ps.setTarget(1); badge.textContent = '1'; } }, 600);
+  mainCanvas.addEventListener('mousemove', e => h(e.clientX/innerWidth, e.clientY/innerHeight));
+  mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
+  mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
+  mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
+  setTimeout(() => { if(ps) { ps.setTarget(1); glNum.textContent='1'; glNum.classList.add('ok'); glTxt.textContent='1 · 我'; } }, 600);
 }
 
 // ═══════ CAMERA
 async function startCam() {
-  prompt.classList.remove('show'); hint.classList.add('hidden');
+  prompt.classList.remove('show');
+  guide.classList.add('hidden');
+  distHint.classList.remove('hidden');
+  debugCanvas.classList.add('show');
+
   try {
-    const s = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } });
+    const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
     video.srcObject = s; await video.play();
     prog(60, '加载手势识别...');
     const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.55, minTrackingConfidence: 0.35 });
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
-    const cam = new Camera(video, { onFrame: async () => { try { await hands.send({ image: video }); } catch(e){} }, width: 640, height: 480 });
+    const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
     prog(85, '就绪！'); await cam.start();
-    prog(100, ''); setTimeout(() => $('#loading').classList.add('hidden'), 300);
+    prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
   } catch(e) {
     console.warn(e);
-    label.textContent = '🖱️ 鼠标模式（点击切换）';
-    setupMouse(); prog(100, ''); setTimeout(() => $('#loading').classList.add('hidden'), 300);
+    glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
+    debugCanvas.classList.remove('show');
+    setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
   }
 }
+
 function skipCam() {
-  prompt.classList.remove('show'); label.textContent = '🖱️ 鼠标模式 · 点击切换形态';
-  setupMouse(); prog(100, ''); setTimeout(() => $('#loading').classList.add('hidden'), 300);
+  prompt.classList.remove('show');
+  glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
+  debugCanvas.classList.remove('show');
+  setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
 }
 
 // ═══════ BOOT
 async function boot() {
   prog(10, '启动粒子...');
   ps = new PS();
-  prog(45, '渲染就绪');
-  await new Promise(r => setTimeout(r, 150));
+  prog(50, '渲染就绪');
+  await new Promise(r => setTimeout(r, 100));
   prompt.classList.add('show');
   $('#btn-cam').onclick = startCam;
   $('#btn-skip').onclick = skipCam;
 
   let last = performance.now();
   function loop() {
-    const n = performance.now(), dt = (n - last) / 1000;
+    const n = performance.now(), dt = (n-last)/1000;
     last = n;
     if (ps) { ps.update(dt); ps.render(); }
     requestAnimationFrame(loop);
