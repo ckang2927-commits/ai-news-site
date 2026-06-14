@@ -556,6 +556,14 @@ function onHand(r) {
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
     idle += 0.03;
     if (idle > 1.5) {
+      // On mobile, auto-fallback to touch mode if no hand for 8s
+      if (isMobile && idle > 8) {
+        console.log('No hand detected on mobile, falling back to touch');
+        glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
+        debugCanvas.classList.remove('show');
+        setupMouse();
+        return;
+      }
       glTxt.textContent = '👋 等待手势';
       glNum.textContent = '-';
       glNum.classList.remove('ok');
@@ -567,6 +575,7 @@ function onHand(r) {
     return;
   }
   idle = 0;
+    clearTimeout(camFallbackTimer);
   const lm = r.multiHandLandmarks[0];
   lastLM = lm;
 
@@ -706,6 +715,20 @@ async function startCam() {
     hands.onResults(onHand);
     const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
     prog(85, '就绪！'); await cam.start();
+    // On mobile, if no hand detected for 10s, fallback to touch
+    if (isMobile) {
+      clearTimeout(camFallbackTimer);
+      camFallbackTimer = setTimeout(() => {
+        if (idle > 2) {
+          console.log('Camera timeout on mobile, switching to touch');
+          try { video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
+          glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
+          debugCanvas.classList.remove('show');
+          distHint.classList.add('hidden');
+          setupMouse();
+        }
+      }, 10000);
+    }
     prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
   } catch(e) {
     console.warn(e);
@@ -731,6 +754,12 @@ async function boot() {
   prompt.classList.add('show');
   $('#btn-cam').onclick = startCam;
   $('#btn-skip').onclick = skipCam;
+  // On mobile, auto-fallback to touch mode after 4s
+  if (isMobile) {
+    setTimeout(() => {
+      if (prompt.classList.contains('show')) skipCam();
+    }, 4000);
+  }
 
   let last = performance.now();
   function loop() {
