@@ -7,8 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
-canvas#main{position:fixed;top:0;left:0;width:100%;height:100%}
+html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+canvas#main{position:fixed;top:0;left:0;width:100%;height:100%;touch-action:none}
 canvas#debug{position:fixed;bottom:16px;right:16px;width:160px;height:120px;border-radius:12px;z-index:15;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);display:none}
 canvas#debug.show{display:block}
 #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s}
@@ -29,12 +29,12 @@ canvas#debug.show{display:block}
 #gl .num{width:28px;height:28px;border-radius:50%;background:rgba(6,182,212,.1);color:#06b6d4;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;transition:all .2s}
 #gl .num.ok{background:rgba(6,182,212,.15);color:#22d3ee;box-shadow:0 0 12px rgba(6,182,212,.1)}
 
-#guide{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.3);font-size:10px;text-align:center;pointer-events:none;transition:opacity 1s;line-height:1.6;letter-spacing:.2px}
+#guide{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.3);font-size:10px;text-align:center;pointer-events:none;transition:opacity 1s;line-height:1.6;letter-spacing:.2px;white-space:nowrap}
 #guide.hidden{opacity:0}
-#dist-hint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.2);font-size:9px;text-align:center;pointer-events:none;transition:opacity 1s;letter-spacing:.5px}
+#dist-hint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.2);font-size:9px;text-align:center;pointer-events:none;transition:opacity 1s;letter-spacing:.5px;white-space:nowrap}
 #dist-hint.hidden{opacity:0}
 
-#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:env(safe-area-inset-top,20px) env(safe-area-inset-right,20px) env(safe-area-inset-bottom,20px) env(safe-area-inset-left,20px)}
 #prompt.show{display:flex}
 #prompt .icon{font-size:36px;margin-bottom:10px}
 #prompt h2{color:#e2e8f0;font-size:16px;margin-bottom:3px}
@@ -45,14 +45,45 @@ canvas#debug.show{display:block}
 #prompt .btn1:hover{transform:scale(1.04)}
 #prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
 video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
-@media(max-width:640px){
-  #top{padding:0 10px}
-  #gl{padding:3px 10px 3px 12px;border-radius:14px}
+
+/* ===== Mobile (≤768px) ===== */
+@media(max-width:768px){
+  html,body{position:fixed;width:100%;height:100%;overflow:hidden}
+  .back-btn{width:44px;height:44px;font-size:18px;left:12px;top:6px}
+  #top{top:8px;padding:0 8px}
+  #gl{padding:6px 12px 6px 14px;border-radius:16px;gap:6px}
   #gl .txt{font-size:11px}
-  #gl .num{width:24px;height:24px;font-size:14px}
-  canvas#debug{width:120px;height:90px;bottom:10px;right:10px}
-  #guide{font-size:9px;bottom:48px}
-  #dist-hint{font-size:8px;bottom:74px}
+  #gl .num{width:26px;height:26px;font-size:15px}
+  canvas#debug{display:none!important}
+  #guide{font-size:9px;bottom:50px;white-space:normal;max-width:90vw;line-height:1.5}
+  #dist-hint{font-size:8px;bottom:76px;white-space:normal;max-width:85vw}
+  #loading .spinner{width:48px;height:48px;border-width:3px}
+  #loading p{font-size:14px}
+  #loading .bar{width:200px}
+  #prompt .icon{font-size:44px}
+  #prompt h2{font-size:20px}
+  #prompt p{font-size:14px;max-width:300px}
+  #prompt button{padding:12px 36px;font-size:15px;min-width:200px}
+  #prompt .btn2{padding:10px 24px;font-size:13px}
+}
+
+/* ===== Small Mobile (≤480px) ===== */
+@media(max-width:480px){
+  .back-btn{width:40px;height:40px;font-size:16px;left:8px;top:4px}
+  #top{top:6px;padding:0 4px}
+  #gl{padding:4px 10px 4px 12px;border-radius:14px}
+  #gl .txt{font-size:10px}
+  #gl .num{width:24px;height:24px;font-size:13px}
+  #guide{font-size:8px;bottom:44px}
+  #dist-hint{font-size:7px;bottom:68px}
+  #loading .spinner{width:40px;height:40px}
+  #loading p{font-size:13px}
+}
+
+/* ===== Landscape mobile ===== */
+@media(max-width:768px) and (orientation:landscape){
+  #guide{bottom:16px;font-size:8px;max-width:70vw}
+  #dist-hint{display:none}
 }
 </style>
 </head>
@@ -582,10 +613,18 @@ function onHand(r) {
   }
 }
 
-// ═══════ MOUSE
+// ═══════ MOUSE & TOUCH
 let mpos = [];
 let cycle = 0;
 const CYCLE = [1,2,3,4,5];
+let isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+let touchMoved = false;
+
+function cycleMode() {
+  if(!ps) return;
+  cycle = (cycle + 1) % CYCLE.length;
+  ps.setTarget(CYCLE[cycle]);
+}
 
 function setupMouse() {
   const h = (x,y) => {
@@ -598,12 +637,58 @@ function setupMouse() {
         ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
     }
   };
+
+  // Mouse
   mainCanvas.addEventListener('mousemove', e => h(e.clientX/innerWidth, e.clientY/innerHeight));
-  mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
-  mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
-  mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
+  mainCanvas.addEventListener('click', cycleMode);
+
+  // Touch
+  mainCanvas.addEventListener('touchstart', e => {
+    touchMoved = false;
+    const t = e.touches[0];
+    if (t) h(t.clientX/innerWidth, t.clientY/innerHeight);
+  }, {passive:true});
+
+  mainCanvas.addEventListener('touchmove', e => {
+    touchMoved = true;
+    const t = e.touches[0];
+    if (t) h(t.clientX/innerWidth, t.clientY/innerHeight);
+  }, {passive:true});
+
+  mainCanvas.addEventListener('touchend', e => {
+    // Only switch mode on quick tap (not drag)
+    if (!touchMoved) cycleMode();
+  }, {passive:true});
+
+  // On mobile, also make gesture label tappable
+  if (isMobile) {
+    gl.style.cursor = 'pointer';
+    gl.addEventListener('click', e => { e.stopPropagation(); cycleMode(); });
+    gl.addEventListener('touchend', e => { e.stopPropagation(); if (!touchMoved) cycleMode(); });
+  }
+
   setTimeout(() => { if(ps) { ps.setTarget(1); glNum.textContent='1'; glNum.classList.add('ok'); glTxt.textContent='1 · 我'; } }, 600);
 }
+
+// ═══════ ORIENTATION HANDLER
+function handleResize() {
+  if (!ps) return;
+  const w = innerWidth, h = innerHeight;
+  ps.cam.aspect = w / h;
+  ps.cam.updateProjectionMatrix();
+  ps.renderer.setSize(w, h);
+  if (ps.mesh) {
+    ps.mesh.material.uniforms.res.value.set(w, h);
+  }
+}
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(handleResize, 200);
+});
+window.addEventListener('orientationchange', () => {
+  setTimeout(handleResize, 400);
+});
 
 // ═══════ CAMERA
 async function startCam() {
