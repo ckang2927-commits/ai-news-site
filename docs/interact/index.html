@@ -1,0 +1,844 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>✨ 粒子手势交互 - AI 大模型资讯站</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:'Noto Sans SC',sans-serif}
+#particle-canvas{position:fixed;top:0;left:0;width:100%;height:100%;display:block;cursor:default}
+#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0a1a;z-index:1000;transition:opacity .8s}
+#loading.hidden{opacity:0;pointer-events:none}
+#loading .spinner{width:48px;height:48px;border:3px solid rgba(6,182,212,.15);border-top-color:#06b6d4;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:#94a3b8;margin-top:16px;font-size:14px}
+#loading .progress{width:200px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:12px;overflow:hidden}
+#loading .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#06b6d4,#6366f1);border-radius:2px;transition:width .3s}
+#gesture-label{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10;padding:8px 20px;border-radius:20px;background:rgba(10,10,26,.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);color:#94a3b8;font-size:14px;font-weight:500;transition:all .4s;pointer-events:none;white-space:nowrap}
+#gesture-label.active{color:#22d3ee;border-color:rgba(6,182,212,.3);box-shadow:0 0 20px rgba(6,182,212,.1)}
+#hint{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.5);font-size:12px;text-align:center;pointer-events:none;transition:opacity 1s;line-height:1.8}
+#hint.hidden{opacity:0}
+.back-btn{position:fixed;top:20px;left:20px;z-index:20;width:40px;height:40px;border-radius:50%;background:rgba(10,10,26,.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);color:#94a3b8;font-size:18px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .3s;cursor:pointer}
+.back-btn:hover{color:#22d3ee;border-color:rgba(6,182,212,.3);transform:scale(1.05)}
+#camera-permit{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,26,.95);backdrop-filter:blur(20px)}
+#camera-permit.show{display:flex}
+#camera-permit .icon{font-size:48px;margin-bottom:16px}
+#camera-permit h2{color:#e2e8f0;font-size:20px;margin-bottom:8px}
+#camera-permit p{color:#94a3b8;font-size:14px;text-align:center;max-width:300px;line-height:1.6;margin-bottom:20px}
+#camera-permit button{padding:10px 32px;border-radius:24px;border:none;background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:transform .2s}
+#camera-permit button:hover{transform:scale(1.05)}
+#camera-permit button:active{transform:scale(.97)}
+#camera-permit .skip{background:transparent;color:#64748b;font-size:13px;margin-top:12px;border:1px solid rgba(255,255,255,.1);padding:8px 20px}
+video{position:fixed;top:-9999px;left:-9999px;width:640px;height:480px;opacity:0;pointer-events:none}
+@media(max-width:640px){
+  #gesture-label{top:70px;font-size:12px;padding:6px 14px}
+  #hint{font-size:11px;bottom:16px}
+  #camera-permit h2{font-size:17px}
+  #camera-permit p{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p id="load-text">正在初始化粒子系统...</p>
+  <div class="progress"><div class="progress-bar" id="load-progress"></div></div>
+</div>
+
+<div id="camera-permit">
+  <div class="icon">📷</div>
+  <h2>启用手势交互</h2>
+  <p>需要使用摄像头识别手势来控制粒子。<br>摄像头画面不会上传或保存。</p>
+  <button id="start-camera">启用摄像头</button>
+  <button class="skip" id="skip-camera">跳过，使用鼠标/触摸</button>
+</div>
+
+<a href="../index.html" class="back-btn" title="返回首页">←</a>
+<div id="gesture-label">👋 请展示手势</div>
+<div id="hint">五态手势 · 张手 ✋ 剪刀 ✌️ 握拳 ✊ 食指 ☝️ 大拇指 👍<br>快速挥手 → 粒子风暴</div>
+
+<video id="webcam" playsinline></video>
+<canvas id="particle-canvas"></canvas>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ===== Configuration =====
+const CONFIG = {
+  particleCount: 16000,
+  colors: { main: 0x06b6d4, accent1: 0x22d3ee, accent2: 0x818cf8 },
+  transitionSpeed: 2.5,
+  explosionForce: 6.0,
+  damping: 0.96,
+  stormThreshold: 0.04,
+  stormForce: 15.0,
+  depthSensitivity: 0.8,
+  spreadRadius: 4.0,
+  maxFingers: 5
+};
+
+// ===== Elements =====
+const loading = document.getElementById('loading');
+const loadText = document.getElementById('load-text');
+const loadProgress = document.getElementById('load-progress');
+const canvas = document.getElementById('particle-canvas');
+const gestureLabel = document.getElementById('gesture-label');
+const hint = document.getElementById('hint');
+const cameraPermit = document.getElementById('camera-permit');
+const video = document.getElementById('webcam');
+
+// ===== Set Progress =====
+function setProgress(pct, msg) {
+  loadProgress.style.width = pct + '%';
+  if (msg) loadText.textContent = msg;
+}
+
+// ===== Shape Generators =====
+function generatePositionsInSphere(count, radius) {
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = radius * Math.cbrt(Math.random());
+    pos[i*3] = r * Math.sin(phi) * Math.cos(theta);
+    pos[i*3+1] = r * Math.cos(phi);
+    pos[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+  }
+  return pos;
+}
+
+function generateSphereSurface(count, radius) {
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = radius;
+    pos[i*3] = r * Math.sin(phi) * Math.cos(theta);
+    pos[i*3+1] = r * Math.cos(phi);
+    pos[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+  }
+  return pos;
+}
+
+function generateHeart(count, scale) {
+  const pos = new Float32Array(count * 3);
+  const s = scale || 1.2;
+  for (let i = 0; i < count; i++) {
+    const t = Math.random() * Math.PI * 2;
+    const rFactor = 0.3 + Math.random() * 0.7;
+    const x = s * 0.8 * rFactor * (16 * Math.pow(Math.sin(t), 3));
+    const y = s * 0.8 * rFactor * (13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t));
+    const z = (Math.random() - 0.5) * s * 0.5 * rFactor;
+    pos[i*3] = x / 10;
+    pos[i*3+1] = y / 10 + 0.5;
+    pos[i*3+2] = z;
+  }
+  return pos;
+}
+
+function generateStar(count, scale) {
+  const pos = new Float32Array(count * 3);
+  const s = scale || 1.8;
+  const outerR = s;
+  const innerR = s * 0.4;
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const pointIdx = Math.floor(angle / (Math.PI * 2) * 5);
+    const startAngle = pointIdx * Math.PI * 2 / 5 - Math.PI / 2;
+    const endAngle = (pointIdx + 1) * Math.PI * 2 / 5 - Math.PI / 2;
+    const midAngle = (startAngle + endAngle) / 2;
+    const t = Math.random();
+    const mix = Math.random() > 0.5 ? innerR : outerR;
+    const r = innerR + (outerR - innerR) * (Math.random() > 0.5 ? Math.random() : Math.random() * 0.5);
+    const a = startAngle + (endAngle - startAngle) * Math.random();
+    pos[i*3] = r * Math.cos(a);
+    pos[i*3+1] = r * Math.sin(a) * 0.9;
+    pos[i*3+2] = (Math.random() - 0.5) * s * 0.2;
+  }
+  return pos;
+}
+
+function generateRing(count, scale) {
+  const pos = new Float32Array(count * 3);
+  const s = scale || 1.5;
+  const R = s;
+  const r = s * 0.3;
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI * 2;
+    const x = (R + r * Math.cos(phi)) * Math.cos(theta);
+    const y = r * Math.sin(phi);
+    const z = (R + r * Math.cos(phi)) * Math.sin(theta);
+    pos[i*3] = x;
+    pos[i*3+1] = y;
+    pos[i*3+2] = z;
+  }
+  return pos;
+}
+
+function generateText(count, scale) {
+  const pos = new Float32Array(count * 3);
+  const s = scale || 1.8;
+
+  const c = document.createElement('canvas');
+  c.width = 256;
+  c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, 256, 128);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 90px "Noto Sans SC",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('欣欣', 128, 64);
+
+  const imageData = ctx.getImageData(0, 0, 256, 128);
+  const pixels = imageData.data;
+  const whitePixels = [];
+  for (let y = 0; y < 128; y += 2) {
+    for (let x = 0; x < 256; x += 2) {
+      const idx = (y * 256 + x) * 4;
+      if (pixels[idx] > 128) whitePixels.push({ x, y });
+    }
+  }
+
+  if (whitePixels.length === 0) {
+    // Fallback: fill with random positions
+    return generateStar(count, scale);
+  }
+
+  const cx = 128, cy = 64;
+  for (let i = 0; i < count; i++) {
+    const p = whitePixels[Math.floor(Math.random() * whitePixels.length)];
+    const x = (p.x - cx) / 60 * s;
+    const y = (cy - p.y) / 60 * s;
+    const z = (Math.random() - 0.5) * s * 0.15;
+    pos[i*3] = x;
+    pos[i*3+1] = y;
+    pos[i*3+2] = z;
+  }
+  return pos;
+}
+
+function generateRandomSpread(count, radius) {
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    pos[i*3] = (Math.random() - 0.5) * radius * 2;
+    pos[i*3+1] = (Math.random() - 0.5) * radius * 2;
+    pos[i*3+2] = (Math.random() - 0.5) * radius * 2;
+  }
+  return pos;
+}
+
+// ===== Gesture to Shape Mapping =====
+const GESTURE_SHAPES = {
+  OPEN_PALM: { name: '✋ 球形', generate: () => generateSphereSurface(CONFIG.particleCount, 1.8) },
+  SCISSORS: { name: '✌️ 欣欣', generate: () => generateText(CONFIG.particleCount, 2.0) },
+  FIST: { name: '✊ 圆环', generate: () => generateRing(CONFIG.particleCount, 1.8) },
+  INDEX_FINGER: { name: '☝️ 星形', generate: () => generateStar(CONFIG.particleCount, 2.0) },
+  THUMBS_UP: { name: '👍 爱心', generate: () => generateHeart(CONFIG.particleCount, 1.8) }
+};
+
+// ===== Particle System =====
+class ParticleSystem {
+  constructor() {
+    this.count = CONFIG.particleCount;
+    this.positions = new Float32Array(this.count * 3);
+    this.velocities = new Float32Array(this.count * 3);
+    this.accelerations = new Float32Array(this.count * 3);
+    this.targets = new Float32Array(this.count * 3);
+    this.sizes = new Float32Array(this.count);
+    this.currentGesture = null;
+    this.transitionProgress = 1;
+    this.isExploding = false;
+    this.explosionTimer = 0;
+    this.stormForce = { x: 0, y: 0, z: 0 };
+    this.depthScale = 1;
+    this.explosionDuration = 0.4;
+
+    // Initialize spread
+    this.initSpread();
+    this.setupThree();
+  }
+
+  initSpread() {
+    const spread = generateRandomSpread(this.count, CONFIG.spreadRadius);
+    for (let i = 0; i < this.count * 3; i++) {
+      this.positions[i] = spread[i];
+      this.velocities[i] = 0;
+      this.accelerations[i] = 0;
+      this.targets[i] = spread[i];
+    }
+    for (let i = 0; i < this.count; i++) {
+      this.sizes[i] = 0.03 + Math.random() * 0.05;
+    }
+  }
+
+  setupThree() {
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x0a0a1a, 1);
+    this.renderer = renderer;
+
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    this.camera.position.z = 5.5;
+
+    // Geometry
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(this.sizes, 1));
+
+    // Custom shader for glowing particles
+    const vertexShader = `
+      attribute float size;
+      varying float vAlpha;
+      void main() {
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = size * (300.0 / -mvPosition.z);
+        gl_Position = projectionMatrix * mvPosition;
+        vAlpha = 0.6 + 0.4 * (1.0 - abs(position.x) / 5.0);
+      }
+    `;
+
+    const fragmentShader = `
+      uniform vec3 uColor1;
+      uniform vec3 uColor2;
+      uniform float uTime;
+      varying float vAlpha;
+
+      void main() {
+        vec2 center = gl_PointCoord - vec2(0.5);
+        float dist = length(center);
+        if (dist > 0.5) discard;
+
+        float alpha = smoothstep(0.5, 0.0, dist) * vAlpha;
+        float glow = exp(-dist * 6.0);
+        vec3 color = mix(uColor1, uColor2, dist * 2.0 + 0.3 * sin(uTime + gl_PointCoord.x * 10.0));
+
+        gl_FragColor = vec4(color, alpha * 0.9);
+      }
+    `;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uColor1: { value: new THREE.Color(0x06b6d4) },
+        uColor2: { value: new THREE.Color(0x818cf8) },
+        uTime: { value: 0 }
+      },
+      vertexShader,
+      fragmentShader,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    this.points = new THREE.Points(geometry, material);
+    this.scene.add(this.points);
+
+    // Add subtle ambient particles in background
+    this.addBackgroundStars();
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+
+  addBackgroundStars() {
+    const starCount = 200;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      pos[i*3] = (Math.random() - 0.5) * 20;
+      pos[i*3+1] = (Math.random() - 0.5) * 20;
+      pos[i*3+2] = (Math.random() - 0.5) * 20 - 5;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({
+      color: 0x334466,
+      size: 0.02,
+      transparent: true,
+      opacity: 0.5
+    });
+    const stars = new THREE.Points(geo, mat);
+    this.scene.add(stars);
+    this.stars = stars;
+  }
+
+  setTargetShape(gestureKey) {
+    if (gestureKey === this.currentGesture) return;
+    this.currentGesture = gestureKey;
+
+    const shape = GESTURE_SHAPES[gestureKey];
+    if (!shape) return;
+
+    const newTargets = shape.generate();
+    for (let i = 0; i < this.count * 3; i++) {
+      this.targets[i] = newTargets[i];
+    }
+
+    // Start explosion transition
+    this.isExploding = true;
+    this.explosionTimer = 0;
+
+    // Apply explosion velocities
+    for (let i = 0; i < this.count; i++) {
+      this.velocities[i*3] += (Math.random() - 0.5) * CONFIG.explosionForce;
+      this.velocities[i*3+1] += (Math.random() - 0.5) * CONFIG.explosionForce;
+      this.velocities[i*3+2] += (Math.random() - 0.5) * CONFIG.explosionForce;
+    }
+
+    // Update gesture label
+    gestureLabel.textContent = shape.name;
+    gestureLabel.classList.add('active');
+    setTimeout(() => gestureLabel.classList.remove('active'), 2000);
+
+    return shape.name;
+  }
+
+  addStorm(dirX, dirY, strength) {
+    this.stormForce.x += dirX * strength;
+    this.stormForce.y += dirY * strength;
+    this.stormForce.z += (Math.random() - 0.5) * strength * 0.3;
+  }
+
+  setDepth(s) {
+    this.depthScale = s;
+  }
+
+  update(dt) {
+    dt = Math.min(dt, 0.05);
+
+    // Update explosion timer
+    if (this.isExploding) {
+      this.explosionTimer += dt;
+      if (this.explosionTimer > this.explosionDuration) {
+        this.isExploding = false;
+      }
+    }
+
+    const explosionPhase = this.isExploding
+      ? Math.min(this.explosionTimer / this.explosionDuration, 1)
+      : 1;
+
+    // Apply physics
+    const stormDecay = Math.exp(-dt * 3);
+    for (let i = 0; i < this.count; i++) {
+      const i3 = i * 3;
+
+      // Target attraction (spring force)
+      const dx = this.targets[i3] - this.positions[i3];
+      const dy = this.targets[i3+1] - this.positions[i3+1];
+      const dz = this.targets[i3+2] - this.positions[i3+2];
+
+      const attractionStrength = this.isExploding
+        ? CONFIG.transitionSpeed * 0.3
+        : CONFIG.transitionSpeed;
+
+      this.accelerations[i3] = dx * attractionStrength + this.stormForce.x * (1 - explosionPhase);
+      this.accelerations[i3+1] = dy * attractionStrength + this.stormForce.y * (1 - explosionPhase);
+      this.accelerations[i3+2] = dz * attractionStrength + this.stormForce.z * (1 - explosionPhase);
+
+      // Depth scaling - push outward when hand is close
+      if (this.depthScale > 1.1) {
+        const push = (this.depthScale - 1) * CONFIG.depthSensitivity;
+        this.accelerations[i3] += this.positions[i3] * push * 2;
+        this.accelerations[i3+1] += this.positions[i3+1] * push * 2;
+        this.accelerations[i3+2] += this.positions[i3+2] * push * 2;
+      } else if (this.depthScale < 0.9) {
+        const pull = (1 - this.depthScale) * CONFIG.depthSensitivity;
+        this.accelerations[i3] -= this.positions[i3] * pull * 2;
+        this.accelerations[i3+1] -= this.positions[i3+1] * pull * 2;
+        this.accelerations[i3+2] -= this.positions[i3+2] * pull * 2;
+      }
+
+      // Apply velocity
+      this.velocities[i3] += this.accelerations[i3] * dt;
+      this.velocities[i3+1] += this.accelerations[i3+1] * dt;
+      this.velocities[i3+2] += this.accelerations[i3+2] * dt;
+
+      // Damping
+      this.velocities[i3] *= CONFIG.damping;
+      this.velocities[i3+1] *= CONFIG.damping;
+      this.velocities[i3+2] *= CONFIG.damping;
+
+      // Update position
+      this.positions[i3] += this.velocities[i3] * dt;
+      this.positions[i3+1] += this.velocities[i3+1] * dt;
+      this.positions[i3+2] += this.velocities[i3+2] * dt;
+    }
+
+    // Decay storm force
+    this.stormForce.x *= stormDecay;
+    this.stormForce.y *= stormDecay;
+    this.stormForce.z *= stormDecay;
+
+    // Update geometry
+    this.points.geometry.attributes.position.needsUpdate = true;
+    this.points.material.uniforms.uTime.value += dt;
+  }
+
+  render() {
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  dispose() {
+    this.renderer.dispose();
+  }
+}
+
+let particleSystem;
+
+// ===== Gesture Classification =====
+function distanceToPoint(a, b, idx) {
+  const dx = a[idx*3] - b[idx*3];
+  const dy = a[idx*3+1] - b[idx*3+1];
+  return Math.sqrt(dx*dx + dy*dy);
+}
+
+function getLandmarkPoint(landmarks, idx) {
+  return { x: landmarks[idx].x, y: landmarks[idx].y, z: landmarks[idx].z };
+}
+
+function classifyGesture(landmarks) {
+  if (!landmarks || landmarks.length < 21) return null;
+
+  const lm = landmarks;
+
+  // Landmark indices for fingertips and PIP joints
+  const FINGER_TIPS = [4, 8, 12, 16, 20]; // thumb, index, middle, ring, pinky
+  const FINGER_PIPS = [2, 6, 10, 14, 18];
+
+  // Count extended fingers
+  let extendedCount = 0;
+  const extended = [];
+
+  for (let f = 0; f < 5; f++) {
+    const tip = lm[FINGER_TIPS[f]];
+    const pip = lm[FINGER_PIPS[f]];
+    // For thumb, compare to wrist
+    const base = f === 0 ? lm[1] : pip;
+
+    const tipY = tip.y;
+    const baseY = base.y;
+
+    // A finger is extended if its tip is above the PIP/wrist (in image coords, y decreases upward)
+    // Actually in MediaPipe, y increases downward, so tip.y < base.y means extended
+    const extended_threshold = f === 0 ? 0.05 : 0.02;
+
+    if (tipY < baseY - extended_threshold) {
+      extendedCount++;
+      extended.push(f);
+    }
+  }
+
+  // Special: thumb up (thumb extended, all others curled)
+  const thumbTip = lm[4];
+  const thumbIp = lm[3];
+  const thumbMcp = lm[2];
+  const wrist = lm[0];
+  const thumbUp = thumbTip.y < wrist.y - 0.08 && thumbTip.x < thumbMcp.x - 0.02;
+  const othersCurled = extendedCount <= 1;
+
+  if (thumbUp && othersCurled && extended.includes(0)) {
+    return 'THUMBS_UP';
+  }
+
+  // Index finger only
+  if (extendedCount === 1 && extended.includes(1)) {
+    return 'INDEX_FINGER';
+  }
+
+  // Scissors: index + middle extended, others curled
+  if (extendedCount === 2 && extended.includes(1) && extended.includes(2)) {
+    return 'SCISSORS';
+  }
+
+  // Open palm: 4+ fingers extended
+  if (extendedCount >= 4) {
+    return 'OPEN_PALM';
+  }
+
+  // Fist: 0-1 fingers extended (and not thumbs up)
+  if (extendedCount <= 1) {
+    return 'FIST';
+  }
+
+  return 'FIST';
+}
+
+// ===== Hand Tracking State =====
+let lastHandPositions = [];
+let lastGesture = null;
+let gestureCooldown = 0;
+const GESTURE_COOLDOWN_TIME = 0.5; // seconds between gesture switches
+const STORM_HISTORY_LENGTH = 5;
+let prevLandmarks = null;
+let handDetected = false;
+let noHandTimer = 0;
+
+function processHandResults(results) {
+  if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+    handDetected = false;
+    noHandTimer += 0.03;
+    if (noHandTimer > 2) {
+      gestureLabel.textContent = '👋 请展示手势';
+    }
+    return;
+  }
+
+  handDetected = true;
+  noHandTimer = 0;
+  const landmarks = results.multiHandLandmarks[0];
+  const wrist = landmarks[0];
+  const middleMCP = landmarks[9];
+
+  const handCenterX = (wrist.x + middleMCP.x) / 2;
+  const handCenterY = (wrist.y + middleMCP.y) / 2;
+
+  // Track positions for storm detection
+  lastHandPositions.push({ x: handCenterX, y: handCenterY });
+  if (lastHandPositions.length > STORM_HISTORY_LENGTH) {
+    lastHandPositions.shift();
+  }
+
+  // Storm detection
+  if (lastHandPositions.length >= 3) {
+    const p1 = lastHandPositions[lastHandPositions.length - 3];
+    const p2 = lastHandPositions[lastHandPositions.length - 1];
+    const speed = Math.sqrt(
+      Math.pow((p2.x - p1.x), 2) +
+      Math.pow((p2.y - p1.y), 2)
+    );
+
+    if (speed > CONFIG.stormThreshold && particleSystem) {
+      const dirX = (p2.x - p1.x) / speed;
+      const dirY = -(p2.y - p1.y) / speed;
+      const strength = Math.min(speed * CONFIG.stormForce, CONFIG.stormForce * 2);
+      particleSystem.addStorm(dirX, dirY, strength);
+    }
+  }
+
+  // Depth detection (bounding box size)
+  let minX = 1, maxX = 0, minY = 1, maxY = 0;
+  for (const lm of landmarks) {
+    if (lm.x < minX) minX = lm.x;
+    if (lm.x > maxX) maxX = lm.x;
+    if (lm.y < minY) minY = lm.y;
+    if (lm.y > maxY) maxY = lm.y;
+  }
+  const bboxArea = (maxX - minX) * (maxY - minY);
+  const depthScale = Math.max(0.5, Math.min(2.5, bboxArea * 8));
+  if (particleSystem) {
+    particleSystem.setDepth(depthScale);
+  }
+
+  // Gesture classification (with cooldown)
+  gestureCooldown -= 0.03;
+  if (gestureCooldown <= 0) {
+    const gesture = classifyGesture(landmarks);
+    if (gesture && gesture !== lastGesture && particleSystem) {
+      lastGesture = gesture;
+      gestureCooldown = GESTURE_COOLDOWN_TIME;
+      particleSystem.setTargetShape(gesture);
+    }
+  }
+}
+
+// ===== Mouse/Touch Fallback =====
+let mouseActive = false;
+let lastMouseX = 0, lastMouseY = 0;
+let mousePositions = [];
+let currentTouchShape = 'OPEN_PALM';
+const TOUCH_SHAPES = ['OPEN_PALM', 'SCISSORS', 'FIST', 'INDEX_FINGER', 'THUMBS_UP'];
+let touchShapeIndex = 0;
+
+function setupMouseFallback() {
+  canvas.addEventListener('mousemove', (e) => {
+    mouseActive = true;
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+
+    mousePositions.push({ x, y });
+    if (mousePositions.length > 5) mousePositions.shift();
+
+    // Storm detection for mouse
+    if (mousePositions.length >= 3) {
+      const p1 = mousePositions[mousePositions.length - 3];
+      const p2 = mousePositions[mousePositions.length - 1];
+      const speed = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+      if (speed > 0.02 && particleSystem) {
+        const dirX = (p2.x - p1.x) / Math.max(speed, 0.001);
+        const dirY = -(p2.y - p1.y) / Math.max(speed, 0.001);
+        particleSystem.addStorm(dirX, dirY, Math.min(speed * 200, 20));
+      }
+    }
+
+    lastMouseX = x;
+    lastMouseY = y;
+  });
+
+  // Click to cycle shapes
+  canvas.addEventListener('click', () => {
+    if (!particleSystem || lastGesture) return;
+    touchShapeIndex = (touchShapeIndex + 1) % TOUCH_SHAPES.length;
+    const shape = TOUCH_SHAPES[touchShapeIndex];
+    currentTouchShape = shape;
+    particleSystem.setTargetShape(shape);
+  });
+
+  // Touch support
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const x = touch.clientX / window.innerWidth;
+    const y = touch.clientY / window.innerHeight;
+
+    mousePositions.push({ x, y });
+    if (mousePositions.length > 5) mousePositions.shift();
+
+    if (mousePositions.length >= 3) {
+      const p1 = mousePositions[mousePositions.length - 3];
+      const p2 = mousePositions[mousePositions.length - 1];
+      const speed = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+      if (speed > 0.02 && particleSystem) {
+        const dirX = (p2.x - p1.x) / Math.max(speed, 0.001);
+        const dirY = -(p2.y - p1.y) / Math.max(speed, 0.001);
+        particleSystem.addStorm(dirX, dirY, Math.min(speed * 200, 20));
+      }
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (!particleSystem) return;
+    touchShapeIndex = (touchShapeIndex + 1) % TOUCH_SHAPES.length;
+    const shape = TOUCH_SHAPES[touchShapeIndex];
+    currentTouchShape = shape;
+    particleSystem.setTargetShape(shape);
+  }, { passive: false });
+
+  // Start with palm shape for mouse users
+  setTimeout(() => {
+    if (!lastGesture && particleSystem) {
+      particleSystem.setTargetShape('OPEN_PALM');
+    }
+  }, 1000);
+}
+
+// ===== Camera Permission Flow =====
+async function startWithCamera() {
+  cameraPermit.classList.remove('show');
+  hint.classList.add('hidden');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } });
+    video.srcObject = stream;
+    await video.play();
+
+    setProgress(60, '正在加载手势识别模型...');
+
+    const hands = new Hands({
+      locateFile: (file) => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${file}`
+    });
+
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.5
+    });
+
+    hands.onResults(processHandResults);
+
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        try { await hands.send({ image: video }); } catch(e) {}
+      },
+      width: 640,
+      height: 480
+    });
+
+    setProgress(80, '手势识别已就绪！');
+    await camera.start();
+
+    setProgress(100, '加载完成！');
+    setTimeout(() => loading.classList.add('hidden'), 500);
+
+  } catch (err) {
+    console.warn('Camera failed:', err);
+    gestureLabel.textContent = '🖱️ 鼠标/触控模式';
+    // Fallback to mouse
+    setupMouseFallback();
+    setProgress(100, '使用鼠标/触控模式');
+    setTimeout(() => loading.classList.add('hidden'), 500);
+  }
+}
+
+function startWithoutCamera() {
+  cameraPermit.classList.remove('show');
+  gestureLabel.textContent = '🖱️ 鼠标/触控模式（点击切换形态）';
+  setupMouseFallback();
+  setProgress(100, '使用鼠标/触控模式');
+  setTimeout(() => loading.classList.add('hidden'), 500);
+}
+
+// ===== Init =====
+async function init() {
+  setProgress(10, '正在启动粒子系统...');
+
+  particleSystem = new ParticleSystem();
+  setProgress(40, 'Three.js 已加载');
+
+  // Small delay for UI
+  await new Promise(r => setTimeout(r, 300));
+
+  // Show camera permission dialog
+  cameraPermit.classList.add('show');
+
+  document.getElementById('start-camera').addEventListener('click', startWithCamera);
+  document.getElementById('skip-camera').addEventListener('click', startWithoutCamera);
+
+  // Animation loop
+  let lastTime = performance.now();
+  function animate() {
+    const now = performance.now();
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    if (particleSystem) {
+      particleSystem.update(dt);
+      particleSystem.render();
+    }
+
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+init();
+</script>
+</body>
+</html>
