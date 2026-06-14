@@ -57,6 +57,20 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
+<script>
+(function(){
+  // Force-hide loading screen after 3s no matter what
+  setTimeout(function(){
+    var el = document.getElementById('loading');
+    if(el) el.classList.add('hidden');
+  }, 3000);
+  // Also show camera prompt after 1s as backup
+  setTimeout(function(){
+    var p = document.getElementById('prompt');
+    if(p && !p.classList.contains('show')) p.classList.add('show');
+  }, 1000);
+})();
+</script>
 
 <div id="loading">
   <div class="spinner"></div>
@@ -665,4 +679,5 @@ boot();
 </script>
 </body>
 </html>
+
 
