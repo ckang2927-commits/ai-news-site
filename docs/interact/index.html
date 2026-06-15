@@ -341,6 +341,15 @@ function drawHand(lm, ctx, w, h) {
 }
 
 // ═══════ PARTICLE SYSTEM
+
+// ═══════ DYNAMIC CAMERA ZOOM
+function calcCameraZ(aspect) {
+  const baseAspect = 16/9;
+  const baseZ = 5.5;
+  // Narrow screen (portrait mobile) → push back; wide screen → pull closer
+  return Math.max(4, Math.min(14, baseZ * baseAspect / aspect));
+}
+
 class PS {
   constructor() {
     this.N = C.N;
@@ -375,7 +384,7 @@ class PS {
 
     this.s = new THREE.Scene();
     this.c = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
-    this.c.position.z = 5.5;
+    this.c.position.z = calcCameraZ(innerWidth/innerHeight);
 
     // Stars
     const sg = new THREE.BufferGeometry();
@@ -447,7 +456,9 @@ class PS {
     this.s.add(this.mesh);
 
     onresize = () => {
-      this.c.aspect = innerWidth/innerHeight;
+      const a = innerWidth/innerHeight;
+      this.c.aspect = a;
+      this.c.position.z = calcCameraZ(a);
       this.c.updateProjectionMatrix();
       this.r.setSize(innerWidth, innerHeight);
     };
@@ -558,7 +569,16 @@ function onHand(r) {
     if (idle > 1.5) {
       // On mobile, auto-fallback to touch mode if no hand for 8s
       if (isMobile && idle > 8) {
-        console.log('No hand detected on mobile, falling back to touch');
+        // Only fallback once
+        if (!window._cameraFellBack) {
+          window._cameraFellBack = true;
+          console.log('No hand detected on mobile, falling back to touch');
+          if (camInstance) { try { camInstance.stop(); } catch(e){} camInstance = null; }
+          try { if (video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
+          glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
+          debugCanvas.classList.remove('show');
+          setupMouse();
+        }
         glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
         debugCanvas.classList.remove('show');
         setupMouse();
@@ -627,6 +647,7 @@ let mpos = [];
 let cycle = 0;
 const CYCLE = [1,2,3,4,5];
 let isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+let camInstance = null;  // Camera controller, for cleanup on fallback
 let touchMoved = false;
 
 function cycleMode() {
@@ -713,14 +734,15 @@ async function startCam() {
     const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
     hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
-    const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
-    prog(85, '就绪！'); await cam.start();
+    camInstance = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
+    await camInstance.start();
     // On mobile, if no hand detected for 10s, fallback to touch
     if (isMobile) {
       clearTimeout(camFallbackTimer);
       camFallbackTimer = setTimeout(() => {
         if (idle > 2) {
           console.log('Camera timeout on mobile, switching to touch');
+          if (camInstance) { try { camInstance.stop(); } catch(e){} camInstance = null; }
           try { video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
           glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
           debugCanvas.classList.remove('show');
@@ -739,6 +761,9 @@ async function startCam() {
 }
 
 function skipCam() {
+  // Stop camera if running
+  if (camInstance) { try { camInstance.stop(); } catch(e){} camInstance = null; }
+  try { if (video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
   prompt.classList.remove('show');
   glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
   debugCanvas.classList.remove('show');
@@ -749,16 +774,19 @@ function skipCam() {
 async function boot() {
   prog(10, '启动粒子...');
   ps = new PS();
-  prog(50, '渲染就绪');
+  prog(60, '渲染就绪');
   await new Promise(r => setTimeout(r, 100));
+
+  // Show camera prompt on ALL devices
   prompt.classList.add('show');
-  $('#btn-cam').onclick = startCam;
-  $('#btn-skip').onclick = skipCam;
-  // On mobile, auto-fallback to touch mode after 4s
+  document.getElementById('btn-cam').onclick = startCam;
+  document.getElementById('btn-skip').onclick = skipCam;
+
+  // Mobile: auto-fallback to touch if camera prompt ignored for 6s
   if (isMobile) {
     setTimeout(() => {
       if (prompt.classList.contains('show')) skipCam();
-    }, 4000);
+    }, 6000);
   }
 
   let last = performance.now();
