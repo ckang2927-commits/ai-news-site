@@ -591,7 +591,7 @@ function onHand(r) {
 
 // ═══════ MOUSE
 let mpos = [];
-let cycle = 4;
+let cycle = 0;
 const CYCLE = [1,2,3,4,5];
 
 function setupMouse() {
@@ -619,11 +619,11 @@ async function startCam() {
   debugCanvas.classList.add('show');
 
   try {
-    const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
+    const s = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:"user"}});
     video.srcObject = s; await video.play();
     prog(60, '加载手势识别...');
     const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
     const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
     prog(85, '就绪！'); await cam.start();
@@ -644,10 +644,18 @@ function skipCam() {
 }
 
 // ═══════ BOOT
-async function boot() {
+async function boot() { try {
   prog(10, '启动粒子...');
   ps = new PS();
   prog(50, '渲染就绪');
+  // Safety timeout: if loading screen stays too long, force show prompt
+  setTimeout(function() {
+    var ld = document.getElementById('loading');
+    if (ld && !ld.classList.contains('hidden')) {
+      console.warn('Safety timeout: forcing prompt');
+      document.getElementById('prompt').classList.add('show');
+    }
+  }, 8000);
   await new Promise(r => setTimeout(r, 100));
   prompt.classList.add('show');
   $('#btn-cam').onclick = startCam;
@@ -655,12 +663,26 @@ async function boot() {
 
   let last = performance.now();
   function loop() {
-    const n = performance.now(), dt = (n-last)/1000;
-    if (ps) { ps.update(dt); ps.render(); var el = document.getElementById('debug-pos'); if(el && el.style.display!='block'){el.style.display='block'} if(el && ps.pos){el.textContent='pos[0]='+ps.pos[0].toFixed(4)+' tgt[0]='+ps.tgt[0].toFixed(4)+' k='+ps.key; if(Math.abs(ps.pos[0]-ps.tgt[0])>0.01) el.style.color='#0f0'; else el.style.color='#0cf'} }
+    var now = performance.now();
+    var dt = Math.min((now-last)/1000, 0.05);
+    last = now;
     if (ps) { ps.update(dt); ps.render(); }
+    var el = document.getElementById('debug-pos');
+    if (el) { el.style.display='block'; el.textContent='fps='+(1/(dt||0.016)).toFixed(0)+' k='+(ps?ps.key:'-'); }
     requestAnimationFrame(loop);
   }
   loop();
+} catch(e) {
+    console.error('Boot error:', e);
+    loadTxt.textContent = '\u52a0\u8f7d\u5931\u8d25';
+    var pm = document.getElementById('prompt');
+    if (pm) { pm.classList.add('show'); }
+    var h2 = document.querySelector('#prompt h2');
+    if (h2) { h2.textContent = '\u26a0\ufe0f ' + e.message; }
+    var pp = document.querySelector('#prompt p');
+    if (pp) { pp.textContent = '\u9875\u9762\u9047\u5230\u9519\u8bef\uff0c\u8bf7\u5c1d\u8bd5\u5237\u65b0\u6216\u5207\u6362\u6d4f\u89c8\u5668'; }
+    prog(100);
+  }
 }
 boot();
 </script>
