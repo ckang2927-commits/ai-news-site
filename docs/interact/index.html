@@ -123,7 +123,6 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 
 <script type="module">
 import * as THREE from 'three';
-import { FilesetResolver, HandLandmarker } from 'https://unpkg.com/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs';
 
 // ═══════ CONFIG
 const C = {
@@ -726,6 +725,16 @@ async function startCam() {
     const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
     video.srcObject = s; await video.play();
     prog(60, '加载手势模型...');
+    // Dynamic import (won't block page if CDN fails)
+    let FilesetResolver, HandLandmarker;
+    try {
+      const tv = await import('https://unpkg.com/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs');
+      FilesetResolver = tv.FilesetResolver;
+      HandLandmarker = tv.HandLandmarker;
+    } catch(e) {
+      console.warn('MediaPipe load failed:', e);
+      throw new Error('MediaPipe not available');
+    }
     const vision = await FilesetResolver.forVisionTasks('https://unpkg.com/@mediapipe/tasks-vision@0.10.35/wasm/');
     window._handLandmarker = await HandLandmarker.createFromOptions(vision, {
       baseOptions: {
@@ -738,7 +747,7 @@ async function startCam() {
     prog(85, '就绪！');
     // Mobile: fallback if no hand detected for 10s
     if (isMobile) {
-    clearTimeout(camFallbackTimer);
+      clearTimeout(camFallbackTimer);
       camFallbackTimer = setTimeout(() => {
         if (idle > 2) {
           console.log('Camera timeout on mobile, switching to touch');
@@ -759,40 +768,6 @@ async function startCam() {
     setupMouse(); prog(100); setTimeout(() => document.getElementById('loading').classList.add('hidden'), 200);
   }
 }
-  prompt.classList.remove('show');
-  guide.classList.add('hidden');
-  distHint.classList.remove('hidden');
-  debugCanvas.classList.add('show');
-
-  try {
-    const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
-    video.srcObject = s; await video.play();
-    prog(60, '加载手势识别...');
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
-    hands.onResults(onHand);
-    // On mobile, if no hand detected for 10s, fallback to touch
-    if (isMobile) {
-    clearTimeout(camFallbackTimer);
-      camFallbackTimer = setTimeout(() => {
-        if (idle > 2) {
-          console.log('Camera timeout on mobile, switching to touch');
-          try { video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
-          glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
-          debugCanvas.classList.remove('show');
-          distHint.classList.add('hidden');
-          setupMouse();
-        }
-      }, 10000);
-    }
-    prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
-  } catch(e) {
-    console.warn(e);
-    glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
-    debugCanvas.classList.remove('show');
-    setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
-  }
-}
-
 function skipCam() {
   window._handLandmarker = null;
   try { if (video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
@@ -800,7 +775,6 @@ function skipCam() {
   glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
   debugCanvas.classList.remove('show');
   setupMouse(); prog(100); setTimeout(() => document.getElementById('loading').classList.add('hidden'), 200);
-}
 }
 
 // ═══════ BOOT
