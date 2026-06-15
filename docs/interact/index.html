@@ -59,6 +59,7 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <body>
 
 <div id="loading">
+<div id="debug-pos" style="position:fixed;bottom:130px;left:10px;z-index:100;color:#0cf;font-size:11px;font-family:monospace;background:rgba(0,0,0,.7);padding:4px 8px;border-radius:4px;display:none">初始化...</div>
   <div class="spinner"></div>
   <p id="load-text">启动中...</p>
   <div class="bar"><div class="bar-inner" id="load-bar"></div></div>
@@ -650,7 +651,7 @@ async function boot() {
   let last = performance.now();
   function loop() {
     const n = performance.now(), dt = (n-last)/1000;
-    last = n;
+    if (ps) { ps.update(dt); ps.render(); var el = document.getElementById('debug-pos'); if(el && el.style.display!='block'){el.style.display='block'} if(el && ps.pos){el.textContent='pos[0]='+ps.pos[0].toFixed(4)+' tgt[0]='+ps.tgt[0].toFixed(4)+' k='+ps.key; if(Math.abs(ps.pos[0]-ps.tgt[0])>0.01) el.style.color='#0f0'; else el.style.color='#0cf'} }
     if (ps) { ps.update(dt); ps.render(); }
     requestAnimationFrame(loop);
   }
