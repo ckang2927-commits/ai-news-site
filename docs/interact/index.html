@@ -120,11 +120,10 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="debug"></canvas>
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
-<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin></script>
-<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin></script>
 
 <script type="module">
 import * as THREE from 'three';
+import { FilesetResolver, HandLandmarker } from 'https://unpkg.com/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs';
 
 // ═══════ CONFIG
 const C = {
@@ -562,6 +561,7 @@ let ps;
 let hpos = [];
 let prevK = -1, cd = 0, idle = 0;
 let lastLM = null;
+let camFallbackTimer = null;
 
 function onHand(r) {
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
@@ -573,15 +573,11 @@ function onHand(r) {
         if (!window._cameraFellBack) {
           window._cameraFellBack = true;
           console.log('No hand detected on mobile, falling back to touch');
-          if (camInstance) { try { camInstance.stop(); } catch(e){} camInstance = null; }
           try { if (video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
           glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
           debugCanvas.classList.remove('show');
           setupMouse();
         }
-        glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
-        debugCanvas.classList.remove('show');
-        setupMouse();
         return;
       }
       glTxt.textContent = '👋 等待手势';
@@ -644,10 +640,9 @@ function onHand(r) {
 
 // ═══════ MOUSE & TOUCH
 let mpos = [];
-let cycle = 0;
+let cycle = 4; // Start at 5 (sphere), click cycles 1→2→3→4→5
 const CYCLE = [1,2,3,4,5];
 let isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-let camInstance = null;  // Camera controller, for cleanup on fallback
 let touchMoved = false;
 
 function cycleMode() {
@@ -697,7 +692,7 @@ function setupMouse() {
     gl.addEventListener('touchend', e => { e.stopPropagation(); if (!touchMoved) cycleMode(); });
   }
 
-  setTimeout(() => { if(ps) { ps.setTarget(1); glNum.textContent='1'; glNum.classList.add('ok'); glTxt.textContent='1 · 我'; } }, 600);
+  setTimeout(() => { if(ps) { ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 球形'; } }, 600);
 }
 
 // ═══════ ORIENTATION HANDLER
@@ -730,19 +725,57 @@ async function startCam() {
   try {
     const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
     video.srcObject = s; await video.play();
-    prog(60, '加载手势识别...');
-    const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
-    hands.onResults(onHand);
-    camInstance = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
-    await camInstance.start();
-    // On mobile, if no hand detected for 10s, fallback to touch
+    prog(60, '加载手势模型...');
+    const vision = await FilesetResolver.forVisionTasks('https://unpkg.com/@mediapipe/tasks-vision@0.10.35/wasm/');
+    window._handLandmarker = await HandLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+        delegate: 'GPU'
+      },
+      runningMode: 'VIDEO',
+      numHands: 1
+    });
+    prog(85, '就绪！');
+    // Mobile: fallback if no hand detected for 10s
     if (isMobile) {
-      clearTimeout(camFallbackTimer);
+    clearTimeout(camFallbackTimer);
       camFallbackTimer = setTimeout(() => {
         if (idle > 2) {
           console.log('Camera timeout on mobile, switching to touch');
-          if (camInstance) { try { camInstance.stop(); } catch(e){} camInstance = null; }
+          window._handLandmarker = null;
+          try { video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
+          glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
+          debugCanvas.classList.remove('show');
+          distHint.classList.add('hidden');
+          setupMouse();
+        }
+      }, 10000);
+    }
+    prog(100); setTimeout(() => document.getElementById('loading').classList.add('hidden'), 200);
+  } catch(e) {
+    console.warn(e);
+    glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
+    debugCanvas.classList.remove('show');
+    setupMouse(); prog(100); setTimeout(() => document.getElementById('loading').classList.add('hidden'), 200);
+  }
+}
+  prompt.classList.remove('show');
+  guide.classList.add('hidden');
+  distHint.classList.remove('hidden');
+  debugCanvas.classList.add('show');
+
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
+    video.srcObject = s; await video.play();
+    prog(60, '加载手势识别...');
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
+    hands.onResults(onHand);
+    // On mobile, if no hand detected for 10s, fallback to touch
+    if (isMobile) {
+    clearTimeout(camFallbackTimer);
+      camFallbackTimer = setTimeout(() => {
+        if (idle > 2) {
+          console.log('Camera timeout on mobile, switching to touch');
           try { video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
           glTxt.textContent = '🖱️ 触控模式 · 点击切换形态';
           debugCanvas.classList.remove('show');
@@ -761,13 +794,13 @@ async function startCam() {
 }
 
 function skipCam() {
-  // Stop camera if running
-  if (camInstance) { try { camInstance.stop(); } catch(e){} camInstance = null; }
+  window._handLandmarker = null;
   try { if (video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
   prompt.classList.remove('show');
   glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
   debugCanvas.classList.remove('show');
-  setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
+  setupMouse(); prog(100); setTimeout(() => document.getElementById('loading').classList.add('hidden'), 200);
+}
 }
 
 // ═══════ BOOT
@@ -794,6 +827,17 @@ async function boot() {
     const n = performance.now(), dt = (n-last)/1000;
     last = n;
     if (ps) { ps.update(dt); ps.render(); }
+
+    // Hand detection via MediaPipe tasks-vision
+    if (window._handLandmarker && video.readyState >= 2) {
+      try {
+        const results = window._handLandmarker.detectForVideo(video, n);
+        const adapted = {
+          multiHandLandmarks: results.landmarks && results.landmarks.length > 0 ? results.landmarks : null
+        };
+        onHand(adapted);
+      } catch(e) {}
+    }
     requestAnimationFrame(loop);
   }
   loop();
