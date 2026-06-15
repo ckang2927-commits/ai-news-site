@@ -475,11 +475,6 @@ class PS {
       this.vel[i*3+1] += (Math.random()-.5)*C.boom;
       this.vel[i*3+2] += (Math.random()-.5)*C.boom;
     }
-    glTxt.textContent = `${k} · ${G[k].l}`;
-    gl.classList.add('glow');
-    glNum.textContent = k;
-    glNum.classList.add('ok');
-    setTimeout(() => gl.classList.remove('glow'), 1000);
   }
 
   addStorm(dx, dy, s) {
@@ -626,6 +621,11 @@ function onHand(r) {
   if (cd <= 0 && k >= 1 && k <= 5 && k !== prevK && ps) {
     prevK = k; cd = C.cooldown;
     ps.setTarget(k);
+      glTxt.textContent = k + ' · ' + G[k].l;
+      gl.classList.add('glow');
+      glNum.textContent = k;
+      glNum.classList.add('ok');
+      setTimeout(() => gl.classList.remove('glow'), 1000);
   }
 
   // Draw debug
