@@ -806,8 +806,10 @@ function skipCam() {
 // ═══════ BOOT
 async function boot() {
   prog(10, '启动粒子...');
-  ps = new PS();
-  prog(60, '渲染就绪');
+  try { ps = new PS(); prog(60, '渲染就绪'); } catch(e) {
+    console.warn('Particle system init failed:', e);
+    prog(60, '启动完成');
+  }
   await new Promise(r => setTimeout(r, 100));
 
   // Show camera prompt on ALL devices
@@ -826,7 +828,7 @@ async function boot() {
   function loop() {
     const n = performance.now(), dt = (n-last)/1000;
     last = n;
-    if (ps) { ps.update(dt); ps.render(); }
+    if (ps) { try { ps.update(dt); ps.render(); } catch(e){} }
 
     // Hand detection via MediaPipe tasks-vision
     if (window._handLandmarker && video.readyState >= 2) {
