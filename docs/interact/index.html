@@ -311,6 +311,10 @@ function drawHand(lm, ctx, w, h) {
 }
 
 // ═══════ PARTICLE SYSTEM
+
+// ═══════ DYNAMIC ZOOM (mobile)
+function calcZ(a) { return Math.max(4, Math.min(14, 5.5 * 16/9 / a)); }
+
 class PS {
   constructor() {
     this.N = C.N;
@@ -345,7 +349,7 @@ class PS {
 
     this.s = new THREE.Scene();
     this.c = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
-    this.c.position.z = 5.5;
+    this.c.position.z = calcZ(innerWidth/innerHeight);
 
     // Stars
     const sg = new THREE.BufferGeometry();
@@ -417,7 +421,9 @@ class PS {
     this.s.add(this.mesh);
 
     onresize = () => {
-      this.c.aspect = innerWidth/innerHeight;
+      var a = innerWidth/innerHeight;
+      this.c.aspect = a;
+      this.c.position.z = calcZ(a);
       this.c.updateProjectionMatrix();
       this.r.setSize(innerWidth, innerHeight);
     };
@@ -598,7 +604,6 @@ function setupMouse() {
       if (sp > 0.01 && ps)
         ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
     }
-  };
   mainCanvas.addEventListener('mousemove', e => h(e.clientX/innerWidth, e.clientY/innerHeight));
   mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
   mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
