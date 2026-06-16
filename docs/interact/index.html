@@ -2,6 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
@@ -90,8 +92,8 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="debug"></canvas>
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
-<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin></script>
-<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin></script>
+<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js"></script>
+<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
 <script>
 // SAFETY NET: Show prompt after 3s if module fails
 (function(){var _st=setTimeout(function(){var ld=document.getElementById("loading");if(ld&&!ld.classList.contains("hidden")){var pm=document.getElementById("prompt");if(pm)pm.classList.add("show");}},3000);window._cancelSt=function(){clearTimeout(_st);};})();
