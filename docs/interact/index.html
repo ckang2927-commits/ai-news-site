@@ -93,7 +93,24 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 
 
 
+<script>
+// SAFETY NET: If module script fails to load, show prompt after 3s
+(function() {
+  var _safetyTimer = setTimeout(function() {
+    var ld = document.getElementById('loading');
+    if (ld && !ld.classList.contains('hidden')) {
+      var pm = document.getElementById('prompt');
+      if (pm) { pm.classList.add('show'); }
+    }
+  }, 3000);
+  // Cancel safety timer if module loads successfully
+  window._cancelSafety = function() { clearTimeout(_safetyTimer); };
+})();
+</script>
 <script type="module">
+(async function() {
+try {
+window._cancelSafety();
 // Dynamic import Three.js with CDN fallback chain
 var THREE = null;
 var _cdnUrls = [
@@ -748,7 +765,19 @@ window.addEventListener('error', function(e) {
 window.addEventListener('unhandledrejection', function(e) {
   console.error('Unhandled:', e.reason);
 });
-boot();
+await boot();
+} catch(e) {
+  console.error('Module fatal:', e);
+  var ld = document.getElementById('loading');
+  if (ld) { ld.classList.add('hidden'); }
+  var pm = document.getElementById('prompt');
+  if (pm) { pm.classList.add('show'); }
+  var h2 = document.querySelector('#prompt h2');
+  if (h2) { h2.textContent = '⚠️ 加载失败'; }
+  var pp = document.querySelector('#prompt p');
+  if (pp) { pp.textContent = '请刷新页面或切换网络环境'; }
+}
+})();
 </script>
 </body>
 </html>
