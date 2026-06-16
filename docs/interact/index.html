@@ -2,18 +2,18 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>✨ 粒子手势交互</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap");</style>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
-canvas#main{position:fixed;top:0;left:0;width:100%;height:100%}
+html,body{width:100%;height:100%;height:100dvh;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
+canvas#main{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh}
 canvas#debug{position:fixed;bottom:16px;right:16px;width:160px;height:120px;border-radius:12px;z-index:15;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);display:none}
 canvas#debug.show{display:block}
-#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s}
+#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s;height:100%;height:100dvh}
 #loading.hidden{opacity:0;pointer-events:none}
 #loading .spinner{width:40px;height:40px;border:2px solid rgba(6,182,212,.1);border-top-color:#06b6d4;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -36,7 +36,7 @@ canvas#debug.show{display:block}
 #dist-hint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.2);font-size:9px;text-align:center;pointer-events:none;transition:opacity 1s;letter-spacing:.5px}
 #dist-hint.hidden{opacity:0}
 
-#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);height:100%;height:100dvh}
 #prompt.show{display:flex}
 #prompt .icon{font-size:36px;margin-bottom:10px}
 #prompt h2{color:#e2e8f0;font-size:16px;margin-bottom:3px}
@@ -55,8 +55,11 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
   canvas#debug{width:120px;height:90px;bottom:10px;right:10px}
   #guide{font-size:9px;bottom:48px}
   #dist-hint{font-size:8px;bottom:74px}
+  canvas#main, #loading, #prompt{height:100%;height:100dvh}
+  html,body{height:100%;height:100dvh}
 }
 </style>
+<style id="dvh-root">:root{--dvh:100vh}</style>
 </head>
 <body>
 
@@ -381,12 +384,12 @@ class PS {
   _gl() {
     this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
     this.r.setPixelRatio(Math.min(devicePixelRatio, 2));
-    this.r.setSize(innerWidth, innerHeight);
+    this.r.setSize(vw(), vh());
     this.r.setClearColor(0x070714);
 
     this.s = new THREE.Scene();
-    this.c = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
-    this.c.position.z = calcZ(innerWidth/innerHeight);
+    this.c = new THREE.PerspectiveCamera(55, vw()/vh(), 0.1, 100);
+    this.c.position.z = calcZ(vw()/vh());
 
     // Stars
     const sg = new THREE.BufferGeometry();
@@ -457,13 +460,25 @@ class PS {
     this.mesh = new THREE.Points(geo, mat);
     this.s.add(this.mesh);
 
-    onresize = () => {
-      var a = innerWidth/innerHeight;
+    var _resize = function() {
+      var w = vw(), h = vh();
+      if (w < 1 || h < 1) return;
+      var a = w/h;
       this.c.aspect = a;
       this.c.position.z = calcZ(a);
       this.c.updateProjectionMatrix();
-      this.r.setSize(innerWidth, innerHeight);
-    };
+      this.r.setSize(w, h);
+      mainCanvas.style.width = '';
+      mainCanvas.style.height = '';
+    }.bind(this);
+    window.addEventListener('resize', _resize);
+    window.addEventListener('orientationchange', function() { setTimeout(_resize, 300); });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', _resize);
+    var _lastH = vh();
+    setInterval(function() {
+      var h = vh();
+      if (Math.abs(h - _lastH) > 15) { _lastH = h; _resize(); }
+    }, 300);
   }
 
   setTarget(k) {
@@ -650,11 +665,24 @@ function setupMouse() {
       if (sp > 0.01 && ps)
         ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
     }
-  mainCanvas.addEventListener('mousemove', function(e) { h(e.clientX/innerWidth, e.clientY/innerHeight); });
+  mainCanvas.addEventListener('mousemove', function(e) { h(e.clientX/vw(), e.clientY/vh()); });
   mainCanvas.addEventListener('click', function() { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
-  mainCanvas.addEventListener('touchmove', function(e) { e.preventDefault(); var t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
+  mainCanvas.addEventListener('touchmove', function(e) { e.preventDefault(); var t=e.touches[0]; h(t.clientX/vw(), t.clientY/vh()); }, {passive:false});
   mainCanvas.addEventListener('touchstart', function(e) { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
 }
+
+// Mobile-safe viewport helpers
+function vw() { return window.visualViewport ? window.visualViewport.width : innerWidth; }
+function vh() { return window.visualViewport ? window.visualViewport.height : innerHeight; }
+function applyDvh() {
+  var h = vh();
+  document.documentElement.style.setProperty('--vh', h + 'px');
+  var els = document.querySelectorAll('#loading,#prompt,canvas#main,html,body');
+  for (var i = 0; i < els.length; i++) els[i].style.setProperty('height', h + 'px', 'important');
+}
+applyDvh();
+window.addEventListener('resize', function() { setTimeout(applyDvh, 50); });
+if (window.visualViewport) window.visualViewport.addEventListener('resize', applyDvh);
 
 // ═══════ CAMERA
 function loadScript(url) {
