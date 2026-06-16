@@ -2,18 +2,16 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>✨ 粒子手势交互</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<style>@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap");</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;height:100dvh;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
-canvas#main{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh}
+html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
+canvas#main{position:fixed;top:0;left:0;width:100%;height:100%}
 canvas#debug{position:fixed;bottom:16px;right:16px;width:160px;height:120px;border-radius:12px;z-index:15;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);display:none}
 canvas#debug.show{display:block}
-#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s;height:100%;height:100dvh}
+#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s}
 #loading.hidden{opacity:0;pointer-events:none}
 #loading .spinner{width:40px;height:40px;border:2px solid rgba(6,182,212,.1);border-top-color:#06b6d4;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -36,7 +34,7 @@ canvas#debug.show{display:block}
 #dist-hint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(148,163,184,.2);font-size:9px;text-align:center;pointer-events:none;transition:opacity 1s;letter-spacing:.5px}
 #dist-hint.hidden{opacity:0}
 
-#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);height:100%;height:100dvh}
+#prompt{position:fixed;inset:0;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 #prompt.show{display:flex}
 #prompt .icon{font-size:36px;margin-bottom:10px}
 #prompt h2{color:#e2e8f0;font-size:16px;margin-bottom:3px}
@@ -55,11 +53,8 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
   canvas#debug{width:120px;height:90px;bottom:10px;right:10px}
   #guide{font-size:9px;bottom:48px}
   #dist-hint{font-size:8px;bottom:74px}
-  canvas#main, #loading, #prompt{height:100%;height:100dvh}
-  html,body{height:100%;height:100dvh}
 }
 </style>
-<style id="dvh-root">:root{--dvh:100vh}</style>
 </head>
 <body>
 
@@ -94,47 +89,28 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="main"></canvas>
 <canvas id="debug"></canvas>
 
-
-
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin></script>
+<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin></script>
 <script>
-// SAFETY NET: If module script fails to load, show prompt after 3s
-(function() {
-  var _safetyTimer = setTimeout(function() {
-    var ld = document.getElementById('loading');
-    if (ld && !ld.classList.contains('hidden')) {
-      var pm = document.getElementById('prompt');
-      if (pm) { pm.classList.add('show'); }
-    }
-  }, 3000);
-  // Cancel safety timer if module loads successfully
-  window._cancelSafety = function() { clearTimeout(_safetyTimer); };
-})();
+// SAFETY NET: Show prompt after 3s if module fails
+(function(){var _st=setTimeout(function(){var ld=document.getElementById("loading");if(ld&&!ld.classList.contains("hidden")){var pm=document.getElementById("prompt");if(pm)pm.classList.add("show");}},3000);window._cancelSt=function(){clearTimeout(_st);};})();
 </script>
 <script type="module">
-(async function() {
-try {
-window._cancelSafety();
-// ═══════ WIRE BUTTONS FIRST (before Three.js loads)
-var loading = document.getElementById('loading');
-if (!loading.classList.contains('hidden')) {
-  loading.classList.add('hidden');
-}
+window._cancelSt();
+
+// ═══════ WIRE BUTTONS FIRST
 prompt.classList.add('show');
 $('#btn-cam').onclick = startCam;
 $('#btn-skip').onclick = skipCam;
-// ═══════ LOAD THREE.JS (non-blocking for buttons)
-// Dynamic import Three.js with CDN fallback chain
-var THREE = null;
-var _cdnUrls = [
-  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
-  'https://unpkg.com/three@0.160.0/build/three.module.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js'
-];
-for (var _ci = 0; _ci < _cdnUrls.length; _ci++) {
-  try { THREE = await import(_cdnUrls[_ci]); break; }
-  catch(_ce) { console.warn('Three CDN fail:', _cdnUrls[_ci]); }
+
+// ═══════ LOAD THREE.JS
+var _THREE = null;
+try { _THREE = (await import('https://unpkg.com/three@0.160.0/build/three.module.js')); } catch(e) {
+  try { _THREE = (await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js')); } catch(e2) {}
 }
-if (!THREE) { throw new Error('3D engine load failed'); }
+if (!_THREE) { throw new Error('3D engine fail'); }
+var THREE = _THREE;
 
 // ═══════ CONFIG
 const C = {
@@ -384,12 +360,12 @@ class PS {
   _gl() {
     this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
     this.r.setPixelRatio(Math.min(devicePixelRatio, 2));
-    this.r.setSize(vw(), vh());
+    this.r.setSize(innerWidth, innerHeight);
     this.r.setClearColor(0x070714);
 
     this.s = new THREE.Scene();
-    this.c = new THREE.PerspectiveCamera(55, vw()/vh(), 0.1, 100);
-    this.c.position.z = calcZ(vw()/vh());
+    this.c = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
+    this.c.position.z = calcZ(innerWidth/innerHeight);
 
     // Stars
     const sg = new THREE.BufferGeometry();
@@ -460,25 +436,13 @@ class PS {
     this.mesh = new THREE.Points(geo, mat);
     this.s.add(this.mesh);
 
-    var _resize = function() {
-      var w = vw(), h = vh();
-      if (w < 1 || h < 1) return;
-      var a = w/h;
+    onresize = () => {
+      var a = innerWidth/innerHeight;
       this.c.aspect = a;
       this.c.position.z = calcZ(a);
       this.c.updateProjectionMatrix();
-      this.r.setSize(w, h);
-      mainCanvas.style.width = '';
-      mainCanvas.style.height = '';
-    }.bind(this);
-    window.addEventListener('resize', _resize);
-    window.addEventListener('orientationchange', function() { setTimeout(_resize, 300); });
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', _resize);
-    var _lastH = vh();
-    setInterval(function() {
-      var h = vh();
-      if (Math.abs(h - _lastH) > 15) { _lastH = h; _resize(); }
-    }, 300);
+      this.r.setSize(innerWidth, innerHeight);
+    };
   }
 
   setTarget(k) {
@@ -643,18 +607,12 @@ function onHand(r) {
 
 // ═══════ MOUSE
 let mpos = [];
-let cycle = 0;
+let cycle = 4;
 const CYCLE = [1,2,3,4,5];
 
 function setupMouse() {
-  var _smInterval = setInterval(function() {
-    if (ps) {
-      clearInterval(_smInterval);
-      ps.setTarget(5);
-      glNum.textContent = '5';
-      glNum.classList.add('ok');
-      glTxt.textContent = '5 · 球形';
-    }
+  var _sp = setInterval(function(){
+    if(ps){ clearInterval(_sp); ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 球形'; }
   }, 100);
   const h = (x,y) => {
     mpos.push({x,y});
@@ -665,88 +623,34 @@ function setupMouse() {
       if (sp > 0.01 && ps)
         ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
     }
-  mainCanvas.addEventListener('mousemove', function(e) { h(e.clientX/vw(), e.clientY/vh()); });
-  mainCanvas.addEventListener('click', function() { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
-  mainCanvas.addEventListener('touchmove', function(e) { e.preventDefault(); var t=e.touches[0]; h(t.clientX/vw(), t.clientY/vh()); }, {passive:false});
-  mainCanvas.addEventListener('touchstart', function(e) { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
+  mainCanvas.addEventListener('mousemove', function(e){ h(e.clientX/innerWidth, e.clientY/innerHeight); });
+  mainCanvas.addEventListener('click', function(){ if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
+  mainCanvas.addEventListener('touchmove', function(e){ e.preventDefault(); var t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
+  mainCanvas.addEventListener('touchstart', function(e){ e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
 }
-
-// Mobile-safe viewport helpers
-function vw() { return window.visualViewport ? window.visualViewport.width : innerWidth; }
-function vh() { return window.visualViewport ? window.visualViewport.height : innerHeight; }
-function applyDvh() {
-  var h = vh();
-  document.documentElement.style.setProperty('--vh', h + 'px');
-  var els = document.querySelectorAll('#loading,#prompt,canvas#main,html,body');
-  for (var i = 0; i < els.length; i++) els[i].style.setProperty('height', h + 'px', 'important');
-}
-applyDvh();
-window.addEventListener('resize', function() { setTimeout(applyDvh, 50); });
-if (window.visualViewport) window.visualViewport.addEventListener('resize', applyDvh);
 
 // ═══════ CAMERA
-function loadScript(url) {
-  return new Promise(function(resolve, reject) {
-    var s = document.createElement('script');
-    s.src = url; s.crossOrigin = 'anonymous';
-    s.onload = resolve; s.onerror = function() { reject(new Error('Failed: ' + url)); };
-    document.head.appendChild(s);
-  });
-}
-
-async async function startCam() {
+async function startCam() {
   prompt.classList.remove('show');
   guide.classList.add('hidden');
   distHint.classList.remove('hidden');
   debugCanvas.classList.add('show');
 
   try {
-    loadTxt.textContent = '启动摄像头...';
-    // Try front camera, fallback to any camera
-    var camStream;
-    try {
-      camStream = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:"user"}});
-    } catch(camErr) {
-      console.warn('Front cam fail, fallback:', camErr);
-      camStream = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}});
-    }
-    video.srcObject = camStream; await video.play();
-
-    prog(35, '加载手势引擎...');
-    // Load MediaPipe dynamically - try jsdelivr first, fallback to unpkg
-    try {
-      await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js');
-      await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js');
-    } catch(e1) {
-      console.warn('jsdelivr failed, trying unpkg...', e1);
-      try {
-        await loadScript('https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js');
-        await loadScript('https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js');
-      } catch(e2) {
-        throw new Error('手势识别引擎加载失败，请检查网络');
-      }
-    }
-
-    prog(60, '初始化手势识别...');
-    var hands = new Hands({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/' + f; } });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
+    const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
+    video.srcObject = s; await video.play();
+    prog(60, '加载手势识别...');
+    const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
-    var cam = new Camera(video, { onFrame: async function() { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
-    // 15s timeout for MediaPipe init, fallback to mouse
-    var mpTimeout = new Promise(function(_, reject) {
-      setTimeout(function() { reject(new Error("MediaPipe timeout")); }, 15000);
-    });
-    await Promise.race([cam.start(), mpTimeout]);
-    prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
+    prog(85, '就绪！'); await cam.start();
+    prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
   } catch(e) {
-    console.warn('Camera/MediaPipe error:', e);
+    console.warn(e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
     debugCanvas.classList.remove('show');
-    if (video.srcObject) {
-      video.srcObject.getTracks().forEach(function(t) { t.stop(); });
-      video.srcObject = null;
-    }
-    setupMouse(); prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
   }
 }
 
@@ -758,19 +662,10 @@ function skipCam() {
 }
 
 // ═══════ BOOT
-async function boot() { try {
-  var _bt = setTimeout(function(){var ld=document.getElementById('loading');if(ld&&!ld.classList.contains('hidden')){document.getElementById('prompt').classList.add('show');}},2000);
+async function boot() {
   prog(10, '启动粒子...');
   ps = new PS();
   prog(50, '渲染就绪');
-  // Safety timeout: if loading screen stays too long, force show prompt
-  setTimeout(function() {
-    var ld = document.getElementById('loading');
-    if (ld && !ld.classList.contains('hidden')) {
-      console.warn('Safety timeout: forcing prompt');
-      document.getElementById('prompt').classList.add('show');
-    }
-  }, 8000);
   await new Promise(r => setTimeout(r, 100));
   prompt.classList.add('show');
   $('#btn-cam').onclick = startCam;
@@ -778,51 +673,19 @@ async function boot() { try {
 
   let last = performance.now();
   function loop() {
-    var now = performance.now();
-    var dt = Math.min((now-last)/1000, 0.05);
-    last = now;
+    const n = performance.now(), dt = (n-last)/1000;
+    if (ps) { ps.update(dt); ps.render(); var el = document.getElementById('debug-pos'); if(el && el.style.display!='block'){el.style.display='block'} if(el && ps.pos){el.textContent='pos[0]='+ps.pos[0].toFixed(4)+' tgt[0]='+ps.tgt[0].toFixed(4)+' k='+ps.key; if(Math.abs(ps.pos[0]-ps.tgt[0])>0.01) el.style.color='#0f0'; else el.style.color='#0cf'} }
     if (ps) { ps.update(dt); ps.render(); }
-    var el = document.getElementById('debug-pos');
-    if (el) { el.style.display='block'; el.textContent='fps='+(1/(dt||0.016)).toFixed(0)+' k='+(ps?ps.key:'-'); }
     requestAnimationFrame(loop);
   }
   loop();
-} catch(e) {
-    console.error('Boot error:', e);
-    loadTxt.textContent = '\u52a0\u8f7d\u5931\u8d25';
-    var pm = document.getElementById('prompt');
-    if (pm) { pm.classList.add('show'); }
-    var h2 = document.querySelector('#prompt h2');
-    if (h2) { h2.textContent = '\u26a0\ufe0f ' + e.message; }
-    var pp = document.querySelector('#prompt p');
-    if (pp) { pp.textContent = '\u9875\u9762\u9047\u5230\u9519\u8bef\uff0c\u8bf7\u5c1d\u8bd5\u5237\u65b0\u6216\u5207\u6362\u6d4f\u89c8\u5668'; }
-    prog(100);
-  }
 }
-window.addEventListener('error', function(e) {
-  console.error('Global:', e);
-  var ld = document.getElementById('loading');
-  if (ld && !ld.classList.contains('hidden')) {
-    loadTxt.textContent = '加载失败，请刷新';
-    document.getElementById('prompt').classList.add('show');
-  }
-}, true);
-window.addEventListener('unhandledrejection', function(e) {
-  console.error('Unhandled:', e.reason);
-});
-await boot();
+try{
+boot();
 } catch(e) {
-  console.error('Module fatal:', e);
-  var ld = document.getElementById('loading');
-  if (ld) { ld.classList.add('hidden'); }
-  var pm = document.getElementById('prompt');
-  if (pm) { pm.classList.add('show'); }
-  var h2 = document.querySelector('#prompt h2');
-  if (h2) { h2.textContent = '⚠️ 加载失败'; }
-  var pp = document.querySelector('#prompt p');
-  if (pp) { pp.textContent = '请刷新页面或切换网络环境'; }
+  console.error('Module error:', e);
+  document.getElementById('prompt').classList.add('show');
 }
-})();
 </script>
 </body>
 </html>
