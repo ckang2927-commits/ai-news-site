@@ -111,6 +111,15 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 (async function() {
 try {
 window._cancelSafety();
+// ═══════ WIRE BUTTONS FIRST (before Three.js loads)
+var loading = document.getElementById('loading');
+if (!loading.classList.contains('hidden')) {
+  loading.classList.add('hidden');
+}
+prompt.classList.add('show');
+$('#btn-cam').onclick = startCam;
+$('#btn-skip').onclick = skipCam;
+// ═══════ LOAD THREE.JS (non-blocking for buttons)
 // Dynamic import Three.js with CDN fallback chain
 var THREE = null;
 var _cdnUrls = [
@@ -623,6 +632,15 @@ let cycle = 0;
 const CYCLE = [1,2,3,4,5];
 
 function setupMouse() {
+  var _smInterval = setInterval(function() {
+    if (ps) {
+      clearInterval(_smInterval);
+      ps.setTarget(5);
+      glNum.textContent = '5';
+      glNum.classList.add('ok');
+      glTxt.textContent = '5 · 球形';
+    }
+  }, 100);
   const h = (x,y) => {
     mpos.push({x,y});
     if (mpos.length > 6) mpos.shift();
@@ -632,11 +650,10 @@ function setupMouse() {
       if (sp > 0.01 && ps)
         ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
     }
-  mainCanvas.addEventListener('mousemove', e => h(e.clientX/innerWidth, e.clientY/innerHeight));
-  mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
-  mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
-  mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
-    setTimeout(() => { if(ps) { ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 球形'; } }, 600);
+  mainCanvas.addEventListener('mousemove', function(e) { h(e.clientX/innerWidth, e.clientY/innerHeight); });
+  mainCanvas.addEventListener('click', function() { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
+  mainCanvas.addEventListener('touchmove', function(e) { e.preventDefault(); var t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
+  mainCanvas.addEventListener('touchstart', function(e) { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
 }
 
 // ═══════ CAMERA
