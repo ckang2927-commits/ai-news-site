@@ -2,8 +2,6 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
@@ -61,7 +59,6 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <body>
 
 <div id="loading">
-<div id="debug-pos" style="position:fixed;bottom:130px;left:10px;z-index:100;color:#0cf;font-size:11px;font-family:monospace;background:rgba(0,0,0,.7);padding:4px 8px;border-radius:4px;display:none">初始化...</div>
   <div class="spinner"></div>
   <p id="load-text">启动中...</p>
   <div class="bar"><div class="bar-inner" id="load-bar"></div></div>
@@ -92,27 +89,11 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="debug"></canvas>
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
-<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js"></script>
-<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
-<script>
-// SAFETY NET: Show prompt after 3s if module fails
-(function(){var _st=setTimeout(function(){var ld=document.getElementById("loading");if(ld&&!ld.classList.contains("hidden")){var pm=document.getElementById("prompt");if(pm)pm.classList.add("show");}},3000);window._cancelSt=function(){clearTimeout(_st);};})();
-</script>
+<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin></script>
+<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin></script>
+
 <script type="module">
-window._cancelSt();
-
-// ═══════ WIRE BUTTONS FIRST
-prompt.classList.add('show');
-$('#btn-cam').onclick = startCam;
-$('#btn-skip').onclick = skipCam;
-
-// ═══════ LOAD THREE.JS
-var _THREE = null;
-try { _THREE = (await import('https://unpkg.com/three@0.160.0/build/three.module.js')); } catch(e) {
-  try { _THREE = (await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js')); } catch(e2) {}
-}
-if (!_THREE) { throw new Error('3D engine fail'); }
-var THREE = _THREE;
+import * as THREE from 'three';
 
 // ═══════ CONFIG
 const C = {
@@ -329,10 +310,6 @@ function drawHand(lm, ctx, w, h) {
 }
 
 // ═══════ PARTICLE SYSTEM
-
-// ═══════ DYNAMIC ZOOM (mobile)
-function calcZ(a) { return Math.max(4, Math.min(18, 5.5 * 16/9 / a)); }
-
 class PS {
   constructor() {
     this.N = C.N;
@@ -367,7 +344,7 @@ class PS {
 
     this.s = new THREE.Scene();
     this.c = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 100);
-    this.c.position.z = calcZ(innerWidth/innerHeight);
+    this.c.position.z = 5.5;
 
     // Stars
     const sg = new THREE.BufferGeometry();
@@ -439,9 +416,7 @@ class PS {
     this.s.add(this.mesh);
 
     onresize = () => {
-      var a = innerWidth/innerHeight;
-      this.c.aspect = a;
-      this.c.position.z = calcZ(a);
+      this.c.aspect = innerWidth/innerHeight;
       this.c.updateProjectionMatrix();
       this.r.setSize(innerWidth, innerHeight);
     };
@@ -613,9 +588,6 @@ let cycle = 4;
 const CYCLE = [1,2,3,4,5];
 
 function setupMouse() {
-  var _sp = setInterval(function(){
-    if(ps){ clearInterval(_sp); ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 球形'; }
-  }, 100);
   const h = (x,y) => {
     mpos.push({x,y});
     if (mpos.length > 6) mpos.shift();
@@ -625,10 +597,12 @@ function setupMouse() {
       if (sp > 0.01 && ps)
         ps.addStorm((p2.x-p1.x)/Math.max(sp,.001), -(p2.y-p1.y)/Math.max(sp,.001), Math.min(sp*350, 35));
     }
-  mainCanvas.addEventListener('mousemove', function(e){ h(e.clientX/innerWidth, e.clientY/innerHeight); });
-  mainCanvas.addEventListener('click', function(){ if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
-  mainCanvas.addEventListener('touchmove', function(e){ e.preventDefault(); var t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
-  mainCanvas.addEventListener('touchstart', function(e){ e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
+  };
+  mainCanvas.addEventListener('mousemove', e => h(e.clientX/innerWidth, e.clientY/innerHeight));
+  mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
+  mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
+  mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
+    setTimeout(() => { if(ps) { ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 球形'; } }, 600);
 }
 
 // ═══════ CAMERA
@@ -676,18 +650,13 @@ async function boot() {
   let last = performance.now();
   function loop() {
     const n = performance.now(), dt = (n-last)/1000;
-    if (ps) { ps.update(dt); ps.render(); var el = document.getElementById('debug-pos'); if(el && el.style.display!='block'){el.style.display='block'} if(el && ps.pos){el.textContent='pos[0]='+ps.pos[0].toFixed(4)+' tgt[0]='+ps.tgt[0].toFixed(4)+' k='+ps.key; if(Math.abs(ps.pos[0]-ps.tgt[0])>0.01) el.style.color='#0f0'; else el.style.color='#0cf'} }
+    last = n;
     if (ps) { ps.update(dt); ps.render(); }
     requestAnimationFrame(loop);
   }
   loop();
 }
-try{
 boot();
-} catch(e) {
-  console.error('Module error:', e);
-  document.getElementById('prompt').classList.add('show');
-}
 </script>
 </body>
 </html>
