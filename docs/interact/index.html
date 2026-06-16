@@ -91,11 +91,21 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="main"></canvas>
 <canvas id="debug"></canvas>
 
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 
 
 <script type="module">
-import * as THREE from 'three';
+// Dynamic import Three.js with CDN fallback chain
+var THREE = null;
+var _cdnUrls = [
+  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
+  'https://unpkg.com/three@0.160.0/build/three.module.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js'
+];
+for (var _ci = 0; _ci < _cdnUrls.length; _ci++) {
+  try { THREE = await import(_cdnUrls[_ci]); break; }
+  catch(_ce) { console.warn('Three CDN fail:', _cdnUrls[_ci]); }
+}
+if (!THREE) { throw new Error('3D engine load failed'); }
 
 // ═══════ CONFIG
 const C = {
@@ -622,7 +632,7 @@ function loadScript(url) {
   });
 }
 
-async function startCam() {
+async async function startCam() {
   prompt.classList.remove('show');
   guide.classList.add('hidden');
   distHint.classList.remove('hidden');
@@ -630,8 +640,15 @@ async function startCam() {
 
   try {
     loadTxt.textContent = '启动摄像头...';
-    var s = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:"user"}});
-    video.srcObject = s; await video.play();
+    // Try front camera, fallback to any camera
+    var camStream;
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:"user"}});
+    } catch(camErr) {
+      console.warn('Front cam fail, fallback:', camErr);
+      camStream = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}});
+    }
+    video.srcObject = camStream; await video.play();
 
     prog(35, '加载手势引擎...');
     // Load MediaPipe dynamically - try jsdelivr first, fallback to unpkg
@@ -653,12 +670,20 @@ async function startCam() {
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
     var cam = new Camera(video, { onFrame: async function() { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
-    prog(85, '就绪！'); await cam.start();
+    // 15s timeout for MediaPipe init, fallback to mouse
+    var mpTimeout = new Promise(function(_, reject) {
+      setTimeout(function() { reject(new Error("MediaPipe timeout")); }, 15000);
+    });
+    await Promise.race([cam.start(), mpTimeout]);
     prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
   } catch(e) {
     console.warn('Camera/MediaPipe error:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
     debugCanvas.classList.remove('show');
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(function(t) { t.stop(); });
+      video.srcObject = null;
+    }
     setupMouse(); prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
   }
 }
