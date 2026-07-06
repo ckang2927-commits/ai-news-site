@@ -99,9 +99,9 @@ import * as THREE from 'three';
 // ═══════ CONFIG
 const C = {
   N: 12000,
-  speed: 50,
-  boom: 12,
-  damp: 0.75,
+  speed: 120,
+  boom: 15,
+  damp: 0.65,
   stormThresh: 0.015,
   stormPow: 28,
   depthSens: 0.5,
@@ -323,7 +323,7 @@ class PS {
     this.key = null;
     this.storm = {x:0,y:0,z:0};
     this.depth = 1;
-    this.boomT = 0; this.boomD = 0.25; this.boom = false;
+    this.boomT = 0; this.boomD = 0.35; this.boom = false;
     this.rot = 0; this._debugFingers = true; this._debugData = {};
 
     const s = rndPts(this.N, 4.5);
