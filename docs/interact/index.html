@@ -232,13 +232,19 @@ function countFingers(lm) {
     const ang = Math.acos(Math.max(-1,Math.min(1,dot/(m1*m2)))) * 180 / Math.PI;
     const methodAng = ang > 145;
 
-    // Thumb special handling
+    // Thumb special handling - stricter to avoid folded thumb being counted
     if (f === 0) {
       const idxMcp = lm[5];
       const spread = d2(tip, idxMcp);
-      const thumbExtended = spread > handSz * 0.35;
-      // Thumb: need spread + at least one method
-      if (thumbExtended && (methodY || methodPalm)) count++;
+      // Thumb needs to spread wider AND have clear extension evidence
+      const thumbExtended = spread > handSz * 0.5;
+      // Also check thumb IP joint (landmark 3) - if bent, thumb is folded
+      const tip2pip = d3(lm[4], lm[3]);
+      const pip2mcp = d3(lm[3], lm[2]);
+      const thumbBent = tip2pip < pip2mcp * 0.7;
+      if (thumbExtended && !thumbBent && (methodY || methodPalm)) count++;
+      // Extra: also count if palm method strongly indicates thumb up
+      else if (methodPalm && dTipPalm > dPipPalm * 1.8 && spread > handSz * 0.4) count++;
     } else {
       // Majority vote: at least 2 out of 3 methods agree
       let votes = methodY + methodPalm + methodAng;
