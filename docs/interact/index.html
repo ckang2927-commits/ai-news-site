@@ -90,8 +90,8 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="debug"></canvas>
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
-<script src="https://unpkg.com/@mediapipe/hands@0.4.1675469240/hands.js"></script>
-<script src="https://unpkg.com/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
 
 <script type="module">
 import * as THREE from 'three';
@@ -617,16 +617,21 @@ async function startCam() {
     const s = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'}}).catch(function(){return navigator.mediaDevices.getUserMedia({video:{width:320,height:240}});});
     video.srcObject = s; await video.play();
     prog(60, '加载手势识别...');
-    const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
+    const hands = new Hands({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${f}` });
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
-    const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
     prog(85, '就绪！');
-    // 10s timeout for mobile MediaPipe init
-    await Promise.race([
-      cam.start(),
-      new Promise(function(_, reject) { setTimeout(function() { reject(new Error('MP timeout')); }, 10000); })
-    ]);
+    // Use simple frame loop instead of Camera utility (more mobile-friendly)
+    var frameCount = 0;
+    var mpReady = true;
+    (function processFrame() {
+      if (!mpReady) return;
+      mpReady = false;
+      try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(e){ mpReady = true; }); } catch(e) { mpReady = true; }
+      if (++frameCount < 5) setTimeout(processFrame, 100);
+      else requestAnimationFrame(processFrame);
+    })();
+    await new Promise(function(r) { setTimeout(r, 200); });
     prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
   } catch(e) {
     console.warn(e);
