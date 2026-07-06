@@ -98,15 +98,15 @@ import * as THREE from 'three';
 
 // ═══════ CONFIG
 const C = {
-  N: 24000,
-  speed: 10,
-  boom: 6,
-  damp: 0.92,
-  stormThresh: 0.02,
-  stormPow: 22,
+  N: 12000,
+  speed: 25,
+  boom: 8,
+  damp: 0.85,
+  stormThresh: 0.015,
+  stormPow: 28,
   depthSens: 0.5,
-  cooldown: 0.2,
-  smooth: 6
+  cooldown: 0.15,
+  smooth: 4
 };
 
 // ═══════ DOM
@@ -614,11 +614,11 @@ async function startCam() {
   debugCanvas.classList.add('show');
 
   try {
-    const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
+    const s = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'}});
     video.srcObject = s; await video.play();
     prog(60, '加载手势识别...');
     const hands = new Hands({ locateFile: f => `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${f}` });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
     const cam = new Camera(video, { onFrame: async () => { try { await hands.send({image:video}); } catch(e){} }, width: 640, height: 480 });
     prog(85, '就绪！'); await cam.start();
