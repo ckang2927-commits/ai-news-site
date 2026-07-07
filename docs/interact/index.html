@@ -114,13 +114,25 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
 
 <script type="module">
-// Load Three.js with CDN fallback
+// Load Three.js with multiple CDN fallbacks
 var THREE;
-try {
-  THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
-} catch(e) {
-  console.warn('jsdelivr failed, trying unpkg:', e);
-  THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
+var CDNS = [
+  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
+  'https://unpkg.com/three@0.160.0/build/three.module.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.js'
+];
+for (var ci = 0; ci < CDNS.length; ci++) {
+  try {
+    THREE = await import(CDNS[ci]);
+    break;
+  } catch(e) {
+    console.warn('CDN ' + ci + ' failed:', CDNS[ci], e);
+  }
+}
+if (!THREE) {
+  document.getElementById('loading').querySelector('p').textContent = '加载失败，请检查网络连接后刷新';
+  document.getElementById('loading').classList.remove('hidden');
+  throw new Error('All Three.js CDNs failed');
 }
 
 // ═══════ CONFIG
@@ -918,7 +930,14 @@ async function boot() {
   }
   loop();
 }
-boot();
+boot().catch(function(e) {
+  console.error('Boot failed:', e);
+  var ld = document.getElementById('loading');
+  if (ld) {
+    ld.querySelector('p').textContent = '⚠️ 启动失败: ' + (e.message || '未知错误');
+    ld.classList.remove('hidden');
+  }
+});
 </script>
 </body>
 </html>
