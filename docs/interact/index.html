@@ -630,7 +630,13 @@ class PS {
     const ep = this.boom ? Math.min(this.boomT/this.boomD, 1) : 1;
     const sd = Math.exp(-dt*4);
     const attr = this.boom ? C.speed*0.5 : C.speed;
-    const df = this.depth > 1.1 ? (this.depth-1)*C.depthSens*3 : this.depth < 0.85 ? -(1-this.depth)*C.depthSens*3 : 0;
+    // Depth → shape scale: hand closer = bigger shape
+    const rawD = this.depth;
+    let shapeScale = 1.0;
+    if (rawD > 1.1) shapeScale = 1.0 + (rawD - 1.0) * 0.6;
+    else if (rawD < 0.85) shapeScale = 0.5 + rawD * 0.5;
+    shapeScale = Math.max(0.5, Math.min(3.0, shapeScale));
+    const df = 0; // replaced by shapeScale
 
     // Update connector nodes
     for (let i = 0; i < this.cNodes.length/3; i++) {
@@ -712,13 +718,14 @@ class PS {
       const fx = Math.sin(ft * 0.7 + this.phases[i]) * floatAmp;
       const fy = Math.cos(ft * 0.5 + this.phases[i] * 1.3) * floatAmp;
       const fz = Math.sin(ft * 0.6 + this.phases[i] * 0.7) * floatAmp * 0.5;
-      const dx = (this.tgt[i3] + fx) - this.pos[i3];
-      const dy = (this.tgt[i3+1] + fy) - this.pos[i3+1];
-      const dz = (this.tgt[i3+2] + fz) - this.pos[i3+2];
+      const stgt = shapeScale;
+      const dx = (this.tgt[i3]*stgt + fx) - this.pos[i3];
+      const dy = (this.tgt[i3+1]*stgt + fy) - this.pos[i3+1];
+      const dz = (this.tgt[i3+2]*stgt + fz) - this.pos[i3+2];
 
-      this.acc[i3] = dx*attr + this.storm.x*(1-ep) + this.pos[i3]*df;
-      this.acc[i3+1] = dy*attr + this.storm.y*(1-ep) + this.pos[i3+1]*df;
-      this.acc[i3+2] = dz*attr + this.storm.z*(1-ep) + this.pos[i3+2]*df;
+      this.acc[i3] = dx*attr + this.storm.x*(1-ep);
+      this.acc[i3+1] = dy*attr + this.storm.y*(1-ep);
+      this.acc[i3+2] = dz*attr + this.storm.z*(1-ep);
 
       this.vel[i3] += this.acc[i3]*dt;
       this.vel[i3+1] += this.acc[i3+1]*dt;
