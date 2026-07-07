@@ -565,6 +565,13 @@ class PS {
         this.col[i*3+1] = 0.5 + 0.5 * Math.sin(angle + 2.1);
         this.col[i*3+2] = 0.5 + 0.5 * Math.sin(angle + 4.2);
       }
+    } else if (k === 0) {
+      // Starfield: blue scatter
+      for (let i = 0; i < this.N; i++) {
+        this.col[i*3] = 0.1 + Math.random() * 0.3;
+        this.col[i*3+1] = 0.4 + Math.random() * 0.5;
+        this.col[i*3+2] = 0.5 + Math.random() * 0.5;
+      }
     } else if (k === 5) {
       // Red heart
       for (let i = 0; i < this.N; i++) {
@@ -573,11 +580,17 @@ class PS {
         this.col[i*3+2] = 0.1 + Math.random() * 0.2;
       }
     }
-    // Restore base sizes when leaving heart
+    // Restore base sizes when leaving heart (but keep starfield sizes)
     if (this.key !== 5) {
-      for (let i = 0; i < this.N; i++)
-        this.siz[i] = this.baseSiz[i];
-      this.mesh.geometry.attributes.size.needsUpdate = true;
+      if (this.key === 0) {
+        for (let i = 0; i < this.N; i++)
+          this.siz[i] = 0.025 + Math.random() * 0.055;
+        this.mesh.geometry.attributes.size.needsUpdate = true;
+      } else {
+        for (let i = 0; i < this.N; i++)
+          this.siz[i] = this.baseSiz[i];
+        this.mesh.geometry.attributes.size.needsUpdate = true;
+      }
     }
     this.mesh.geometry.attributes.color.needsUpdate = true;
     glTxt.textContent = `${k} · ${G[k].l}`;
@@ -788,7 +801,7 @@ function onHand(r) {
   const raw = countFingers(lm);
   const k = smooth(raw);
 
-  if (cd <= 0 && k >= 1 && k <= 5 && k !== prevK && ps) {
+  if (cd <= 0 && k >= 0 && k <= 5 && k !== prevK && ps) {
     prevK = k; cd = C.cooldown;
     ps.setTarget(k);
   }
@@ -806,8 +819,8 @@ function onHand(r) {
 
 // ═══════ MOUSE
 let mpos = [];
-let cycle = 4;
-const CYCLE = [1,2,3,4,5];
+let cycle = 0;
+const CYCLE = [0,1,2,3,4,5];
 
 function setupMouse() {
   const h = (x,y) => {
@@ -824,7 +837,7 @@ function setupMouse() {
   mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
   mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
   mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
-    setTimeout(() => { if(ps) { ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 爱心'; } }, 600);
+    setTimeout(() => { if(ps) { ps.setTarget(0); glNum.textContent='0'; glNum.classList.add('ok'); glTxt.textContent='0 · 星空'; } }, 600);
 }
 
 // ═══════ CAMERA
