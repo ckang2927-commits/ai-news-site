@@ -662,7 +662,8 @@ class PS {
     this.lines.geometry.attributes.position.needsUpdate = true;
     this.lines.geometry.setDrawRange(0, idx*2);
 
-    // Update shape connectors - track actual particle positions
+    // Update shape connectors - every 2 frames
+    if (this._frameCount % 2 === 0) {
     const slp = this._slp, sPairs = this._shapeLinePairs;
     let sidx = 0;
     for (const [i,j] of sPairs) {
@@ -680,6 +681,7 @@ class PS {
     for (let i = sidx*6; i < slp.length; i++) slp[i] = 0;
     this.shapeLines.geometry.attributes.position.needsUpdate = true;
     this.shapeLines.geometry.setDrawRange(0, sidx*2);
+    }
 
     // Floating & heartbeat time (must be before star rotation!)
     const ft = performance.now() / 1000;
@@ -700,14 +702,13 @@ class PS {
 
     // Floating & heartbeat time
     const floatAmp = this.boom ? 0 : 0.055;
-    // Heartbeat pulse for heart shape - particle size + warm glow
-    if (this.key === 5) {
+    // Heartbeat pulse for heart shape - reduce frequency
+    if (this.key === 5 && this._frameCount % 2 === 0) {
       const hb = 1 + 0.08 * Math.pow(Math.sin(ft * 8.0), 20);
       for (let i = 0; i < this.N; i++) {
         this.siz[i] = this.baseSiz[i] * hb;
       }
       this.mesh.geometry.attributes.size.needsUpdate = true;
-      // Also pulse Z position slightly for "throb" feel
       const throb = 1 + 0.008 * Math.pow(Math.sin(ft * 8.0), 20);
       this.c.position.z = 5.5 / throb;
     }
@@ -745,11 +746,14 @@ class PS {
     this.storm.x *= sd; this.storm.y *= sd; this.storm.z *= sd;
     this.mesh.geometry.attributes.position.needsUpdate = true;
 
-    // Trail: ghost particles chase current positions
-    const trailSpd = this.boom ? 0.06 : 0.025;
-    for (let i = 0; i < this.N * 3; i++)
-      this.trailPos[i] += (this.pos[i] - this.trailPos[i]) * trailSpd;
-    this.trailMesh.geometry.attributes.position.needsUpdate = true;
+    // Trail: ghost particles chase current positions (every other frame)
+    this._frameCount = (this._frameCount || 0) + 1;
+    if (this._frameCount % 2 === 0) {
+      const trailSpd = this.boom ? 0.06 : 0.025;
+      for (let i = 0; i < this.N * 3; i++)
+        this.trailPos[i] += (this.pos[i] - this.trailPos[i]) * trailSpd;
+      this.trailMesh.geometry.attributes.position.needsUpdate = true;
+    }
 
     this.mesh.material.uniforms.t.value += dt;
   }
