@@ -461,7 +461,7 @@ class PS {
     const slg = new THREE.BufferGeometry();
     slg.setAttribute("position", new THREE.BufferAttribute(slp, 3));
     const slm = new THREE.LineBasicMaterial({
-      color: 0x6b6bff, transparent: true, opacity: 0.18,
+      color: 0x6b6bff, transparent: true, opacity: 0.04,
       blending: THREE.AdditiveBlending
     });
     this.shapeLines = new THREE.LineSegments(slg, slm);
