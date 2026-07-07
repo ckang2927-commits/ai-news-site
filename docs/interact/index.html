@@ -377,6 +377,8 @@ class PS {
     this.depth = 1;
     this.boomT = 0; this.boomD = 0.35; this.boom = false;
     this.rot = 0; this._debugFingers = true; this._debugData = {};
+    this.phases = new Float32Array(this.N);
+    for (let i = 0; i < this.N; i++) this.phases[i] = Math.random() * Math.PI * 2;
 
     const s = rndPts(this.N, 4.5);
     this.pos.set(s); this.tgt.set(s);
@@ -550,11 +552,26 @@ class PS {
 
     const cr = Math.cos(this.rot), sr = Math.sin(this.rot);
 
+    // Floating & heartbeat time
+    const ft = performance.now() / 1000;
+    const floatAmp = this.boom ? 0 : 0.035;
+    // Heartbeat pulse for heart shape
+    if (this.key === 5) {
+      const hb = 1 + 0.045 * Math.pow(Math.sin(ft * 8.0), 24);
+      this.c.position.z = 5.5 / hb;
+    } else {
+      this.c.position.z = 5.5;
+    }
+
     for (let i = 0; i < this.N; i++) {
       const i3 = i*3;
-      const dx = this.tgt[i3]-this.pos[i3];
-      const dy = this.tgt[i3+1]-this.pos[i3+1];
-      const dz = this.tgt[i3+2]-this.pos[i3+2];
+      // Floating offset - gentle sine wave around target
+      const fx = Math.sin(ft * 0.7 + this.phases[i]) * floatAmp;
+      const fy = Math.cos(ft * 0.5 + this.phases[i] * 1.3) * floatAmp;
+      const fz = Math.sin(ft * 0.6 + this.phases[i] * 0.7) * floatAmp * 0.5;
+      const dx = (this.tgt[i3] + fx) - this.pos[i3];
+      const dy = (this.tgt[i3+1] + fy) - this.pos[i3+1];
+      const dz = (this.tgt[i3+2] + fz) - this.pos[i3+2];
 
       this.acc[i3] = dx*attr + this.storm.x*(1-ep) + this.pos[i3]*df;
       this.acc[i3+1] = dy*attr + this.storm.y*(1-ep) + this.pos[i3+1]*df;
