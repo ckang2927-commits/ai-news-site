@@ -371,6 +371,7 @@ class PS {
     this.acc = new Float32Array(this.N*3);
     this.tgt = new Float32Array(this.N*3);
     this.siz = new Float32Array(this.N);
+    this.baseSiz = new Float32Array(this.N);
     this.col = new Float32Array(this.N*3);
     this.key = null;
     this.storm = {x:0,y:0,z:0};
@@ -384,6 +385,7 @@ class PS {
     this.pos.set(s); this.tgt.set(s);
     for (let i = 0; i < this.N; i++) {
       this.siz[i] = 0.025 + Math.random() * 0.055;
+      this.baseSiz[i] = this.siz[i];
       this.col[i*3] = 0.1 + Math.random() * 0.3;
       this.col[i*3+1] = 0.4 + Math.random() * 0.5;
       this.col[i*3+2] = 0.5 + Math.random() * 0.5;
@@ -502,6 +504,12 @@ class PS {
         this.col[i*3+1] = 0.4 + Math.random() * 0.5;
         this.col[i*3+2] = 0.5 + Math.random() * 0.5;
       }
+    // Restore base sizes when leaving heart
+    if (this.key !== 5) {
+      for (let i = 0; i < this.N; i++)
+        this.siz[i] = this.baseSiz[i];
+      this.mesh.geometry.attributes.size.needsUpdate = true;
+    }
     }
     this.mesh.geometry.attributes.color.needsUpdate = true;
     glTxt.textContent = `${k} · ${G[k].l}`;
@@ -554,13 +562,17 @@ class PS {
 
     // Floating & heartbeat time
     const ft = performance.now() / 1000;
-    const floatAmp = this.boom ? 0 : 0.035;
-    // Heartbeat pulse for heart shape
+    const floatAmp = this.boom ? 0 : 0.055;
+    // Heartbeat pulse for heart shape - particle size + warm glow
     if (this.key === 5) {
-      const hb = 1 + 0.045 * Math.pow(Math.sin(ft * 8.0), 24);
-      this.c.position.z = 5.5 / hb;
-    } else {
-      this.c.position.z = 5.5;
+      const hb = 1 + 0.08 * Math.pow(Math.sin(ft * 8.0), 20);
+      for (let i = 0; i < this.N; i++) {
+        this.siz[i] = this.baseSiz[i] * hb;
+      }
+      this.mesh.geometry.attributes.size.needsUpdate = true;
+      // Also pulse Z position slightly for "throb" feel
+      const throb = 1 + 0.008 * Math.pow(Math.sin(ft * 8.0), 20);
+      this.c.position.z = 5.5 / throb;
     }
 
     for (let i = 0; i < this.N; i++) {
