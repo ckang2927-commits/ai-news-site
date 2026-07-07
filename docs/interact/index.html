@@ -112,15 +112,16 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
-<!-- Load THREE.js from local server (CDN-free) -->
-<script src="three.min.js"></script>
-<script type="module">
-// THREE.js loaded from local file
-var THREE = globalThis.THREE;
-if (!THREE) {
-  document.getElementById('loading').querySelector('p').textContent = '加载失败，请刷新页面';
-  throw new Error('THREE failed to load - please refresh');
+<!-- THREE.js loaded from local server -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "./three.module.js"
+  }
 }
+</script>
+<script type="module">
+import * as THREE from 'three';
 
 // ═══════ CONFIG
 const C = {
