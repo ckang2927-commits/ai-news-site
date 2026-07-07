@@ -663,6 +663,9 @@ class PS {
     this.shapeLines.geometry.attributes.position.needsUpdate = true;
     this.shapeLines.geometry.setDrawRange(0, sidx*2);
 
+    // Floating & heartbeat time (must be before star rotation!)
+    const ft = performance.now() / 1000;
+
     // Star field rotation + twinkle
     const starRot = ft * 0.008;
     const sr_cos = Math.cos(starRot), sr_sin = Math.sin(starRot);
@@ -678,7 +681,6 @@ class PS {
     const cr = Math.cos(this.rot), sr = Math.sin(this.rot);
 
     // Floating & heartbeat time
-    const ft = performance.now() / 1000;
     const floatAmp = this.boom ? 0 : 0.055;
     // Heartbeat pulse for heart shape - particle size + warm glow
     if (this.key === 5) {
