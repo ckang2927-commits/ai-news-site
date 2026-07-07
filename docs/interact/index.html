@@ -112,28 +112,21 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
-
+<!-- Load THREE.js as UMD for better CDN compatibility -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+// Fallback CDN if jsdelivr fails
+if (typeof THREE === 'undefined') {
+  document.write('<script src="https://unpkg.com/three@0.160.0/build/three.min.js"><\/script>');
+}
+</script>
 <script type="module">
-// Load Three.js with multiple CDN fallbacks
-var THREE;
-var CDNS = [
-  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
-  'https://unpkg.com/three@0.160.0/build/three.module.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.js'
-];
-for (var ci = 0; ci < CDNS.length; ci++) {
-  try {
-    THREE = await import(CDNS[ci]);
-    break;
-  } catch(e) {
-    console.warn('CDN ' + ci + ' failed:', CDNS[ci], e);
-  }
+// THREE loaded via regular script tag (three.min.js UMD build)
+if (typeof globalThis.THREE === 'undefined') {
+  document.getElementById('loading').querySelector('p').textContent = '加载失败，请刷新页面';
+  throw new Error('THREE not loaded');
 }
-if (!THREE) {
-  document.getElementById('loading').querySelector('p').textContent = '加载失败，请检查网络连接后刷新';
-  document.getElementById('loading').classList.remove('hidden');
-  throw new Error('All Three.js CDNs failed');
-}
+var THREE = globalThis.THREE;
 
 // ═══════ CONFIG
 const C = {
