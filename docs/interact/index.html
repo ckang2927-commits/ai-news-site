@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260705 -->
+<!-- v=20260707-v9-preload-pullrefresh -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -45,6 +45,7 @@ canvas#debug.show{display:block}
 #prompt .btn1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
 #prompt .btn1:hover{transform:scale(1.04)}
 #prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
+#pull-refresh{position:fixed;top:0;left:0;right:0;height:60px;z-index:1001;display:flex;align-items:center;justify-content:center;transform:translateY(-60px);transition:transform .3s;background:rgba(10,10,26,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none}#pull-refresh.show{transform:translateY(0)}#pull-refresh .icon{font-size:20px;color:#22d3ee;animation:spin2 1s linear infinite}@keyframes spin2{to{transform:rotate(360deg)}}
 video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 @media(max-width:640px){
   #top{padding:0 10px}
@@ -67,17 +68,19 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 #rotate-prompt .r-skip{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px;border-radius:20px;cursor:pointer;margin-top:6px}
 @media(orientation:landscape){#rotate-prompt.show{display:none !important}}
 /* Mobile responsive */
-@media(max-width:640px){#gl .num{width:32px;height:32px;font-size:20px}#gl .txt{font-size:13px}#guide{font-size:9px;bottom:48px;opacity:0.6;transition:opacity 0.5s}#guide.fade{opacity:0}#dist-hint{font-size:9px;bottom:74px}canvas#debug{width:100px;height:75px}}
+@media(max-width:640px){#gl .num{width:32px;height:32px;font-size:20px}#gl .txt{font-size:13px}#guide{font-size:9px;bottom:48px;opacity:0.6;transition:opacity 0.5s}#guide.fade{opacity:0}#dist-hint{font-size:9px;bottom:74px}canvas#debug{width:100px;height:75px;background:rgba(0,0,0,.7)}}
 </style>
 </head>
 <body>
 
+<div id="refresh-btn" style="position:fixed;bottom:120px;left:50%;transform:translateX(-50%);z-index:999;display:none;background:rgba(6,182,212,.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(6,182,212,.2);border-radius:20px;padding:8px 20px;color:#22d3ee;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit" onclick="location.reload()">⟳ 重新加载</div>
 <div id="loading">
   <div class="spinner"></div>
   <p id="load-text">启动中...</p>
   <div class="bar"><div class="bar-inner" id="load-bar"></div></div>
 </div>
 
+<div id="pull-refresh"><span class="icon">⟳</span></div>
 <div id="prompt">
   <div class="icon">📷</div>
   <h2>启用手势交互</h2>
@@ -110,8 +113,8 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="debug"></canvas>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
+<script src="hands.js"></script>
+<script src="camera_utils.js"></script>
 <!-- THREE.js r128 UMD global build (compact: 600KB, no importmap needed) -->
 <script src="three.min.js"></script>
 <script type="module">
@@ -398,6 +401,7 @@ class PS {
 
   _gl() {
     try {
+      prog(30, '初始化WebGL...');
       this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
     } catch(e) {
       console.error('WebGL init failed:', e);
@@ -502,6 +506,7 @@ class PS {
       vertexShader: vs, fragmentShader: fs,
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
     });
+    prog(50, '创建粒子系统...');
     this.mesh = new THREE.Points(geo, mat);
     this.s.add(this.mesh);
 
@@ -627,16 +632,16 @@ class PS {
 
     if (this.boom) { this.boomT += dt; if (this.boomT > this.boomD) this.boom = false; }
     const ep = this.boom ? Math.min(this.boomT/this.boomD, 1) : 1;
-    const sd = Math.exp(-dt*4);
+    var damp = Math.exp(-dt*4);
     const attr = this.boom ? C.speed*0.5 : C.speed;
     // Depth → shape scale (smoothed to prevent jitter)
-    const rawD = this.depth;
+    var rawD = this.depth;
     this._smoothDepth = this._smoothDepth || rawD;
     this._smoothDepth += (rawD - this._smoothDepth) * 0.15;
-    const sd = this._smoothDepth;
+    var smoothD = this._smoothDepth;
     let shapeScale = 1.0;
-    if (sd > 1.1) shapeScale = 1.0 + (sd - 1.0) * 0.5;
-    else if (sd < 0.85) shapeScale = 0.65 + sd * 0.35;
+    if (smoothD > 1.1) shapeScale = 1.0 + (smoothD - 1.0) * 0.5;
+    else if (smoothD < 0.85) shapeScale = 0.65 + smoothD * 0.35;
     shapeScale = Math.max(0.5, Math.min(2.5, shapeScale));
 
     // Update connector nodes
@@ -744,7 +749,7 @@ class PS {
       this.pos[i3+2] = pz + this.vel[i3+2]*dt;
     }
 
-    this.storm.x *= sd; this.storm.y *= sd; this.storm.z *= sd;
+    this.storm.x *= damp; this.storm.y *= damp; this.storm.z *= damp;
     this.mesh.geometry.attributes.position.needsUpdate = true;
 
     // Trail: ghost particles chase current positions (every other frame)
@@ -784,6 +789,8 @@ function onHand(r) {
     return;
   }
   idle = 0;
+  // Close loading on first detection
+  if (!loadingClosed) { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) { ld.classList.add('hidden'); loadingClosed = true; } }
   const lm = r.multiHandLandmarks[0];
   lastLM = lm;
 
@@ -822,6 +829,13 @@ function onHand(r) {
   // Draw debug
   const dc = debugCanvas.getContext('2d');
   if (dc && debugCanvas.classList.contains('show')) {
+    dc.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+    if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
+      dc.fillStyle = 'rgba(148,163,184,.3)';
+      dc.font = '11px sans-serif'; dc.textAlign = 'center';
+      dc.fillText('等待手势...', 60, 45);
+      return;
+    }
     debugCanvas.width = debugCanvas.clientWidth * (devicePixelRatio||1);
     debugCanvas.height = debugCanvas.clientHeight * (devicePixelRatio||1);
     const s = debugCanvas.width / 160;
@@ -855,6 +869,7 @@ function setupMouse() {
 
 // ═══════ CAMERA
 async function startCam() {
+  var _camP = (function() { try { return navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'}}).catch(function(){ return navigator.mediaDevices.getUserMedia({video:{width:320,height:240}}); }); } catch(e) { return Promise.reject(e); } })();
   prompt.classList.remove('show');
   guide.classList.add('hidden');
   distHint.classList.remove('hidden');
@@ -867,39 +882,60 @@ async function startCam() {
 
   // Camera timeout: 15s fallback
   const camTimeout = new Promise(function(_, reject) {
-    setTimeout(function() { reject(new Error('摄像头启动超时，请检查权限设置')); }, 15000);
+    setTimeout(function() { reject(new Error('摄像头启动超时，请检查权限设置')); }, 20000);
   });
   try {
     const s = await Promise.race([
-      navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'}})
-        .catch(function(){ return navigator.mediaDevices.getUserMedia({video:{width:320,height:240}}); }),
+      _camP,
       camTimeout
     ]);
     video.srcObject = s;
-    await Promise.race([video.play(), new Promise(function(_, reject) { setTimeout(function() { reject(new Error('视频播放超时')); }, 8000); })]);
-    prog(60, '加载手势识别...');
-    const hands = new Hands({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/' + f; } });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
-    hands.onResults(onHand);
-    prog(85, '就绪！');
+    await video.play();
+// PHASE 1: Pre-download all model files
+    prog(60, '预下载模型文件...');
+    var _loaded = 0, _total = (window._modelList||[]).length; if (!_total) { window._modelList = ["hand_landmark_lite.tflite","hands_solution_packed_assets.data","hands_solution_wasm_bin.wasm","hands_solution_simd_wasm_bin.wasm","hands.binarypb"]; _total = window._modelList.length; }
+    await window.preloadModels(function() {
+      _loaded++;
+      var pct = 60 + Math.floor((_loaded / _total) * 25);
+      prog(pct, '预下载 ' + _loaded + '/' + _total + '...');
+      var bar = document.getElementById('load-bar');
+      if (bar) bar.style.width = pct + '%';
+    });
+    // PHASE 2: Start MediaPipe with files already in cache
+    prog(85, '启动手势引擎...');
+    var hands;
+    try {
+      hands = new Hands({ locateFile: function(f) { return './' + f; } });
+      hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
+      hands.onResults(onHand);
+    } catch(e) {
+      throw new Error('手势引擎初始化失败: ' + e.message);
+    }
+    prog(90, '初始化完成！');
     var frameCount = 0;
     var mpReady = true;
+    var loadingClosed = false;
+    window._loadTimeout = setTimeout(function() {
+      prog(100);
+      setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    }, 5000);
     (function processFrame() {
-      if (!mpReady) return;
+      if (!mpReady || !hands) return;
       mpReady = false;
       try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
       if (++frameCount < 5) setTimeout(processFrame, 100);
       else requestAnimationFrame(processFrame);
     })();
     await new Promise(function(r) { setTimeout(r, 200); });
-    prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    prog(100);
+    if (!loadingClosed) { document.getElementById('loading').classList.add('hidden'); loadingClosed = true; }
   } catch(e) {
     console.warn('Camera init failed:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
     debugCanvas.classList.remove('show');
     distHint.textContent = '⚠️ 摄像头不可用: ' + (e.message||'未知错误') + ' · 已切换鼠标模式';
     setTimeout(function() { distHint.textContent = '点击屏幕切换形态 · 快速滑动起风暴'; }, 5000);
-    setupMouse(); prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    setupMouse(); prog(100); if (!loadingClosed) { document.getElementById('loading').classList.add('hidden'); loadingClosed = true; }
   }
 }
 
@@ -910,19 +946,22 @@ function skipCam() {
   setTimeout(function() { var g=document.getElementById('guide'); if(g) g.classList.add('fade'); }, 3000);
   glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
   debugCanvas.classList.remove('show');
-  setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
+  setupMouse(); prog(100); setTimeout(function() { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) ld.classList.add('hidden'); }, 200);
 }
 
 // ═══════ BOOT
 async function boot() {
+  var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   prog(10, '启动粒子...');
   try {
     ps = new PS();
+  prog(60, '粒子系统创建完成');
   } catch(e) {
     prog(0, '');
     throw new Error('粒子初始化失败: ' + e.message);
   }
-  prog(50, '渲染就绪');
+  prog(70, '粒子系统就绪');
   await new Promise(r => setTimeout(r, 100));
 
   // Orientation check for mobile
@@ -943,8 +982,48 @@ async function boot() {
   }
 
   prompt.classList.add('show');
-  $('#btn-cam').onclick = startCam;
-  $('#btn-skip').onclick = skipCam;
+  document.getElementById('btn-cam').onclick = startCam;
+  document.getElementById('btn-skip').onclick = skipCam;
+  // Pull-to-refresh gesture
+  // Preload models function
+  window._modelList = ["hand_landmark_lite.tflite","hands_solution_packed_assets.data","hands_solution_wasm_bin.wasm","hands_solution_simd_wasm_bin.wasm","hands.binarypb"];
+  window.preloadModels = function(updateCb) {
+    return Promise.all(window._modelList.map(function(f) {
+      return Promise.race([
+        fetch("./"+f, {cache:"force-cache"}).then(function(r) {
+          if (updateCb) updateCb();
+          return r.blob();
+        }),
+        new Promise(function(resolve) { setTimeout(function() { if (updateCb) updateCb(); resolve(null); }, 15000); })
+      ]).catch(function() {
+        if (updateCb) updateCb();
+      });
+    }));
+  };
+  var _touchStart = 0, _touchY = 0, _pulling = false;
+  document.addEventListener('touchstart', function(e) {
+    if (window.scrollY > 5) return;
+    _touchStart = e.touches[0].clientY;
+    _pulling = true;
+  }, {passive: true});
+  document.addEventListener('touchmove', function(e) {
+    if (!_pulling) return;
+    _touchY = e.touches[0].clientY;
+    var dist = _touchY - _touchStart;
+    if (dist > 60) {
+      document.getElementById('pull-refresh').classList.add('show');
+    }
+  }, {passive: true});
+  document.addEventListener('touchend', function() {
+    if (!_pulling) return;
+    _pulling = false;
+    if ((_touchY - _touchStart) > 80) {
+      location.reload();
+    }
+    document.getElementById('pull-refresh').classList.remove('show');
+  }, {passive: true});
+  // Mobile hint
+  setTimeout(function() { distHint.textContent = '手机用户如摄像头不可用，点\"鼠标/触控模式\"'; distHint.style.color = 'rgba(251,191,36,.6)'; }, 2000);
 
   let last = performance.now();
   function loop() {
