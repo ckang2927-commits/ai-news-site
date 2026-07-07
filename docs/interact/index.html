@@ -222,6 +222,7 @@ function rndPts(n, r) {
 }
 
 const G = {
+  0: { l: '星空', g: () => rndPts(C.N, 5.5) },
   1: { l: '我', g: () => textPts('我', C.N, 2.0) },
   2: { l: '爱', g: () => textPts('爱', C.N, 2.0) },
   3: { l: '欣欣', g: () => textPts('欣欣', C.N, 2.2) },
