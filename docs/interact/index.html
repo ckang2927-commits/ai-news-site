@@ -189,13 +189,24 @@ function textPts(text, n, scale) {
   return pos;
 }
 
-function spherePts(n, r) {
+function heartPts(n, r) {
+  // 3D heart shape with depth variation
   const p = new Float32Array(n*3);
   for (let i = 0; i < n; i++) {
-    const t = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
-    p[i*3] = r*Math.sin(ph)*Math.cos(t);
-    p[i*3+1] = r*Math.cos(ph);
-    p[i*3+2] = r*Math.sin(ph)*Math.sin(t);
+    // Heart parametric: x = 16sin^3(t), y = 13cos(t) - 5cos(2t) - 2cos(3t) - cos(4t)
+    const t = Math.random() * Math.PI * 2;
+    const st = Math.sin(t);
+    const hx = 16 * st * st * st;
+    const hy = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+    // Normalize to roughly unit size, add thickness
+    const norm = 18;
+    const thickness = 0.25 + Math.random() * 0.35;
+    // Random angle for 3D depth
+    const a = Math.random() * Math.PI * 2;
+    const depthFactor = 1 - Math.abs(hy) / 18;
+    p[i*3] = (hx / norm) * r * (0.9 + 0.1 * Math.random());
+    p[i*3+1] = (hy / norm) * r * (0.9 + 0.1 * Math.random());
+    p[i*3+2] = (Math.random() - 0.5) * thickness * r * (0.4 + 0.6 * depthFactor);
   }
   return p;
 }
@@ -215,7 +226,7 @@ const G = {
   2: { l: '爱', g: () => textPts('爱', C.N, 2.0) },
   3: { l: '欣欣', g: () => textPts('欣欣', C.N, 2.2) },
   4: { l: '我爱欣欣', g: () => textPts('我爱欣欣', C.N, 2.5) },
-  5: { l: '球形', g: () => spherePts(C.N, 1.8) }
+  5: { l: '爱心', g: () => heartPts(C.N, 1.6) }
 };
 
 // ═══════ 🔥 ROBUST FINGER COUNTER (multi-method majority vote)
@@ -475,6 +486,22 @@ class PS {
       this.vel[i*3+1] += (Math.random()-.5)*C.boom;
       this.vel[i*3+2] += (Math.random()-.5)*C.boom;
     }
+    // Target 5 (heart): set red particles
+    if (k === 5) {
+      for (let i = 0; i < this.N; i++) {
+        this.col[i*3] = 0.7 + Math.random() * 0.3;     // R: 0.7-1.0 (strong red)
+        this.col[i*3+1] = 0.05 + Math.random() * 0.15;  // G: 0.05-0.2 (hint of warm)
+        this.col[i*3+2] = 0.1 + Math.random() * 0.2;    // B: 0.1-0.3 (slight warmth)
+      }
+    } else {
+      // Other targets: reset to original blue-ish colors
+      for (let i = 0; i < this.N; i++) {
+        this.col[i*3] = 0.1 + Math.random() * 0.3;
+        this.col[i*3+1] = 0.4 + Math.random() * 0.5;
+        this.col[i*3+2] = 0.5 + Math.random() * 0.5;
+      }
+    }
+    this.mesh.geometry.attributes.color.needsUpdate = true;
     glTxt.textContent = `${k} · ${G[k].l}`;
     gl.classList.add('glow');
     glNum.textContent = k;
@@ -644,7 +671,7 @@ function setupMouse() {
   mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
   mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
   mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
-    setTimeout(() => { if(ps) { ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 球形'; } }, 600);
+    setTimeout(() => { if(ps) { ps.setTarget(5); glNum.textContent='5'; glNum.classList.add('ok'); glTxt.textContent='5 · 爱心'; } }, 600);
 }
 
 // ═══════ CAMERA
