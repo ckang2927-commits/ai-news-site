@@ -397,7 +397,13 @@ class PS {
   }
 
   _gl() {
-    this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
+    try {
+      this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
+    } catch(e) {
+      console.error('WebGL init failed:', e);
+      document.getElementById('loading').querySelector('p').textContent = '⚠️ WebGL初始化失败: ' + e.message;
+      throw e;
+    }
     this.r.setPixelRatio(Math.min(devicePixelRatio, 2));
     this.r.setSize(innerWidth, innerHeight);
     this.r.setClearColor(0x070714);
@@ -884,7 +890,12 @@ function skipCam() {
 // ═══════ BOOT
 async function boot() {
   prog(10, '启动粒子...');
-  ps = new PS();
+  try {
+    ps = new PS();
+  } catch(e) {
+    prog(0, '');
+    throw new Error('粒子初始化失败: ' + e.message);
+  }
   prog(50, '渲染就绪');
   await new Promise(r => setTimeout(r, 100));
 
@@ -922,8 +933,15 @@ boot().catch(function(e) {
   console.error('Boot failed:', e);
   var ld = document.getElementById('loading');
   if (ld) {
-    ld.querySelector('p').textContent = '⚠️ 启动失败: ' + (e.message || '未知错误');
+    var detail = e.message || 'Unknown';
+    if (e.stack) detail += ' | ' + e.stack.split('\n')[0];
+    ld.querySelector('p').textContent = '⚠️ 启动失败: ' + detail;
+    ld.querySelector('p').style.fontSize = '11px';
+    ld.querySelector('p').style.maxWidth = '90%';
     ld.classList.remove('hidden');
+    // Also show on screen
+    var bar = ld.querySelector('.bar');
+    if (bar) bar.style.display = 'none';
   }
 });
 </script>
