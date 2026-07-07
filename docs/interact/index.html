@@ -436,6 +436,28 @@ class PS {
     this.s.add(this.lines);
     this._lp = lp;
 
+    // Shape connector lines (neural network effect between particles)
+    this.sNodeCount = 180;
+    this.sNodeIndices = new Uint16Array(this.sNodeCount);
+    for (let i = 0; i < this.sNodeCount; i++) this.sNodeIndices[i] = Math.floor(Math.random() * this.N);
+    this.sPairs = [];
+    for (let i = 0; i < this.sNodeCount; i++) {
+      for (let j = i+1; j < this.sNodeCount; j++) {
+        if (Math.random() < 0.035) this.sPairs.push([i,j]);
+      }
+    }
+    const slp = new Float32Array(this.sPairs.length*6);
+    const slg = new THREE.BufferGeometry();
+    slg.setAttribute("position", new THREE.BufferAttribute(slp, 3));
+    const slm = new THREE.LineBasicMaterial({
+      color: 0x6b6bff, transparent: true, opacity: 0.18,
+      blending: THREE.AdditiveBlending
+    });
+    this.shapeLines = new THREE.LineSegments(slg, slm);
+    this.s.add(this.shapeLines);
+    this._slp = slp;
+    this._shapeLinePairs = this.sPairs;
+
     // Particles
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
@@ -490,26 +512,49 @@ class PS {
       this.vel[i*3+1] += (Math.random()-.5)*C.boom;
       this.vel[i*3+2] += (Math.random()-.5)*C.boom;
     }
-    // Target 5 (heart): set red particles
-    if (k === 5) {
+    // Per-gesture color themes
+    if (k === 1) {
+      // Purple
       for (let i = 0; i < this.N; i++) {
-        this.col[i*3] = 0.7 + Math.random() * 0.3;     // R: 0.7-1.0 (strong red)
-        this.col[i*3+1] = 0.05 + Math.random() * 0.15;  // G: 0.05-0.2 (hint of warm)
-        this.col[i*3+2] = 0.1 + Math.random() * 0.2;    // B: 0.1-0.3 (slight warmth)
+        this.col[i*3] = 0.45 + Math.random() * 0.35;
+        this.col[i*3+1] = 0.05 + Math.random() * 0.15;
+        this.col[i*3+2] = 0.55 + Math.random() * 0.35;
       }
-    } else {
-      // Other targets: reset to original blue-ish colors
+    } else if (k === 2) {
+      // Pink
       for (let i = 0; i < this.N; i++) {
-        this.col[i*3] = 0.1 + Math.random() * 0.3;
-        this.col[i*3+1] = 0.4 + Math.random() * 0.5;
-        this.col[i*3+2] = 0.5 + Math.random() * 0.5;
+        this.col[i*3] = 0.75 + Math.random() * 0.25;
+        this.col[i*3+1] = 0.15 + Math.random() * 0.25;
+        this.col[i*3+2] = 0.35 + Math.random() * 0.30;
       }
+    } else if (k === 3) {
+      // Gold
+      for (let i = 0; i < this.N; i++) {
+        this.col[i*3] = 0.80 + Math.random() * 0.20;
+        this.col[i*3+1] = 0.55 + Math.random() * 0.30;
+        this.col[i*3+2] = 0.05 + Math.random() * 0.15;
+      }
+    } else if (k === 4) {
+      // Rainbow - cycle hue across particles
+      for (let i = 0; i < this.N; i++) {
+        const angle = (i / this.N) * Math.PI * 6;
+        this.col[i*3] = 0.5 + 0.5 * Math.sin(angle);
+        this.col[i*3+1] = 0.5 + 0.5 * Math.sin(angle + 2.1);
+        this.col[i*3+2] = 0.5 + 0.5 * Math.sin(angle + 4.2);
+      }
+    } else if (k === 5) {
+      // Red heart
+      for (let i = 0; i < this.N; i++) {
+        this.col[i*3] = 0.7 + Math.random() * 0.3;
+        this.col[i*3+1] = 0.05 + Math.random() * 0.15;
+        this.col[i*3+2] = 0.1 + Math.random() * 0.2;
+      }
+    }
     // Restore base sizes when leaving heart
     if (this.key !== 5) {
       for (let i = 0; i < this.N; i++)
         this.siz[i] = this.baseSiz[i];
       this.mesh.geometry.attributes.size.needsUpdate = true;
-    }
     }
     this.mesh.geometry.attributes.color.needsUpdate = true;
     glTxt.textContent = `${k} · ${G[k].l}`;
@@ -557,6 +602,25 @@ class PS {
     for (let i = idx*6; i < lp.length; i++) lp[i] = 0;
     this.lines.geometry.attributes.position.needsUpdate = true;
     this.lines.geometry.setDrawRange(0, idx*2);
+
+    // Update shape connectors - track actual particle positions
+    const slp = this._slp, sPairs = this._shapeLinePairs;
+    let sidx = 0;
+    for (const [i,j] of sPairs) {
+      const ni = this.sNodeIndices[i], nj = this.sNodeIndices[j];
+      const dx = this.pos[ni*3] - this.pos[nj*3];
+      const dy = this.pos[ni*3+1] - this.pos[nj*3+1];
+      const dz = this.pos[ni*3+2] - this.pos[nj*3+2];
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < 0.8) {
+        slp[sidx*3]=this.pos[ni*3]; slp[sidx*3+1]=this.pos[ni*3+1]; slp[sidx*3+2]=this.pos[ni*3+2];
+        slp[(sidx+1)*3]=this.pos[nj*3]; slp[(sidx+1)*3+1]=this.pos[nj*3+1]; slp[(sidx+1)*3+2]=this.pos[nj*3+2];
+        sidx++;
+      }
+    }
+    for (let i = sidx*6; i < slp.length; i++) slp[i] = 0;
+    this.shapeLines.geometry.attributes.position.needsUpdate = true;
+    this.shapeLines.geometry.setDrawRange(0, sidx*2);
 
     const cr = Math.cos(this.rot), sr = Math.sin(this.rot);
 
