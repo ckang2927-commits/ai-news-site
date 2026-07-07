@@ -381,8 +381,8 @@ class PS {
     this.phases = new Float32Array(this.N);
     for (let i = 0; i < this.N; i++) this.phases[i] = Math.random() * Math.PI * 2;
 
-    // Start from center for dramatic entrance explosion
-    const s = new Float32Array(this.N * 3);
+    // Start as wide starfield for initial visual impact
+    const s = rndPts(this.N, 5.5);
     this.pos.set(s); this.tgt.set(s);
     this.entrancePhase = true;
     this.entranceTimer = 0;
@@ -596,20 +596,18 @@ class PS {
     dt = Math.min(dt, 0.05);
     this.rot += dt * 0.06;
 
-    // Entrance phase: burst from center to random scatter, then converge
+    // Entrance phase: particles gently awaken from starfield
     if (this.entrancePhase) {
       this.entranceTimer += dt;
-      if (this.entranceTimer > 0.3 && this.entranceTimer < 0.35) {
-        // Burst outward
-        const burst = rndPts(this.N, 5.0);
+      if (this.entranceTimer > 0.5 && this.entranceTimer < 0.55) {
+        // Gentle converge pulse
         for (let i = 0; i < this.N * 3; i++) {
-          this.tgt[i] = burst[i];
-          this.vel[i] = burst[i] * 2.5;
+          this.vel[i] += (Math.random() - 0.5) * 2.0;
         }
         this.boom = true;
         this.boomT = 0;
       }
-      if (this.entranceTimer > 4.0) {
+      if (this.entranceTimer > 3.0) {
         this.entrancePhase = false;
       }
     }
