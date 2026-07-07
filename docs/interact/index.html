@@ -112,16 +112,15 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
-<!-- THREE.js loaded from local server -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "./three.module.js"
-  }
-}
-</script>
+<!-- THREE.js r128 UMD global build (compact: 600KB, no importmap needed) -->
+<script src="three.min.js"></script>
 <script type="module">
-import * as THREE from 'three';
+// THREE from global script tag (three.min.js r128)
+var THREE = window.THREE;
+if (!THREE) {
+  document.getElementById("loading").querySelector("p").textContent = "加载失败";
+  throw new Error("THREE not loaded");
+}
 
 // ═══════ CONFIG
 const C = {
