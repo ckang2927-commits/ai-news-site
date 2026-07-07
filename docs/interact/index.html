@@ -55,6 +55,19 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
   #guide{font-size:9px;bottom:48px}
   #dist-hint{font-size:8px;bottom:74px}
 }
+/* Orientation prompt for mobile landscape */
+#rotate-prompt{position:fixed;inset:0;z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,7,20,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);text-align:center;padding:30px}
+#rotate-prompt.show{display:flex}
+#rotate-prompt .r-icon{font-size:48px;margin-bottom:12px;animation:rotateAnim 2s ease-in-out infinite}
+@keyframes rotateAnim{0%,100%{transform:rotate(0deg)}25%{transform:rotate(90deg)}50%{transform:rotate(90deg)}75%{transform:rotate(0deg)}}
+#rotate-prompt h2{color:#e2e8f0;font-size:16px;margin-bottom:4px}
+#rotate-prompt p{color:#94a3b8;font-size:12px;margin-bottom:14px;max-width:260px;line-height:1.5}
+#rotate-prompt .r-btn{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff;border:none;padding:8px 28px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+#rotate-prompt .r-btn:hover{transform:scale(1.04)}
+#rotate-prompt .r-skip{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px;border-radius:20px;cursor:pointer;margin-top:6px}
+@media(orientation:landscape){#rotate-prompt.show{display:none !important}}
+/* Mobile responsive */
+@media(max-width:640px){#gl .num{width:32px;height:32px;font-size:20px}#gl .txt{font-size:13px}#guide{font-size:9px;bottom:48px;opacity:0.6;transition:opacity 0.5s}#guide.fade{opacity:0}#dist-hint{font-size:9px;bottom:74px}canvas#debug{width:100px;height:75px}}
 </style>
 </head>
 <body>
@@ -85,6 +98,13 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <div id="dist-hint">📏 距离摄像头 30~50cm · 手掌正对镜头 · 手指分开</div>
 <div id="guide">☝️1「我」 ✌️2「爱」 🤟3「欣欣」 🖐️4「我爱欣欣」 ✋5「球形」 · 快速滑动起风暴</div>
 
+<div id="rotate-prompt">
+  <div class="r-icon">📱</div>
+  <h2>旋转手机至横屏</h2>
+  <p>横屏模式体验更佳 · 粒子效果更震撼</p>
+  <button class="r-btn" id="btn-landscape-ok">已旋转</button>
+  <button class="r-skip" id="btn-landscape-skip">竖屏继续</button>
+</div>
 <video id="webcam" playsinline></video>
 <canvas id="main"></canvas>
 <canvas id="debug"></canvas>
@@ -239,19 +259,27 @@ function countFingers(lm) {
     const ang = Math.acos(Math.max(-1,Math.min(1,dot/(m1*m2)))) * 180 / Math.PI;
     const methodAng = ang > 145;
 
-    // Thumb special handling - stricter to avoid folded thumb being counted
+    // Thumb special handling - much stricter to prevent folded thumb miscount
     if (f === 0) {
+      // Wrist reference (landmark 0) - folded thumb is closer to wrist
+      const wrist = lm[0];
       const idxMcp = lm[5];
       const spread = d2(tip, idxMcp);
-      // Thumb needs to spread wider AND have clear extension evidence
-      const thumbExtended = spread > handSz * 0.5;
-      // Also check thumb IP joint (landmark 3) - if bent, thumb is folded
+      const tip2wrist = d3(lm[4], wrist);
+      const midWrist = d3(lm[9], wrist);
+      // Thumb must extend far from wrist relative to middle finger base
+      const thumbExtended = spread > handSz * 0.55 && tip2wrist > midWrist * 0.7;
+      // IP joint bending detection - much stricter
       const tip2pip = d3(lm[4], lm[3]);
       const pip2mcp = d3(lm[3], lm[2]);
-      const thumbBent = tip2pip < pip2mcp * 0.7;
-      if (thumbExtended && !thumbBent && (methodY || methodPalm)) count++;
-      // Extra: also count if palm method strongly indicates thumb up
-      else if (methodPalm && dTipPalm > dPipPalm * 1.8 && spread > handSz * 0.4) count++;
+      // If thumb IP is bent relative to MCP length, thumb is folded
+      const thumbBent = tip2pip < pip2mcp * 0.5;
+      // New: check thumb tip Y vs wrist Y - folded thumb stays low
+      const thumbTipY = lm[4].y;
+      const wristY = wrist.y;
+      const isRaised = thumbTipY < wristY - 0.02;
+      // Thumb counted only if ALL conditions pass
+      if (thumbExtended && !thumbBent && isRaised && (methodY || methodPalm)) count++;
     } else {
       // Majority vote: at least 2 out of 3 methods agree
       let votes = methodY + methodPalm + methodAng;
@@ -625,6 +653,11 @@ async function startCam() {
   guide.classList.add('hidden');
   distHint.classList.remove('hidden');
   debugCanvas.classList.add('show');
+  // Auto-hide guide on mobile after 3s
+  setTimeout(function() {
+    var g = document.getElementById('guide');
+    if (g) g.classList.add('fade');
+  }, 3000);
 
   // Camera timeout: 15s fallback
   const camTimeout = new Promise(function(_, reject) {
@@ -668,6 +701,7 @@ async function startCam() {
 
 function skipCam() {
   prompt.classList.remove('show');
+  setTimeout(function() { var g=document.getElementById('guide'); if(g) g.classList.add('fade'); }, 3000);
   glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
   debugCanvas.classList.remove('show');
   setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
@@ -679,6 +713,24 @@ async function boot() {
   ps = new PS();
   prog(50, '渲染就绪');
   await new Promise(r => setTimeout(r, 100));
+
+  // Orientation check for mobile
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile && window.innerWidth < window.innerHeight) {
+    document.getElementById('rotate-prompt').classList.add('show');
+    document.getElementById('btn-landscape-ok').onclick = function() {
+      try { screen.orientation.lock('landscape'); } catch(e) {}
+      document.getElementById('rotate-prompt').classList.remove('show');
+    };
+    document.getElementById('btn-landscape-skip').onclick = function() {
+      document.getElementById('rotate-prompt').classList.remove('show');
+    };
+    window.addEventListener('orientationchange', function() {
+      if (window.innerWidth > window.innerHeight)
+        document.getElementById('rotate-prompt').classList.remove('show');
+    });
+  }
+
   prompt.classList.add('show');
   $('#btn-cam').onclick = startCam;
   $('#btn-skip').onclick = skipCam;
