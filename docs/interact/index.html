@@ -89,12 +89,19 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 <canvas id="main"></canvas>
 <canvas id="debug"></canvas>
 
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
 
 <script type="module">
-import * as THREE from 'three';
+// Load Three.js with CDN fallback
+var THREE;
+try {
+  THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
+} catch(e) {
+  console.warn('jsdelivr failed, trying unpkg:', e);
+  THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
+}
 
 // ═══════ CONFIG
 const C = {
@@ -619,33 +626,45 @@ async function startCam() {
   distHint.classList.remove('hidden');
   debugCanvas.classList.add('show');
 
+  // Camera timeout: 15s fallback
+  const camTimeout = new Promise(function(_, reject) {
+    setTimeout(function() { reject(new Error('摄像头启动超时，请检查权限设置')); }, 15000);
+  });
   try {
-    const s = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'}}).catch(function(){return navigator.mediaDevices.getUserMedia({video:{width:320,height:240}});});
-    video.srcObject = s; await video.play();
+    const s = await Promise.race([
+      navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'}})
+        .catch(function(){ return navigator.mediaDevices.getUserMedia({video:{width:320,height:240}}); }),
+      camTimeout
+    ]);
+    video.srcObject = s;
+    await Promise.race([video.play(), new Promise(function(_, reject) { setTimeout(function() { reject(new Error('视频播放超时')); }, 8000); })]);
     prog(60, '加载手势识别...');
-    const hands = new Hands({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${f}` });
+    const hands = new Hands({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/' + f; } });
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
     prog(85, '就绪！');
-    // Use simple frame loop instead of Camera utility (more mobile-friendly)
     var frameCount = 0;
     var mpReady = true;
     (function processFrame() {
       if (!mpReady) return;
       mpReady = false;
-      try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(e){ mpReady = true; }); } catch(e) { mpReady = true; }
+      try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
       if (++frameCount < 5) setTimeout(processFrame, 100);
       else requestAnimationFrame(processFrame);
     })();
     await new Promise(function(r) { setTimeout(r, 200); });
-    prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
+    prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
   } catch(e) {
-    console.warn(e);
+    console.warn('Camera init failed:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
     debugCanvas.classList.remove('show');
-    setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
+    distHint.textContent = '⚠️ 摄像头不可用: ' + (e.message||'未知错误') + ' · 已切换鼠标模式';
+    setTimeout(function() { distHint.textContent = '点击屏幕切换形态 · 快速滑动起风暴'; }, 5000);
+    setupMouse(); prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
   }
 }
+
+
 
 function skipCam() {
   prompt.classList.remove('show');
