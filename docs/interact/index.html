@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v28-fix-all-v8-refresh-btn -->
+<!-- v=20260708-v29-diag-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -773,6 +773,9 @@ let prevK = -1, cd = 0, idle = 0;
 let lastLM = null;
 
 function onHand(r) {
+  window._onHandCalls = (window._onHandCalls||0)+1;
+  if (window._onHandCalls===1) console.log('[DIAG] onHand first call, has landmarks:', !!(r.multiHandLandmarks && r.multiHandLandmarks.length));
+  if (window._onHandCalls%60===0) console.log('[DIAG] onHand call #'+window._onHandCalls+' landmarks:', r.multiHandLandmarks?r.multiHandLandmarks.length:0);
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
     idle += 0.03;
     if (idle > 1.5) {
@@ -887,8 +890,10 @@ async function startCam() {
     ]);
     video.srcObject = s;
     await video.play();
+    console.log('[DIAG] Video playing, readyState:', video.readyState, 'videoWidth:', video.videoWidth);
     prog(60, '加载手势模型...');
-    var hands = new Hands({ locateFile: function(f) { return './' + f; } });
+    console.log('[DIAG] Creating Hands, locateFile base: ' + ('./'));
+    var hands = new Hands({ locateFile: function(f) { console.log('[DIAG] Hands loading:', f); return './' + f; } });
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
     prog(80, '模型加载中...');
@@ -907,7 +912,7 @@ async function startCam() {
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
     }, 40000);
     var processFrame = function processFrame() {
-      if (!mpReady) return;
+      if (!mpReady) { if (frameCount===0) console.log('[DIAG] processFrame waiting for mpReady'); return; }
       mpReady = false;
       try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
       if (++frameCount < 5) setTimeout(processFrame, 100);
