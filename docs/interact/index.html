@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v29-diag-v8-refresh-btn -->
+<!-- v=20260708-v30-diag2-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -773,9 +773,10 @@ let prevK = -1, cd = 0, idle = 0;
 let lastLM = null;
 
 function onHand(r) {
+  try {
   window._onHandCalls = (window._onHandCalls||0)+1;
   if (window._onHandCalls===1) console.log('[DIAG] onHand first call, has landmarks:', !!(r.multiHandLandmarks && r.multiHandLandmarks.length));
-  if (window._onHandCalls%60===0) console.log('[DIAG] onHand call #'+window._onHandCalls+' landmarks:', r.multiHandLandmarks?r.multiHandLandmarks.length:0);
+  if (window._onHandCalls%30===0) console.log('[DIAG] onHand #'+window._onHandCalls+' lm:', r.multiHandLandmarks?r.multiHandLandmarks.length:0);
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
     idle += 0.03;
     if (idle > 1.5) {
@@ -817,7 +818,7 @@ function onHand(r) {
 
   // Finger count
   cd -= 0.03;
-  const raw = countFingers(lm);
+  var raw; try { raw = countFingers(lm); } catch(e) { console.error('[DIAG] countFingers CRASH:', e.message); raw = -1; }
   const k = smooth(raw);
 
   if (cd <= 0 && k >= 0 && k <= 5 && k !== prevK && ps) {
@@ -841,6 +842,7 @@ function onHand(r) {
     dc.scale(s, s);
     drawHand(lm, dc, 160, 120);
   }
+  } catch(e) { console.error('[DIAG] onHand CRASH:', e.message, e.stack); }
 }
 
 // ═══════ MOUSE
