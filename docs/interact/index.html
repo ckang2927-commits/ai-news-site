@@ -790,7 +790,7 @@ function onHand(r) {
   }
   idle = 0;
   // Close loading on first detection
-  if (!loadingClosed) { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) { ld.classList.add('hidden'); loadingClosed = true; } }
+  if (!window._loadingClosed) { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) { ld.classList.add('hidden'); window._loadingClosed = true; } }
   const lm = r.multiHandLandmarks[0];
   lastLM = lm;
 
@@ -914,7 +914,7 @@ async function startCam() {
     prog(90, '初始化完成！');
     var frameCount = 0;
     var mpReady = true;
-    var loadingClosed = false;
+    window._loadingClosed = false;
     window._loadTimeout = setTimeout(function() {
       prog(100);
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
@@ -928,14 +928,14 @@ async function startCam() {
     })();
     await new Promise(function(r) { setTimeout(r, 200); });
     prog(100);
-    if (!loadingClosed) { document.getElementById('loading').classList.add('hidden'); loadingClosed = true; }
+    if (!window._loadingClosed) { document.getElementById('loading').classList.add('hidden'); window._loadingClosed = true; }
   } catch(e) {
     console.warn('Camera init failed:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
     debugCanvas.classList.remove('show');
     distHint.textContent = '⚠️ 摄像头不可用: ' + (e.message||'未知错误') + ' · 已切换鼠标模式';
     setTimeout(function() { distHint.textContent = '点击屏幕切换形态 · 快速滑动起风暴'; }, 5000);
-    setupMouse(); prog(100); if (!loadingClosed) { document.getElementById('loading').classList.add('hidden'); loadingClosed = true; }
+    setupMouse(); prog(100); if (!window._loadingClosed) { document.getElementById('loading').classList.add('hidden'); window._loadingClosed = true; }
   }
 }
 
