@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v30-diag2-v8-refresh-btn -->
+<!-- v=20260708-v31-diag3-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -775,7 +775,7 @@ let lastLM = null;
 function onHand(r) {
   try {
   window._onHandCalls = (window._onHandCalls||0)+1;
-  if (window._onHandCalls===1) console.log('[DIAG] onHand first call, has landmarks:', !!(r.multiHandLandmarks && r.multiHandLandmarks.length));
+  if (window._onHandCalls <= 10) console.log('[DIAG] onHand #'+window._onHandCalls+' hasLM='+!!(r.multiHandLandmarks && r.multiHandLandmarks.length)+' mpReady='+mpReady);
   if (window._onHandCalls%30===0) console.log('[DIAG] onHand #'+window._onHandCalls+' lm:', r.multiHandLandmarks?r.multiHandLandmarks.length:0);
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
     idle += 0.03;
@@ -914,7 +914,8 @@ async function startCam() {
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
     }, 40000);
     var processFrame = function processFrame() {
-      if (!mpReady) { if (frameCount===0) console.log('[DIAG] processFrame waiting for mpReady'); return; }
+      window._pfCalls = (window._pfCalls||0)+1;
+      if (!mpReady) { if (window._pfCalls <= 1) console.log('[DIAG] processFrame waiting mpReady, pfCalls='+window._pfCalls); return; }
       mpReady = false;
       try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
       if (++frameCount < 5) setTimeout(processFrame, 100);
