@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260707-v9-preload-pullrefresh -->
+<!-- v=20260707-v13-mobile-fix -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -778,7 +778,7 @@ function onHand(r) {
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
     idle += 0.03;
     if (idle > 1.5) {
-      glTxt.textContent = '👋 等待手势';
+      glTxt.textContent = window._modelReady ? '👋 等待手势' : '🔧 模型加载中...';
       glNum.textContent = '-';
       glNum.classList.remove('ok');
     }
@@ -789,6 +789,7 @@ function onHand(r) {
     return;
   }
   idle = 0;
+  window._modelReady = true;
   // Close loading on first detection
   if (!window._loadingClosed) { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) { ld.classList.add('hidden'); window._loadingClosed = true; } }
   const lm = r.multiHandLandmarks[0];
@@ -915,10 +916,11 @@ async function startCam() {
     var frameCount = 0;
     var mpReady = true;
     window._loadingClosed = false;
+    window._modelReady = false;
     window._loadTimeout = setTimeout(function() {
       prog(100);
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
-    }, 5000);
+    }, /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 30000 : 5000);
     (function processFrame() {
       if (!mpReady || !hands) return;
       mpReady = false;
@@ -989,13 +991,10 @@ async function boot() {
   window._modelList = ["hand_landmark_lite.tflite","hands_solution_packed_assets.data","hands_solution_wasm_bin.wasm","hands_solution_simd_wasm_bin.wasm","hands.binarypb"];
   window.preloadModels = function(updateCb) {
     return Promise.all(window._modelList.map(function(f) {
-      return Promise.race([
-        fetch("./"+f, {cache:"force-cache"}).then(function(r) {
-          if (updateCb) updateCb();
-          return r.blob();
-        }),
-        new Promise(function(resolve) { setTimeout(function() { if (updateCb) updateCb(); resolve(null); }, 15000); })
-      ]).catch(function() {
+      return fetch("./"+f, {cache:"force-cache"}).then(function(r) {
+        if (updateCb) updateCb();
+        return r.blob();
+      }).catch(function() {
         if (updateCb) updateCb();
       });
     }));
