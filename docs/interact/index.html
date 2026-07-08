@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v38-mobile-touchera-release-v8-refresh-btn -->
+<!-- v=20260708-v39-mobile-fixera-release-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -45,7 +45,7 @@ canvas#debug.show{display:block}
 #prompt .btn1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
 #prompt .btn1:hover{transform:scale(1.04)}
 #prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
-video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
+video{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1}
 @media(max-width:640px){
   #top{padding:0 10px}
   #gl{padding:3px 10px 3px 12px;border-radius:14px}
@@ -125,7 +125,7 @@ if (!THREE) {
 
 // ═══════ CONFIG
 const C = {
-  N: 8000,
+  N: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 5000 : 8000,
   speed: 200,
   boom: 15,
   damp: 0.5,
