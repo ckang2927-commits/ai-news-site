@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260707-v13-mobile-fix -->
+<!-- v=20260708-v14-stable-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -45,7 +45,6 @@ canvas#debug.show{display:block}
 #prompt .btn1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
 #prompt .btn1:hover{transform:scale(1.04)}
 #prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
-#pull-refresh{position:fixed;top:0;left:0;right:0;height:60px;z-index:1001;display:flex;align-items:center;justify-content:center;transform:translateY(-60px);transition:transform .3s;background:rgba(10,10,26,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none}#pull-refresh.show{transform:translateY(0)}#pull-refresh .icon{font-size:20px;color:#22d3ee;animation:spin2 1s linear infinite}@keyframes spin2{to{transform:rotate(360deg)}}
 video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
 @media(max-width:640px){
   #top{padding:0 10px}
@@ -80,7 +79,6 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
   <div class="bar"><div class="bar-inner" id="load-bar"></div></div>
 </div>
 
-<div id="pull-refresh"><span class="icon">⟳</span></div>
 <div id="prompt">
   <div class="icon">📷</div>
   <h2>启用手势交互</h2>
@@ -790,8 +788,9 @@ function onHand(r) {
   }
   idle = 0;
   window._modelReady = true;
-  // Close loading on first detection
-  if (!window._loadingClosed) { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) { ld.classList.add('hidden'); window._loadingClosed = true; } }
+  // Close loading on first hand detection
+  var ld = document.getElementById('loading');
+  if (ld && !ld.classList.contains('hidden')) { ld.classList.add('hidden'); if (window._loadP) { clearInterval(window._loadP); window._loadP = null; } if (window._loadTimeout) { clearTimeout(window._loadTimeout); window._loadTimeout = null; } }
   const lm = r.multiHandLandmarks[0];
   lastLM = lm;
 
@@ -892,52 +891,41 @@ async function startCam() {
     ]);
     video.srcObject = s;
     await video.play();
-// PHASE 1: Pre-download all model files
-    prog(60, '预下载模型文件...');
-    var _loaded = 0, _total = (window._modelList||[]).length; if (!_total) { window._modelList = ["hand_landmark_lite.tflite","hands_solution_packed_assets.data","hands_solution_wasm_bin.wasm","hands_solution_simd_wasm_bin.wasm","hands.binarypb"]; _total = window._modelList.length; }
-    await window.preloadModels(function() {
-      _loaded++;
-      var pct = 60 + Math.floor((_loaded / _total) * 25);
-      prog(pct, '预下载 ' + _loaded + '/' + _total + '...');
-      var bar = document.getElementById('load-bar');
-      if (bar) bar.style.width = pct + '%';
-    });
-    // PHASE 2: Start MediaPipe with files already in cache
-    prog(85, '启动手势引擎...');
-    var hands;
-    try {
-      hands = new Hands({ locateFile: function(f) { return './' + f; } });
-      hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
-      hands.onResults(onHand);
-    } catch(e) {
-      throw new Error('手势引擎初始化失败: ' + e.message);
-    }
-    prog(90, '初始化完成！');
+    prog(60, '加载手势模型...');
+    const hands = new Hands({ locateFile: function(f) { return './' + f; } });
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
+    hands.onResults(onHand);
+    prog(80, '模型加载中...');
     var frameCount = 0;
     var mpReady = true;
-    window._loadingClosed = false;
-    window._modelReady = false;
+    // Show progress while model loads
+    var _loadP = 80;
+    window._loadP = setInterval(function() {
+      _loadP = Math.min(98, _loadP + 0.5);
+      prog(_loadP, '下载模型 ' + Math.floor((_loadP - 80) * 1.67) + '%');
+    }, 800);
+    // Auto-complete after 40s (model should be loaded by then)
     window._loadTimeout = setTimeout(function() {
+      if (window._loadP) { clearInterval(window._loadP); window._loadP = null; }
       prog(100);
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
-    }, /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 30000 : 5000);
+    }, 40000);
     (function processFrame() {
-      if (!mpReady || !hands) return;
+      if (!mpReady) return;
       mpReady = false;
       try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
       if (++frameCount < 5) setTimeout(processFrame, 100);
       else requestAnimationFrame(processFrame);
     })();
     await new Promise(function(r) { setTimeout(r, 200); });
-    prog(100);
-    if (!window._loadingClosed) { document.getElementById('loading').classList.add('hidden'); window._loadingClosed = true; }
+    prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
   } catch(e) {
     console.warn('Camera init failed:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
     debugCanvas.classList.remove('show');
     distHint.textContent = '⚠️ 摄像头不可用: ' + (e.message||'未知错误') + ' · 已切换鼠标模式';
     setTimeout(function() { distHint.textContent = '点击屏幕切换形态 · 快速滑动起风暴'; }, 5000);
-    setupMouse(); prog(100); if (!window._loadingClosed) { document.getElementById('loading').classList.add('hidden'); window._loadingClosed = true; }
+    setupMouse(); prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
   }
 }
 
@@ -948,7 +936,7 @@ function skipCam() {
   setTimeout(function() { var g=document.getElementById('guide'); if(g) g.classList.add('fade'); }, 3000);
   glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
   debugCanvas.classList.remove('show');
-  setupMouse(); prog(100); setTimeout(function() { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) ld.classList.add('hidden'); }, 200);
+  setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
 }
 
 // ═══════ BOOT
@@ -986,42 +974,7 @@ async function boot() {
   prompt.classList.add('show');
   document.getElementById('btn-cam').onclick = startCam;
   document.getElementById('btn-skip').onclick = skipCam;
-  // Pull-to-refresh gesture
-  // Preload models function
-  window._modelList = ["hand_landmark_lite.tflite","hands_solution_packed_assets.data","hands_solution_wasm_bin.wasm","hands_solution_simd_wasm_bin.wasm","hands.binarypb"];
-  window.preloadModels = function(updateCb) {
-    return Promise.all(window._modelList.map(function(f) {
-      return fetch("./"+f, {cache:"force-cache"}).then(function(r) {
-        if (updateCb) updateCb();
-        return r.blob();
-      }).catch(function() {
-        if (updateCb) updateCb();
-      });
-    }));
-  };
-  var _touchStart = 0, _touchY = 0, _pulling = false;
-  document.addEventListener('touchstart', function(e) {
-    if (window.scrollY > 5) return;
-    _touchStart = e.touches[0].clientY;
-    _pulling = true;
-  }, {passive: true});
-  document.addEventListener('touchmove', function(e) {
-    if (!_pulling) return;
-    _touchY = e.touches[0].clientY;
-    var dist = _touchY - _touchStart;
-    if (dist > 60) {
-      document.getElementById('pull-refresh').classList.add('show');
-    }
-  }, {passive: true});
-  document.addEventListener('touchend', function() {
-    if (!_pulling) return;
-    _pulling = false;
-    if ((_touchY - _touchStart) > 80) {
-      location.reload();
-    }
-    document.getElementById('pull-refresh').classList.remove('show');
-  }, {passive: true});
-  // Mobile hint
+  // Mobile: auto-show distHint
   setTimeout(function() { distHint.textContent = '手机用户如摄像头不可用，点\"鼠标/触控模式\"'; distHint.style.color = 'rgba(251,191,36,.6)'; }, 2000);
 
   let last = performance.now();
