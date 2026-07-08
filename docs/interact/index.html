@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v14-stable-v8-refresh-btn -->
+<!-- v=20260708-v15-diag-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -776,7 +776,7 @@ function onHand(r) {
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
     idle += 0.03;
     if (idle > 1.5) {
-      glTxt.textContent = window._modelReady ? '👋 等待手势' : '🔧 模型加载中...';
+      glTxt.textContent = '👋 等待手势';
       glNum.textContent = '-';
       glNum.classList.remove('ok');
     }
@@ -787,10 +787,6 @@ function onHand(r) {
     return;
   }
   idle = 0;
-  window._modelReady = true;
-  // Close loading on first hand detection
-  var ld = document.getElementById('loading');
-  if (ld && !ld.classList.contains('hidden')) { ld.classList.add('hidden'); if (window._loadP) { clearInterval(window._loadP); window._loadP = null; } if (window._loadTimeout) { clearTimeout(window._loadTimeout); window._loadTimeout = null; } }
   const lm = r.multiHandLandmarks[0];
   lastLM = lm;
 
@@ -942,6 +938,7 @@ function skipCam() {
 // ═══════ BOOT
 async function boot() {
   var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  prog(5, '诊断: ' + navigator.userAgent.substring(0, 30) + '...');
   var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   prog(10, '启动粒子...');
   try {
