@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v33-pure-v8-refresh-btn -->
+<!-- v=20260708-v35-var-hands-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -888,7 +888,7 @@ async function startCam() {
     video.srcObject = s;
     await video.play();
     prog(60, '加载手势模型...');
-    const hands = new Hands({ locateFile: function(f) { return './' + f; } });
+    var hands = new Hands({ locateFile: function(f) { return './' + f; } });
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
     prog(80, '模型加载中...');
@@ -906,13 +906,14 @@ async function startCam() {
       prog(100);
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
     }, 40000);
-    (function processFrame() {
+    var processFrame = function processFrame() {
       if (!mpReady) return;
       mpReady = false;
       try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
       if (++frameCount < 5) setTimeout(processFrame, 100);
       else requestAnimationFrame(processFrame);
-    })();
+    };
+    processFrame();
     await new Promise(function(r) { setTimeout(r, 200); });
     prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
   } catch(e) {
