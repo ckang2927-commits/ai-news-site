@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v18-speed-up-v8-refresh-btn -->
+<!-- v=20260708-v19-fix-all-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -898,7 +898,7 @@ async function startCam() {
     video.srcObject = s;
     await video.play();
     prog(60, '加载手势模型...');
-    const hands = new Hands({ locateFile: function(f) { return './' + f; } });
+    var hands = new Hands({ locateFile: function(f) { return './' + f; } });
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
     prog(80, '模型加载中...');
@@ -983,6 +983,9 @@ async function boot() {
   prompt.classList.add('show');
   document.getElementById('btn-cam').onclick = startCam;
   document.getElementById('btn-skip').onclick = skipCam;
+  // Pre-warm model cache (non-blocking, starts download immediately)
+  var _modelFiles = ["hand_landmark_lite.tflite","hands_solution_packed_assets.data","hands_solution_wasm_bin.wasm","hands_solution_simd_wasm_bin.wasm","hands.binarypb"];
+  _modelFiles.forEach(function(f) { fetch('./'+f, {cache:'force-cache'}).catch(function(){}); });
   // Mobile: auto-show distHint
   setTimeout(function() { distHint.textContent = '手机用户如摄像头不可用，点\"鼠标/触控模式\"'; distHint.style.color = 'rgba(251,191,36,.6)'; }, 2000);
 
