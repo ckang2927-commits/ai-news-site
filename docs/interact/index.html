@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v41-stable-camera-loop -->
+<!-- v=20260708-v44-mobile-camera-performance -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:#070714;font-family:sans-serif;-webkit-font-smoothing:antialiased}
 canvas#main{position:fixed;top:0;left:0;width:100%;height:100%}
-canvas#debug{position:fixed;bottom:16px;right:16px;width:160px;height:120px;border-radius:12px;z-index:15;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);display:none}
+canvas#debug{position:fixed;bottom:16px;right:16px;width:176px;height:132px;border-radius:10px;z-index:15;background:rgba(4,8,18,.78);border:1px solid rgba(255,255,255,.08);display:none}
 canvas#debug.show{display:block}
 #loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070714;z-index:1000;transition:opacity .8s}
 #loading.hidden{opacity:0;pointer-events:none}
@@ -46,13 +46,13 @@ canvas#debug.show{display:block}
 #prompt .btn1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
 #prompt .btn1:hover{transform:scale(1.04)}
 #prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
-video{position:fixed;top:-9999px;left:-9999px;width:320px;height:240px;opacity:0;pointer-events:none;z-index:-1}
+video{position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:.01;pointer-events:none;z-index:0;transform:translateZ(0)}
 @media(max-width:640px){
   #top{padding:0 10px}
   #gl{padding:3px 10px 3px 12px;border-radius:14px}
   #gl .txt{font-size:11px}
   #gl .num{width:24px;height:24px;font-size:14px}
-  canvas#debug{width:120px;height:90px;bottom:10px;right:10px}
+  canvas#debug{width:152px;height:114px;bottom:10px;right:10px}
   #guide{font-size:9px;bottom:48px}
   #dist-hint{font-size:8px;bottom:74px}
 }
@@ -68,7 +68,7 @@ video{position:fixed;top:-9999px;left:-9999px;width:320px;height:240px;opacity:0
 #rotate-prompt .r-skip{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px;border-radius:20px;cursor:pointer;margin-top:6px}
 @media(orientation:landscape){#rotate-prompt.show{display:none !important}}
 /* Mobile responsive */
-@media(max-width:640px){#gl .num{width:32px;height:32px;font-size:20px}#gl .txt{font-size:13px}#guide{font-size:9px;bottom:48px;opacity:0.6;transition:opacity 0.5s}#guide.fade{opacity:0}#dist-hint{font-size:9px;bottom:74px}canvas#debug{width:100px;height:75px;background:rgba(0,0,0,.7)}}
+@media(max-width:640px){#gl .num{width:32px;height:32px;font-size:20px}#gl .txt{font-size:13px}#guide{font-size:9px;bottom:48px;opacity:0.6;transition:opacity 0.5s}#guide.fade{opacity:0}#dist-hint{font-size:9px;bottom:74px}canvas#debug{width:156px;height:117px;background:rgba(0,0,0,.62)}}
 </style>
 </head>
 <body>
@@ -126,8 +126,10 @@ if (!THREE) {
 
 // ═══════ CONFIG
 const IS_MOBILE = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const IS_WECHAT = /MicroMessenger/i.test(navigator.userAgent);
+const LOW_POWER = IS_MOBILE;
 const C = {
-  N: IS_MOBILE ? 5000 : 8000,
+  N: IS_WECHAT ? 3000 : (IS_MOBILE ? 3600 : 8000),
   speed: 200,
   boom: 15,
   damp: 0.5,
@@ -137,7 +139,11 @@ const C = {
   cooldown: 0.5,
   smooth: 4
 };
-const HAND_FRAME_INTERVAL = IS_MOBILE ? 80 : 34;
+const HAND_FRAME_INTERVAL = IS_WECHAT ? 120 : (IS_MOBILE ? 100 : 34);
+const RENDER_FRAME_INTERVAL = LOW_POWER ? 33 : 0;
+const PARTICLE_SIZE_BOOST = IS_MOBILE ? 1.42 : 1.0;
+const PARTICLE_BRIGHTNESS = IS_MOBILE ? 1.58 : 1.0;
+const MODEL_INIT_TIMEOUT = IS_WECHAT ? 90000 : (IS_MOBILE ? 75000 : 30000);
 
 // ═══════ DOM
 const $ = s => document.querySelector(s);
@@ -338,8 +344,8 @@ function drawHand(lm, ctx, w, h) {
   ];
 
   // Lines
-  ctx.strokeStyle = 'rgba(6,182,212,.35)';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(34,211,238,.72)';
+  ctx.lineWidth = 2.2;
   for (const [i,j] of connections) {
     ctx.beginPath();
     ctx.moveTo(lm[i].x*w, lm[i].y*h);
@@ -354,14 +360,14 @@ function drawHand(lm, ctx, w, h) {
     const t = lm[tips[f]];
     ctx.fillStyle = colors[f];
     ctx.beginPath();
-    ctx.arc(t.x*w, t.y*h, 4, 0, Math.PI*2);
+    ctx.arc(t.x*w, t.y*h, 5, 0, Math.PI*2);
     ctx.fill();
   }
 
   // Wrist dot
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = '#cbd5e1';
   ctx.beginPath();
-  ctx.arc(lm[0].x*w, lm[0].y*h, 3, 0, Math.PI*2);
+  ctx.arc(lm[0].x*w, lm[0].y*h, 4, 0, Math.PI*2);
   ctx.fill();
 }
 
@@ -402,13 +408,13 @@ class PS {
   _gl() {
     try {
       prog(30, '初始化WebGL...');
-      this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
+      this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: !LOW_POWER, powerPreference: LOW_POWER ? 'low-power' : 'high-performance' });
     } catch(e) {
       console.error('WebGL init failed:', e);
       document.getElementById('loading').querySelector('p').textContent = '⚠️ WebGL初始化失败: ' + e.message;
       throw e;
     }
-    this.r.setPixelRatio(Math.min(devicePixelRatio, 2));
+    this.r.setPixelRatio(Math.min(devicePixelRatio || 1, LOW_POWER ? 1.5 : 2));
     this.r.setSize(innerWidth, innerHeight);
     this.r.setClearColor(0x070714);
 
@@ -417,7 +423,7 @@ class PS {
     this.c.position.z = 5.5;
 
     // Stars
-    this.starCount = 500;
+    this.starCount = LOW_POWER ? 260 : 500;
     this.starPos = new Float32Array(this.starCount*3);
     for (let i = 0; i < this.starCount; i++) {
       this.starPos[i*3] = (Math.random()-.5)*50;
@@ -426,12 +432,12 @@ class PS {
     }
     const sg = new THREE.BufferGeometry();
     sg.setAttribute('position', new THREE.BufferAttribute(this.starPos, 3));
-    this.starMat = new THREE.PointsMaterial({ color: 0x334488, size: 0.025, transparent: true, opacity: 0.3 });
+    this.starMat = new THREE.PointsMaterial({ color: 0x5577cc, size: LOW_POWER ? 0.035 : 0.025, transparent: true, opacity: LOW_POWER ? 0.38 : 0.3 });
     this.starField = new THREE.Points(sg, this.starMat);
     this.s.add(this.starField);
 
     // Connector lines
-    const cn = 120;
+    const cn = LOW_POWER ? 55 : 120;
     this.cNodes = new Float32Array(cn*3);
     for (let i = 0; i < cn; i++) {
       this.cNodes[i*3] = (Math.random()-.5)*4;
@@ -441,31 +447,31 @@ class PS {
     this.cPairs = [];
     for (let i = 0; i < cn; i++)
       for (let j = i+1; j < cn; j++)
-        if (Math.random() < 0.05) this.cPairs.push([i,j]);
+        if (Math.random() < (LOW_POWER ? 0.025 : 0.05)) this.cPairs.push([i,j]);
 
     const lp = new Float32Array(this.cPairs.length*6);
     const lg = new THREE.BufferGeometry();
     lg.setAttribute('position', new THREE.BufferAttribute(lp, 3));
-    const lm = new THREE.LineBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.06, blending: THREE.AdditiveBlending });
+    const lm = new THREE.LineBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: LOW_POWER ? 0.035 : 0.06, blending: THREE.AdditiveBlending });
     this.lines = new THREE.LineSegments(lg, lm);
     this.s.add(this.lines);
     this._lp = lp;
 
     // Shape connector lines (neural network effect between particles)
-    this.sNodeCount = 180;
+    this.sNodeCount = LOW_POWER ? 70 : 180;
     this.sNodeIndices = new Uint16Array(this.sNodeCount);
     for (let i = 0; i < this.sNodeCount; i++) this.sNodeIndices[i] = Math.floor(Math.random() * this.N);
     this.sPairs = [];
     for (let i = 0; i < this.sNodeCount; i++) {
       for (let j = i+1; j < this.sNodeCount; j++) {
-        if (Math.random() < 0.035) this.sPairs.push([i,j]);
+        if (Math.random() < (LOW_POWER ? 0.018 : 0.035)) this.sPairs.push([i,j]);
       }
     }
     const slp = new Float32Array(this.sPairs.length*6);
     const slg = new THREE.BufferGeometry();
     slg.setAttribute("position", new THREE.BufferAttribute(slp, 3));
     const slm = new THREE.LineBasicMaterial({
-      color: 0x6b6bff, transparent: true, opacity: 0.04,
+      color: 0x8b8bff, transparent: true, opacity: LOW_POWER ? 0.025 : 0.04,
       blending: THREE.AdditiveBlending
     });
     this.shapeLines = new THREE.LineSegments(slg, slm);
@@ -484,7 +490,7 @@ class PS {
       varying vec3 vc; varying float va;
       void main() {
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = size * (350.0 / -mv.z);
+        gl_PointSize = size * ${PARTICLE_SIZE_BOOST.toFixed(2)} * (350.0 / -mv.z);
         gl_Position = projectionMatrix * mv;
         vc = color; va = 0.6 + 0.4 * (1.0 - abs(position.x) / 8.0);
       }
@@ -495,9 +501,9 @@ class PS {
         vec2 c = gl_PointCoord - vec2(0.5);
         float d = length(c);
         if (d > 0.5) discard;
-        float a = smoothstep(0.5, 0.0, d) * va * 0.85;
+        float a = smoothstep(0.5, 0.0, d) * va * ${IS_MOBILE ? '0.98' : '0.85'};
         float g = exp(-d * 12.0);
-        vec3 col = vc + vec3(0.15, 0.2, 0.25) * g;
+        vec3 col = (vc * ${PARTICLE_BRIGHTNESS.toFixed(2)}) + vec3(0.25, 0.32, 0.42) * g;
         gl_FragColor = vec4(col, a);
       }
     `;
@@ -516,10 +522,11 @@ class PS {
     const tg = new THREE.BufferGeometry();
     tg.setAttribute("position", new THREE.BufferAttribute(this.trailPos, 3));
     const tm = new THREE.PointsMaterial({
-      color: 0x4488ff, size: 0.01, transparent: true, opacity: 0.08,
+      color: 0x66aaff, size: LOW_POWER ? 0.012 : 0.01, transparent: true, opacity: LOW_POWER ? 0.0 : 0.08,
       blending: THREE.AdditiveBlending, depthWrite: false
     });
     this.trailMesh = new THREE.Points(tg, tm);
+    this.trailMesh.visible = !LOW_POWER;
     this.s.add(this.trailMesh);
 
     onresize = () => {
@@ -612,6 +619,7 @@ class PS {
 
   update(dt) {
     dt = Math.min(dt, 0.05);
+    this._frameCount = (this._frameCount || 0) + 1;
     this.rot += dt * 0.06;
 
     // Entrance phase: particles gently awaken from starfield
@@ -752,9 +760,8 @@ class PS {
     this.storm.x *= damp; this.storm.y *= damp; this.storm.z *= damp;
     this.mesh.geometry.attributes.position.needsUpdate = true;
 
-    // Trail: ghost particles chase current positions (every other frame)
-    this._frameCount = (this._frameCount || 0) + 1;
-    if (this._frameCount % 2 === 0) {
+    // Trail: ghost particles chase current positions (desktop only)
+    if (!LOW_POWER && this._frameCount % 2 === 0) {
       const trailSpd = this.boom ? 0.06 : 0.025;
       for (let i = 0; i < this.N * 3; i++)
         this.trailPos[i] += (this.pos[i] - this.trailPos[i]) * trailSpd;
@@ -795,13 +802,15 @@ function drawDebugState(text, lm) {
   const dc = debugCtx();
   if (!dc) return;
   dc.clearRect(0, 0, DEBUG_W, DEBUG_H);
-  if (video.srcObject && video.readyState >= 2 && video.videoWidth > 0) {
-    dc.globalAlpha = 0.72;
-    dc.drawImage(video, 0, 0, DEBUG_W, DEBUG_H);
-    dc.globalAlpha = 1;
-  } else {
-    dc.fillStyle = 'rgba(0,0,0,.75)';
-    dc.fillRect(0, 0, DEBUG_W, DEBUG_H);
+  dc.fillStyle = 'rgba(4,8,18,.86)';
+  dc.fillRect(0, 0, DEBUG_W, DEBUG_H);
+  dc.strokeStyle = 'rgba(148,163,184,.12)';
+  dc.lineWidth = 1;
+  for (let x = 20; x < DEBUG_W; x += 20) {
+    dc.beginPath(); dc.moveTo(x, 0); dc.lineTo(x, DEBUG_H); dc.stroke();
+  }
+  for (let y = 20; y < DEBUG_H; y += 20) {
+    dc.beginPath(); dc.moveTo(0, y); dc.lineTo(DEBUG_W, y); dc.stroke();
   }
   if (lm) drawHand(lm, dc, DEBUG_W, DEBUG_H);
   if (text) {
@@ -942,13 +951,13 @@ function stopCamera() {
 }
 
 function startModelProgress() {
-  clearCameraTimers();
-  let p = 72;
-  prog(p, '加载手势模型...');
+  clearModelProgress();
+  let p = 76;
+  prog(p, IS_MOBILE ? '首次加载手势模型，请稍等...' : '加载手势模型...');
   loadProgressTimer = setInterval(function() {
-    p = Math.min(96, p + 1);
-    prog(p, '加载手势模型 ' + Math.round((p - 72) / 24 * 100) + '%');
-  }, 600);
+    p = Math.min(98, p + 1);
+    prog(p, '加载手势模型 ' + Math.round((p - 76) / 22 * 100) + '%');
+  }, IS_MOBILE ? 1000 : 600);
 }
 
 function clearModelProgress() {
@@ -956,6 +965,13 @@ function clearModelProgress() {
     clearInterval(loadProgressTimer);
     loadProgressTimer = 0;
   }
+}
+
+function progWarmup(p, t) {
+  const ld = document.getElementById('loading');
+  if (!ld || ld.classList.contains('hidden')) return;
+  if (!cameraStarting && prompt.classList.contains('show')) return;
+  prog(p, t);
 }
 
 function withTimeout(promise, ms, message) {
@@ -966,23 +982,73 @@ function withTimeout(promise, ms, message) {
   return Promise.race([promise, timeout]).finally(function() { clearTimeout(timer); });
 }
 
-async function getCameraStream(token) {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new Error('当前浏览器不支持摄像头访问');
+let modelWarmupPromise = null;
+let simdSupportPromise = null;
+
+function supportsWasmSimd() {
+  if (!simdSupportPromise) {
+    const simdCheck = new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,3,2,1,0,10,9,1,7,0,65,0,253,15,26,11]);
+    simdSupportPromise = WebAssembly.instantiate(simdCheck).then(function() { return true; }, function() { return false; });
   }
-  const ideal = IS_MOBILE ? { width: 320, height: 240, fps: 24 } : { width: 640, height: 480, fps: 30 };
+  return simdSupportPromise;
+}
+
+async function warmModelFiles() {
+  if (!IS_MOBILE || typeof fetch !== 'function' || typeof WebAssembly !== 'object') return;
+  if (!modelWarmupPromise) {
+    modelWarmupPromise = (async function() {
+      const simd = await supportsWasmSimd();
+      const runtime = simd ? 'hands_solution_simd_wasm_bin' : 'hands_solution_wasm_bin';
+      const files = [
+        './hands.binarypb',
+        './hands_solution_packed_assets_loader.js',
+        './hands_solution_packed_assets.data',
+        './hand_landmark_lite.tflite',
+        './' + runtime + '.js',
+        './' + runtime + '.wasm'
+      ];
+      for (let i = 0; i < files.length; i++) {
+        progWarmup(Math.min(74, 66 + i), '预热手势模型...');
+        const res = await fetch(files[i], { cache: 'force-cache' });
+        if (!res.ok) throw new Error('模型资源加载失败: ' + files[i]);
+        await res.arrayBuffer();
+      }
+    })().catch(function(e) {
+      console.warn('Model warmup skipped:', e);
+    });
+  }
+  return modelWarmupPromise;
+}
+
+function getUserMediaCompat(constraints) {
+  const md = navigator.mediaDevices;
+  if (md && typeof md.getUserMedia === 'function') return md.getUserMedia.call(md, constraints);
+  const legacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+  if (legacy) {
+    return new Promise(function(resolve, reject) {
+      legacy.call(navigator, constraints, resolve, reject);
+    });
+  }
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    return Promise.reject(new Error('摄像头需要 HTTPS 安全访问'));
+  }
+  return Promise.reject(new Error('当前浏览器不支持摄像头访问'));
+}
+
+async function getCameraStream(token) {
+  const ideal = IS_MOBILE ? { width: 320, height: 240, fps: IS_WECHAT ? 20 : 24 } : { width: 640, height: 480, fps: 30 };
   let timedOut = false;
-  const openCamera = navigator.mediaDevices.getUserMedia({
+  const openCamera = getUserMediaCompat({
     audio: false,
     video: {
-      facingMode: 'user',
+      facingMode: { ideal: 'user' },
       width: { ideal: ideal.width },
       height: { ideal: ideal.height },
       frameRate: { ideal: ideal.fps, max: 30 }
     }
   }).catch(function(primaryError) {
     console.warn('Preferred camera constraints failed, retrying with browser defaults:', primaryError);
-    return navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+    return getUserMediaCompat({ audio: false, video: true });
   }).then(function(stream) {
     if (timedOut || token !== cameraToken) {
       stream.getTracks().forEach(function(t) { t.stop(); });
@@ -1065,6 +1131,8 @@ async function startCam() {
     if (token !== cameraToken) return;
     drawDebugState('摄像头已打开', null);
     prog(64, '摄像头已打开');
+    await warmModelFiles();
+    if (token !== cameraToken) return;
 
     const hands = new HandsCtor({ locateFile: function(f) { return './' + f; } });
     activeHands = hands;
@@ -1073,7 +1141,7 @@ async function startCam() {
       if (token === cameraToken) onHand(results);
     });
     startModelProgress();
-    if (hands.initialize) await withTimeout(hands.initialize(), 30000, '手势模型加载超时');
+    if (hands.initialize) await withTimeout(hands.initialize(), MODEL_INIT_TIMEOUT, '手势模型加载超时');
     clearModelProgress();
     if (token !== cameraToken) return;
 
@@ -1121,6 +1189,7 @@ async function startCam() {
     prog(100, '手势识别已启动');
     hideLoading(200);
   } catch(e) {
+    clearModelProgress();
     console.warn('Camera init failed:', e);
     stopCamera();
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
@@ -1182,6 +1251,7 @@ async function boot() {
   prompt.classList.add('show');
   document.getElementById('btn-cam').onclick = startCam;
   document.getElementById('btn-skip').onclick = skipCam;
+  if (IS_MOBILE) warmModelFiles();
   if (IS_MOBILE) {
     setTimeout(function() {
       if (!cameraStarting && !cameraRunning && prompt.classList.contains('show')) {
@@ -1192,10 +1262,15 @@ async function boot() {
   }
 
   let last = performance.now();
+  let lastRender = 0;
   function loop() {
-    const n = performance.now(), dt = (n-last)/1000;
-    last = n;
-    if (ps) { ps.update(dt); ps.render(); }
+    const n = performance.now();
+    if (!RENDER_FRAME_INTERVAL || n - lastRender >= RENDER_FRAME_INTERVAL) {
+      const dt = (n-last)/1000;
+      last = n;
+      lastRender = n;
+      if (ps) { ps.update(dt); ps.render(); }
+    }
     requestAnimationFrame(loop);
   }
   loop();
