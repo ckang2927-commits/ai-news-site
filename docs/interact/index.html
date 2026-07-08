@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v39-mobile-fixera-release-v8-refresh-btn -->
+<!-- v=20260708-v41-stable-camera-loop -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -42,10 +42,11 @@ canvas#debug.show{display:block}
 #prompt p{color:#94a3b8;font-size:12px;text-align:center;max-width:260px;line-height:1.5;margin-bottom:14px}
 #prompt .row{display:flex;flex-direction:column;gap:6px;align-items:center}
 #prompt button{padding:8px 28px;border-radius:20px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+#prompt button:disabled{opacity:.62;cursor:progress;transform:none}
 #prompt .btn1{background:linear-gradient(135deg,#06b6d4,#6366f1);color:#fff}
 #prompt .btn1:hover{transform:scale(1.04)}
 #prompt .btn2{background:transparent;color:#64748b;border:1px solid rgba(255,255,255,.07);padding:6px 16px;font-size:11px}
-video{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1}
+video{position:fixed;top:-9999px;left:-9999px;width:320px;height:240px;opacity:0;pointer-events:none;z-index:-1}
 @media(max-width:640px){
   #top{padding:0 10px}
   #gl{padding:3px 10px 3px 12px;border-radius:14px}
@@ -106,7 +107,7 @@ video{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-even
   <button class="r-btn" id="btn-landscape-ok">已旋转</button>
   <button class="r-skip" id="btn-landscape-skip">竖屏继续</button>
 </div>
-<video id="webcam" playsinline></video>
+<video id="webcam" autoplay muted playsinline webkit-playsinline></video>
 <canvas id="main"></canvas>
 <canvas id="debug"></canvas>
 
@@ -124,8 +125,9 @@ if (!THREE) {
 }
 
 // ═══════ CONFIG
+const IS_MOBILE = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const C = {
-  N: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 5000 : 8000,
+  N: IS_MOBILE ? 5000 : 8000,
   speed: 200,
   boom: 15,
   damp: 0.5,
@@ -135,6 +137,7 @@ const C = {
   cooldown: 0.5,
   smooth: 4
 };
+const HAND_FRAME_INTERVAL = IS_MOBILE ? 80 : 34;
 
 // ═══════ DOM
 const $ = s => document.querySelector(s);
@@ -323,7 +326,6 @@ function smooth(v) {
 
 // ═══════ DEBUG SKETCH
 function drawHand(lm, ctx, w, h) {
-  ctx.clearRect(0, 0, w, h);
   if (!lm) return;
 
   const connections = [
@@ -771,6 +773,46 @@ let ps;
 let hpos = [];
 let prevK = -1, cd = 0, idle = 0;
 let lastLM = null;
+const DEBUG_W = 160, DEBUG_H = 120;
+
+function debugCtx() {
+  const dc = debugCanvas.getContext('2d');
+  if (!dc) return null;
+  const dpr = devicePixelRatio || 1;
+  const w = Math.max(1, debugCanvas.clientWidth || DEBUG_W);
+  const h = Math.max(1, debugCanvas.clientHeight || DEBUG_H);
+  const pw = Math.round(w * dpr), ph = Math.round(h * dpr);
+  if (debugCanvas.width !== pw || debugCanvas.height !== ph) {
+    debugCanvas.width = pw;
+    debugCanvas.height = ph;
+  }
+  dc.setTransform(pw / DEBUG_W, 0, 0, ph / DEBUG_H, 0, 0);
+  return dc;
+}
+
+function drawDebugState(text, lm) {
+  if (!debugCanvas.classList.contains('show')) return;
+  const dc = debugCtx();
+  if (!dc) return;
+  dc.clearRect(0, 0, DEBUG_W, DEBUG_H);
+  if (video.srcObject && video.readyState >= 2 && video.videoWidth > 0) {
+    dc.globalAlpha = 0.72;
+    dc.drawImage(video, 0, 0, DEBUG_W, DEBUG_H);
+    dc.globalAlpha = 1;
+  } else {
+    dc.fillStyle = 'rgba(0,0,0,.75)';
+    dc.fillRect(0, 0, DEBUG_W, DEBUG_H);
+  }
+  if (lm) drawHand(lm, dc, DEBUG_W, DEBUG_H);
+  if (text) {
+    dc.fillStyle = 'rgba(7,7,20,.58)';
+    dc.fillRect(0, DEBUG_H - 24, DEBUG_W, 24);
+    dc.fillStyle = 'rgba(226,232,240,.9)';
+    dc.font = '10px sans-serif';
+    dc.textAlign = 'center';
+    dc.fillText(text, DEBUG_W / 2, DEBUG_H - 9);
+  }
+}
 
 function onHand(r) {
   if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
@@ -781,9 +823,7 @@ function onHand(r) {
       glNum.classList.remove('ok');
     }
     lastLM = null;
-    // Clear debug
-    const dc = debugCanvas.getContext('2d');
-    if (dc) dc.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+    drawDebugState('请把手放入画面', null);
     return;
   }
   idle = 0;
@@ -822,30 +862,18 @@ function onHand(r) {
     ps.setTarget(k);
   }
 
-  // Draw debug
-  const dc = debugCanvas.getContext('2d');
-  if (dc && debugCanvas.classList.contains('show')) {
-    dc.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
-    if (!r.multiHandLandmarks || !r.multiHandLandmarks.length) {
-      dc.fillStyle = 'rgba(148,163,184,.3)';
-      dc.font = '11px sans-serif'; dc.textAlign = 'center';
-      dc.fillText('等待手势...', 60, 45);
-      return;
-    }
-    debugCanvas.width = debugCanvas.clientWidth * (devicePixelRatio||1);
-    debugCanvas.height = debugCanvas.clientHeight * (devicePixelRatio||1);
-    const s = debugCanvas.width / 160;
-    dc.scale(s, s);
-    drawHand(lm, dc, 160, 120);
-  }
+  drawDebugState('识别正常', lm);
 }
 
 // ═══════ MOUSE
 let mpos = [];
 let cycle = 0;
 const CYCLE = [0,1,2,3,4,5];
+let mouseReady = false;
 
 function setupMouse() {
+  if (mouseReady) return;
+  mouseReady = true;
   const h = (x,y) => {
     mpos.push({x,y});
     if (mpos.length > 6) mpos.shift();
@@ -860,86 +888,269 @@ function setupMouse() {
   mainCanvas.addEventListener('click', () => { if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); });
   mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); const t=e.touches[0]; h(t.clientX/innerWidth, t.clientY/innerHeight); }, {passive:false});
   mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); if(!ps)return; cycle=(cycle+1)%CYCLE.length; ps.setTarget(CYCLE[cycle]); }, {passive:false});
-    setTimeout(() => { if(ps) { ps.setTarget(0); glNum.textContent='0'; glNum.classList.add('ok'); glTxt.textContent='0 · 星空'; } }, 600);
+  setTimeout(() => { if(ps) { ps.setTarget(0); glNum.textContent='0'; glNum.classList.add('ok'); glTxt.textContent='0 · 星空'; } }, 600);
 }
 
 // ═══════ CAMERA
-async function startCam() {
-  var _camP = (function() { try { return navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'}}).catch(function(){ return navigator.mediaDevices.getUserMedia({video:{width:320,height:240}}); }); } catch(e) { return Promise.reject(e); } })();
-  prompt.classList.remove('show');
-  guide.classList.add('hidden');
-  distHint.classList.remove('hidden');
-  debugCanvas.classList.add('show');
-  // Auto-hide guide on mobile after 3s
-  setTimeout(function() {
-    var g = document.getElementById('guide');
-    if (g) g.classList.add('fade');
-  }, 3000);
+let cameraStarting = false;
+let cameraRunning = false;
+let cameraToken = 0;
+let activeHands = null;
+let activeStream = null;
+let frameReq = 0;
+let loadProgressTimer = 0;
+let lastHandFrameTime = 0;
 
-  // Camera timeout: 15s fallback
-  const camTimeout = new Promise(function(_, reject) {
-    setTimeout(function() { reject(new Error('摄像头启动超时，请检查权限设置')); }, 20000);
-  });
-  try {
-    const s = await Promise.race([
-      _camP,
-      camTimeout
-    ]);
-    video.srcObject = s;
-    await video.play();
-    prog(60, '加载手势模型...');
-    var hands = new Hands({ locateFile: function(f) { return './' + f; } });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
-    hands.onResults(onHand);
-    prog(80, '模型加载中...');
-    var frameCount = 0;
-    var mpReady = true;
-    // Show progress while model loads
-    var _loadP = 80;
-    window._loadP = setInterval(function() {
-      _loadP = Math.min(98, _loadP + 0.5);
-      prog(_loadP, '下载模型 ' + Math.floor((_loadP - 80) * 1.67) + '%');
-    }, 800);
-    // Auto-complete after 40s (model should be loaded by then)
-    window._loadTimeout = setTimeout(function() {
-      if (window._loadP) { clearInterval(window._loadP); window._loadP = null; }
-      prog(100);
-      setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
-    }, 40000);
-    var processFrame = function processFrame() {
-      if (!mpReady) return;
-      mpReady = false;
-      try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
-      if (++frameCount < 5) setTimeout(processFrame, 100);
-      else requestAnimationFrame(processFrame);
-    };
-    processFrame();
-    await new Promise(function(r) { setTimeout(r, 200); });
-    prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
-  } catch(e) {
-    console.warn('Camera init failed:', e);
-    glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
-    debugCanvas.classList.remove('show');
-    distHint.textContent = '⚠️ 摄像头不可用: ' + (e.message||'未知错误') + ' · 已切换鼠标模式';
-    setTimeout(function() { distHint.textContent = '点击屏幕切换形态 · 快速滑动起风暴'; }, 5000);
-    setupMouse(); prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function hideLoading(delay = 200) {
+  setTimeout(function() {
+    const ld = document.getElementById('loading');
+    if (ld) ld.classList.add('hidden');
+  }, delay);
+}
+
+function clearCameraTimers() {
+  if (loadProgressTimer) {
+    clearInterval(loadProgressTimer);
+    loadProgressTimer = 0;
+  }
+  if (frameReq) {
+    cancelAnimationFrame(frameReq);
+    frameReq = 0;
   }
 }
 
+function stopCamera() {
+  cameraToken += 1;
+  cameraRunning = false;
+  lastHandFrameTime = 0;
+  clearCameraTimers();
+  if (activeHands) {
+    const hands = activeHands;
+    activeHands = null;
+    try {
+      const closePromise = hands.close && hands.close();
+      if (closePromise && closePromise.catch) closePromise.catch(function(e) { console.warn('Hands close failed:', e); });
+    } catch(e) { console.warn('Hands close failed:', e); }
+  }
+  const stream = activeStream || video.srcObject;
+  if (stream) stream.getTracks().forEach(function(t) { try { t.stop(); } catch(e) {} });
+  activeStream = null;
+  video.srcObject = null;
+  try { video.pause(); } catch(e) {}
+}
 
+function startModelProgress() {
+  clearCameraTimers();
+  let p = 72;
+  prog(p, '加载手势模型...');
+  loadProgressTimer = setInterval(function() {
+    p = Math.min(96, p + 1);
+    prog(p, '加载手势模型 ' + Math.round((p - 72) / 24 * 100) + '%');
+  }, 600);
+}
+
+function clearModelProgress() {
+  if (loadProgressTimer) {
+    clearInterval(loadProgressTimer);
+    loadProgressTimer = 0;
+  }
+}
+
+function withTimeout(promise, ms, message) {
+  let timer = 0;
+  const timeout = new Promise(function(_, reject) {
+    timer = setTimeout(function() { reject(new Error(message)); }, ms);
+  });
+  return Promise.race([promise, timeout]).finally(function() { clearTimeout(timer); });
+}
+
+async function getCameraStream(token) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error('当前浏览器不支持摄像头访问');
+  }
+  const ideal = IS_MOBILE ? { width: 320, height: 240, fps: 24 } : { width: 640, height: 480, fps: 30 };
+  let timedOut = false;
+  const openCamera = navigator.mediaDevices.getUserMedia({
+    audio: false,
+    video: {
+      facingMode: 'user',
+      width: { ideal: ideal.width },
+      height: { ideal: ideal.height },
+      frameRate: { ideal: ideal.fps, max: 30 }
+    }
+  }).catch(function(primaryError) {
+    console.warn('Preferred camera constraints failed, retrying with browser defaults:', primaryError);
+    return navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+  }).then(function(stream) {
+    if (timedOut || token !== cameraToken) {
+      stream.getTracks().forEach(function(t) { t.stop(); });
+      throw new Error('摄像头启动已取消');
+    }
+    return stream;
+  });
+  const timeout = sleep(30000).then(function() {
+    timedOut = true;
+    throw new Error('摄像头启动超时，请检查浏览器权限');
+  });
+  return Promise.race([openCamera, timeout]);
+}
+
+function isVideoReady() {
+  return video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0;
+}
+
+function waitForVideoReady(ms) {
+  if (isVideoReady()) return Promise.resolve();
+  return new Promise(function(resolve, reject) {
+    let raf = 0;
+    let done = false;
+    const events = ['loadedmetadata', 'loadeddata', 'canplay', 'playing'];
+    const cleanup = function() {
+      events.forEach(function(name) { video.removeEventListener(name, check); });
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
+    const finish = function(fn, value) {
+      if (done) return;
+      done = true;
+      cleanup();
+      fn(value);
+    };
+    const timer = setTimeout(function() {
+      finish(reject, new Error('摄像头已授权，但没有输出画面'));
+    }, ms);
+    function check() {
+      if (isVideoReady()) finish(resolve);
+      else raf = requestAnimationFrame(check);
+    }
+    events.forEach(function(name) { video.addEventListener(name, check); });
+    check();
+  });
+}
+
+async function startCam() {
+  if (cameraStarting) return;
+  cameraStarting = true;
+  stopCamera();
+  const token = cameraToken;
+  const camBtn = document.getElementById('btn-cam');
+  const skipBtn = document.getElementById('btn-skip');
+  if (camBtn) camBtn.disabled = true;
+  if (skipBtn) skipBtn.disabled = true;
+  prompt.classList.remove('show');
+  guide.classList.add('hidden');
+  distHint.classList.remove('hidden');
+  distHint.style.color = 'rgba(148,163,184,.35)';
+  debugCanvas.classList.add('show');
+  drawDebugState('请求摄像头', null);
+  setTimeout(function() { var g=document.getElementById('guide'); if(g) g.classList.add('fade'); }, 3000);
+
+  try {
+    const HandsCtor = window.Hands;
+    if (!HandsCtor) throw new Error('手势识别库未加载');
+    prog(42, '请求摄像头权限...');
+    const stream = await getCameraStream(token);
+    if (token !== cameraToken) return;
+    activeStream = stream;
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.srcObject = stream;
+    await video.play();
+    await waitForVideoReady(IS_MOBILE ? 15000 : 10000);
+    if (token !== cameraToken) return;
+    drawDebugState('摄像头已打开', null);
+    prog(64, '摄像头已打开');
+
+    const hands = new HandsCtor({ locateFile: function(f) { return './' + f; } });
+    activeHands = hands;
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: IS_MOBILE ? 0.5 : 0.55, minTrackingConfidence: IS_MOBILE ? 0.35 : 0.45 });
+    hands.onResults(function(results) {
+      if (token === cameraToken) onHand(results);
+    });
+    startModelProgress();
+    if (hands.initialize) await withTimeout(hands.initialize(), 30000, '手势模型加载超时');
+    clearModelProgress();
+    if (token !== cameraToken) return;
+
+    cameraRunning = true;
+    hpos = [];
+    hist = [];
+    prevK = -1;
+    cd = 0;
+    idle = 0;
+    lastLM = null;
+    lastHandFrameTime = 0;
+    glTxt.textContent = '👋 等待手势';
+    glNum.textContent = '-';
+    glNum.classList.remove('ok');
+    distHint.textContent = '📏 距离摄像头 30~50cm · 手掌正对镜头 · 手指分开';
+    drawDebugState('识别启动中', null);
+
+    async function processFrame() {
+      frameReq = 0;
+      if (!cameraRunning || token !== cameraToken) return;
+      if (!isVideoReady()) {
+        drawDebugState('等待摄像头画面', null);
+        frameReq = requestAnimationFrame(processFrame);
+        return;
+      }
+      const now = performance.now();
+      if (now - lastHandFrameTime < HAND_FRAME_INTERVAL) {
+        frameReq = requestAnimationFrame(processFrame);
+        return;
+      }
+      lastHandFrameTime = now;
+      try {
+        await hands.send({ image: video });
+      } catch(e) {
+        if (token === cameraToken) {
+          console.warn('Hands frame failed:', e);
+          drawDebugState('识别重试中', null);
+        }
+      } finally {
+        if (cameraRunning && token === cameraToken) frameReq = requestAnimationFrame(processFrame);
+      }
+    }
+
+    frameReq = requestAnimationFrame(processFrame);
+    prog(100, '手势识别已启动');
+    hideLoading(200);
+  } catch(e) {
+    console.warn('Camera init failed:', e);
+    stopCamera();
+    glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
+    debugCanvas.classList.remove('show');
+    distHint.style.color = 'rgba(251,191,36,.72)';
+    distHint.textContent = '⚠️ 摄像头不可用: ' + (e.message||'未知错误') + ' · 已切换鼠标模式';
+    setTimeout(function() { distHint.textContent = '点击屏幕切换形态 · 快速滑动起风暴'; }, 5000);
+    setupMouse();
+    prog(100, '已切换鼠标/触控模式');
+    hideLoading(200);
+  } finally {
+    cameraStarting = false;
+    if (camBtn) camBtn.disabled = false;
+    if (skipBtn) skipBtn.disabled = false;
+  }
+}
 
 function skipCam() {
+  stopCamera();
   prompt.classList.remove('show');
   setTimeout(function() { var g=document.getElementById('guide'); if(g) g.classList.add('fade'); }, 3000);
   glTxt.textContent = '🖱️ 鼠标模式 · 点击切换形态';
   debugCanvas.classList.remove('show');
-  setupMouse(); prog(100); setTimeout(() => $('#loading').classList.add('hidden'), 200);
+  setupMouse();
+  prog(100, '已切换鼠标/触控模式');
+  hideLoading(200);
 }
 
 // ═══════ BOOT
 async function boot() {
-  var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   prog(10, '启动粒子...');
   try {
     ps = new PS();
@@ -952,7 +1163,7 @@ async function boot() {
   await new Promise(r => setTimeout(r, 100));
 
   // Orientation check for mobile
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isMobile = IS_MOBILE;
   if (isMobile && window.innerWidth < window.innerHeight) {
     document.getElementById('rotate-prompt').classList.add('show');
     document.getElementById('btn-landscape-ok').onclick = function() {
@@ -971,8 +1182,14 @@ async function boot() {
   prompt.classList.add('show');
   document.getElementById('btn-cam').onclick = startCam;
   document.getElementById('btn-skip').onclick = skipCam;
-  // Mobile: auto-show distHint
-  setTimeout(function() { distHint.textContent = '手机用户如摄像头不可用，点\"鼠标/触控模式\"'; distHint.style.color = 'rgba(251,191,36,.6)'; }, 2000);
+  if (IS_MOBILE) {
+    setTimeout(function() {
+      if (!cameraStarting && !cameraRunning && prompt.classList.contains('show')) {
+        distHint.textContent = '手机用户如摄像头不可用，点\"鼠标/触控模式\"';
+        distHint.style.color = 'rgba(251,191,36,.6)';
+      }
+    }, 2000);
+  }
 
   let last = performance.now();
   function loop() {
@@ -999,8 +1216,7 @@ boot().catch(function(e) {
   }
 });
 window.addEventListener('beforeunload', function() {
-  var v = document.getElementById('webcam');
-  if (v && v.srcObject) { v.srcObject.getTracks().forEach(function(t) { t.stop(); }); }
+  stopCamera();
 });
 </script>
 </body>
