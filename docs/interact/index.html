@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v15-diag-v8-refresh-btn -->
+<!-- v=20260708-v16-wait-model-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -787,6 +787,14 @@ function onHand(r) {
     return;
   }
   idle = 0;
+  // Close loading on first hand detection
+  var ldEl = document.getElementById('loading');
+  if (ldEl && !ldEl.classList.contains('hidden')) {
+    prog(100, '模型就绪！');
+    setTimeout(function() { ldEl.classList.add('hidden'); }, 300);
+    if (window._loadP) { clearInterval(window._loadP); window._loadP = null; }
+    if (window._loadTimeout) { clearTimeout(window._loadTimeout); window._loadTimeout = null; }
+  }
   const lm = r.multiHandLandmarks[0];
   lastLM = lm;
 
@@ -905,7 +913,7 @@ async function startCam() {
       if (window._loadP) { clearInterval(window._loadP); window._loadP = null; }
       prog(100);
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
-    }, 40000);
+    }, 60000);
     (function processFrame() {
       if (!mpReady) return;
       mpReady = false;
@@ -913,15 +921,16 @@ async function startCam() {
       if (++frameCount < 5) setTimeout(processFrame, 100);
       else requestAnimationFrame(processFrame);
     })();
-    await new Promise(function(r) { setTimeout(r, 200); });
-    prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    // Loading stays until model ready or timeout
+    await new Promise(function(r) { setTimeout(r, 500); });
+    prog(99, '等待模型就绪...');
   } catch(e) {
     console.warn('Camera init failed:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
     debugCanvas.classList.remove('show');
     distHint.textContent = '⚠️ 摄像头不可用: ' + (e.message||'未知错误') + ' · 已切换鼠标模式';
     setTimeout(function() { distHint.textContent = '点击屏幕切换形态 · 快速滑动起风暴'; }, 5000);
-    setupMouse(); prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    setupMouse(); prog(100); setTimeout(function() { var ld = document.getElementById('loading'); if (ld && !ld.classList.contains('hidden')) ld.classList.add('hidden'); }, 300);
   }
 }
 
