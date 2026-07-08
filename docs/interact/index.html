@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v36-perf-v8-refresh-btn -->
+<!-- v=20260708-v37-camera-release-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -997,6 +997,10 @@ boot().catch(function(e) {
     var bar = ld.querySelector('.bar');
     if (bar) bar.style.display = 'none';
   }
+});
+window.addEventListener('beforeunload', function() {
+  var v = document.getElementById('webcam');
+  if (v && v.srcObject) { v.srcObject.getTracks().forEach(function(t) { t.stop(); }); }
 });
 </script>
 </body>
