@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v16-wait-model-v8-refresh-btn -->
+<!-- v=20260708-v17-smooth-load-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -399,8 +399,9 @@ class PS {
 
   _gl() {
     try {
-      prog(30, '初始化WebGL...');
+      prog(25, '创建WebGL上下文...');
       this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
+      prog(35, 'WebGL上下文就绪');
     } catch(e) {
       console.error('WebGL init failed:', e);
       document.getElementById('loading').querySelector('p').textContent = '⚠️ WebGL初始化失败: ' + e.message;
@@ -505,6 +506,7 @@ class PS {
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
     });
     prog(50, '创建粒子系统...');
+    prog(55, '编译着色器...');
     this.mesh = new THREE.Points(geo, mat);
     this.s.add(this.mesh);
 
@@ -950,6 +952,7 @@ async function boot() {
   prog(5, '诊断: ' + navigator.userAgent.substring(0, 30) + '...');
   var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   prog(10, '启动粒子...');
+  await new Promise(function(r) { setTimeout(r, 50); });
   try {
     ps = new PS();
   prog(60, '粒子系统创建完成');
