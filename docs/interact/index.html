@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v27-real-fast-v8-refresh-btn -->
+<!-- v=20260708-v28-fix-all-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -106,7 +106,7 @@ video{position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none}
   <button class="r-btn" id="btn-landscape-ok">已旋转</button>
   <button class="r-skip" id="btn-landscape-skip">竖屏继续</button>
 </div>
-<video id="webcam" playsinline></video>
+<video id="webcam" playsinline muted></video>
 <canvas id="main"></canvas>
 <canvas id="debug"></canvas>
 
@@ -906,15 +906,15 @@ async function startCam() {
       prog(100);
       setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
     }, 40000);
-    (function processFrame() {
+    var processFrame = function processFrame() {
       if (!mpReady) return;
       mpReady = false;
       try { hands.send({image:video}).then(function(){ mpReady = true; }).catch(function(){ mpReady = true; }); } catch(e) { mpReady = true; }
       if (++frameCount < 5) setTimeout(processFrame, 100);
       else requestAnimationFrame(processFrame);
-    })();
-    await new Promise(function(r) { setTimeout(r, 200); });
-    prog(100); setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+    };
+    processFrame();
+    // Loading closes via progress bar timeout, not prematurely
   } catch(e) {
     console.warn('Camera init failed:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
