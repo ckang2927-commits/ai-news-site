@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<!-- v=20260708-v19-fix-all-v8-refresh-btn -->
+<!-- v=20260708-v20-progress-redesign-v8-refresh-btn -->
 <title>✨ 粒子手势交互</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -126,9 +126,9 @@ if (!THREE) {
 // ═══════ CONFIG
 const C = {
   N: 12000,
-  speed: 150,
+  speed: 180,
   boom: 15,
-  damp: 0.55,
+  damp: 0.45,
   stormThresh: 0.015,
   stormPow: 28,
   depthSens: 0.5,
@@ -399,9 +399,9 @@ class PS {
 
   _gl() {
     try {
-      prog(25, '创建WebGL上下文...');
+      prog(10, '创建WebGL上下文...');
       this.r = new THREE.WebGLRenderer({ canvas: mainCanvas, antialias: true });
-      prog(35, 'WebGL上下文就绪');
+      prog(15, 'WebGL上下文就绪');
     } catch(e) {
       console.error('WebGL init failed:', e);
       document.getElementById('loading').querySelector('p').textContent = '⚠️ WebGL初始化失败: ' + e.message;
@@ -505,8 +505,8 @@ class PS {
       vertexShader: vs, fragmentShader: fs,
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
     });
-    prog(50, '创建粒子系统...');
-    prog(55, '编译着色器...');
+    prog(18, '创建粒子系统...');
+    prog(22, '编译着色器...');
     this.mesh = new THREE.Points(geo, mat);
     this.s.add(this.mesh);
 
@@ -789,13 +789,16 @@ function onHand(r) {
     return;
   }
   idle = 0;
-  // Close loading on first hand detection
-  var ldEl = document.getElementById('loading');
-  if (ldEl && !ldEl.classList.contains('hidden')) {
-    prog(100, '模型就绪！');
-    setTimeout(function() { ldEl.classList.add('hidden'); }, 300);
-    if (window._loadP) { clearInterval(window._loadP); window._loadP = null; }
-    if (window._loadTimeout) { clearTimeout(window._loadTimeout); window._loadTimeout = null; }
+  // Close loading after 5 stable detections
+  window._detCount = (window._detCount || 0) + 1;
+  if (window._detCount >= 5) {
+    var ldEl = document.getElementById('loading');
+    if (ldEl && !ldEl.classList.contains('hidden')) {
+      prog(100, 'AI模型就绪！');
+      setTimeout(function() { ldEl.classList.add('hidden'); }, 300);
+      if (window._loadP) { clearInterval(window._loadP); window._loadP = null; }
+      if (window._loadTimeout) { clearTimeout(window._loadTimeout); window._loadTimeout = null; }
+    }
   }
   const lm = r.multiHandLandmarks[0];
   lastLM = lm;
@@ -897,24 +900,24 @@ async function startCam() {
     ]);
     video.srcObject = s;
     await video.play();
-    prog(60, '加载手势模型...');
+    prog(50, '启动AI手势模型...');
     var hands = new Hands({ locateFile: function(f) { return './' + f; } });
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.3 });
     hands.onResults(onHand);
-    prog(80, '模型加载中...');
+    prog(55, '下载AI模型中...');
     var frameCount = 0;
     var mpReady = true;
     // Show progress while model loads
-    var _loadP = 80;
+    var _loadP = 62;
     window._loadP = setInterval(function() {
-      _loadP = Math.min(98, _loadP + 0.5);
-      prog(_loadP, '下载模型 ' + Math.floor((_loadP - 80) * 1.67) + '%');
+      _loadP = Math.min(88, _loadP + 0.5);
+      prog(_loadP, '加载AI模型... ' + Math.floor((_loadP - 60) * 3.3) + '%');
     }, 800);
     // Auto-complete after 40s (model should be loaded by then)
     window._loadTimeout = setTimeout(function() {
       if (window._loadP) { clearInterval(window._loadP); window._loadP = null; }
-      prog(100);
-      setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 200);
+      prog(100, '启动完成！');
+      setTimeout(function() { document.getElementById('loading').classList.add('hidden'); }, 300);
     }, 60000);
     (function processFrame() {
       if (!mpReady) return;
@@ -925,7 +928,7 @@ async function startCam() {
     })();
     // Loading stays until model ready or timeout
     await new Promise(function(r) { setTimeout(r, 500); });
-    prog(99, '等待模型就绪...');
+    prog(90, '等待手势识别...');
   } catch(e) {
     console.warn('Camera init failed:', e);
     glTxt.textContent = '🖱️ 鼠标模式 · 点击切换';
@@ -949,18 +952,18 @@ function skipCam() {
 // ═══════ BOOT
 async function boot() {
   var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  prog(5, '诊断: ' + navigator.userAgent.substring(0, 30) + '...');
+  prog(3, '启动引擎... ' + navigator.userAgent.substring(0, 30) + '...');
   var _isMob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  prog(10, '启动粒子...');
+  prog(5, '初始化图形引擎...');
   await new Promise(function(r) { setTimeout(r, 50); });
   try {
     ps = new PS();
-  prog(60, '粒子系统创建完成');
+  prog(28, '粒子系统创建完成');
   } catch(e) {
     prog(0, '');
     throw new Error('粒子初始化失败: ' + e.message);
   }
-  prog(70, '粒子系统就绪');
+  prog(32, '粒子系统就绪');
   await new Promise(r => setTimeout(r, 100));
 
   // Orientation check for mobile
@@ -985,7 +988,10 @@ async function boot() {
   document.getElementById('btn-skip').onclick = skipCam;
   // Pre-warm model cache (non-blocking, starts download immediately)
   var _modelFiles = ["hand_landmark_lite.tflite","hands_solution_packed_assets.data","hands_solution_wasm_bin.wasm","hands_solution_simd_wasm_bin.wasm","hands.binarypb"];
-  _modelFiles.forEach(function(f) { fetch('./'+f, {cache:'force-cache'}).catch(function(){}); });
+  _modelFiles.forEach(function(f) {
+    fetch('./'+f, {cache:'force-cache'}).then(function(r) { return r.blob(); }).catch(function(){});
+  });
+  prog(38, '预加载资源...')
   // Mobile: auto-show distHint
   setTimeout(function() { distHint.textContent = '手机用户如摄像头不可用，点\"鼠标/触控模式\"'; distHint.style.color = 'rgba(251,191,36,.6)'; }, 2000);
 
